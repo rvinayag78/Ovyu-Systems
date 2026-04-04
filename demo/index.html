@@ -466,6 +466,46 @@
   const progress = document.getElementById('progress');
   const totalScenes = scenes.length;
 
+  // ---- Voice (Web Speech API) ----
+  let dadVoice = null;
+
+  function loadVoices() {
+    return new Promise(resolve => {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length) { resolve(voices); return; }
+      speechSynthesis.addEventListener('voiceschanged', () => resolve(speechSynthesis.getVoices()), { once: true });
+    });
+  }
+
+  async function initVoice() {
+    const voices = await loadVoices();
+    // Prefer a deep male English voice
+    const preferred = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Bruce', 'Ralph'];
+    for (const name of preferred) {
+      const v = voices.find(v => v.name.includes(name));
+      if (v) { dadVoice = v; break; }
+    }
+    if (!dadVoice) {
+      dadVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male'))
+        || voices.find(v => v.lang.startsWith('en'))
+        || voices[0];
+    }
+  }
+
+  function speak(text, rate = 0.88, pitch = 0.85) {
+    return new Promise(resolve => {
+      speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      if (dadVoice) utter.voice = dadVoice;
+      utter.rate = rate;
+      utter.pitch = pitch;
+      utter.volume = 1;
+      utter.onend = resolve;
+      utter.onerror = resolve;
+      speechSynthesis.speak(utter);
+    });
+  }
+
   function setProgress(sceneIndex) {
     const pct = ((sceneIndex + 1) / totalScenes) * 100;
     progress.style.width = pct + '%';
@@ -607,10 +647,16 @@
     chat.appendChild(bubble);
     await wait(50);
     bubble.classList.add('visible');
+
+    // Speak creator lines aloud
+    if (msg.type === 'creator' && msg.voice) {
+      await speak(msg.text);
+    }
   }
 
   // ---- Main sequence ----
   async function run() {
+    speechSynthesis.cancel();
     // Reset
     document.getElementById('restart').classList.remove('visible');
     document.getElementById('chat').innerHTML = '';
@@ -673,8 +719,28 @@
     document.getElementById('restart').classList.add('visible');
   }
 
-  // Start
-  run();
+  // ---- Start overlay (browsers need a user gesture for audio) ----
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed; inset:0; background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    z-index:100; cursor:pointer; gap:16px;
+  `;
+  overlay.innerHTML = `
+    <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--text);opacity:0.9">Ovyu</div>
+    <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--accent)">Tap to begin</div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px">with voice · ~60 seconds</div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', async () => {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.5s ease';
+    await wait(500);
+    overlay.remove();
+    await initVoice();
+    run();
+  }, { once: true });
 
   // Replay
   document.getElementById('restart').addEventListener('click', () => {
