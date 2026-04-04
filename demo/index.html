@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ovyu — Demo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0b;
+      --bg-card: #141416;
+      --text: #e8e6e3;
+      --text-dim: #6b6966;
+      --accent: #c9a87c;
+      --accent-soft: rgba(201, 168, 124, 0.15);
+      --border: rgba(255,255,255,0.06);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #stage {
+      width: 100%;
+      max-width: 640px;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    .scene {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .scene.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .scene.fade-out {
+      opacity: 0;
+    }
+
+    /* ---- Typography ---- */
+    .label {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+
+    .prompt {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 32px;
+      line-height: 1.4;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 40px;
+    }
+
+    .prompt em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .typed-answer {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      font-weight: 300;
+      min-height: 120px;
+    }
+
+    .typed-answer .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* ---- Voice Waveform ---- */
+    .waveform-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 40px;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .wave-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .wave-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--bg);
+    }
+
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+      height: 32px;
+    }
+
+    .waveform .bar {
+      width: 3px;
+      border-radius: 2px;
+      background: var(--accent);
+      opacity: 0.4;
+      transition: height 0.15s ease, opacity 0.15s ease;
+    }
+
+    .waveform .bar.active {
+      opacity: 1;
+    }
+
+    .wave-time {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* ---- Chat ---- */
+    .chat {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 16px;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .chat-bubble.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .chat-bubble.recipient {
+      align-self: flex-end;
+      background: #1e3a5f;
+      color: #d1e4f6;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-bubble.creator {
+      align-self: flex-start;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble.creator .speaker {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .chat-bubble .typing-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .chat-bubble .typing-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      animation: dotPulse 1.2s infinite;
+    }
+
+    .chat-bubble .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-bubble .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotPulse {
+      0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+      30% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ---- Voice playback ---- */
+    .voice-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--accent);
+      opacity: 0.7;
+    }
+
+    .voice-indicator .mini-bars {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 14px;
+    }
+
+    .voice-indicator .mini-bars span {
+      width: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+      animation: miniWave 0.8s ease-in-out infinite alternate;
+    }
+
+    .voice-indicator .mini-bars span:nth-child(1) { height: 4px; animation-delay: 0s; }
+    .voice-indicator .mini-bars span:nth-child(2) { height: 8px; animation-delay: 0.1s; }
+    .voice-indicator .mini-bars span:nth-child(3) { height: 12px; animation-delay: 0.2s; }
+    .voice-indicator .mini-bars span:nth-child(4) { height: 6px; animation-delay: 0.3s; }
+    .voice-indicator .mini-bars span:nth-child(5) { height: 10px; animation-delay: 0.15s; }
+
+    @keyframes miniWave {
+      0% { transform: scaleY(0.5); }
+      100% { transform: scaleY(1.5); }
+    }
+
+    /* ---- Saved confirmation ---- */
+    .saved {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 32px;
+      font-size: 14px;
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .saved.visible { opacity: 1; }
+
+    .saved .check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .saved .check svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ---- End card ---- */
+    .end-card {
+      text-align: center;
+    }
+
+    .end-card .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 48px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .end-card .tagline {
+      font-size: 16px;
+      color: var(--text-dim);
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    .end-card .line {
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+      margin: 32px auto;
+      opacity: 0;
+      transition: opacity 0.8s ease 0.5s;
+    }
+
+    .end-card .line.visible { opacity: 1; }
+
+    .end-card .footer-text {
+      font-size: 13px;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.8s ease 1s;
+    }
+
+    .end-card .footer-text.visible { opacity: 0.5; }
+
+    /* ---- Transition overlay ---- */
+    .transition-label {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    /* ---- Restart ---- */
+    .restart-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 12px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.5s ease, color 0.2s ease;
+    }
+
+    .restart-btn.visible { opacity: 1; }
+    .restart-btn:hover { color: var(--accent); }
+
+    /* ---- Progress bar ---- */
+    .progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.5s ease;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div id="stage">
+
+  <!-- SCENE 0: Opening -->
+  <div class="scene" id="scene-0">
+    <p class="prompt" style="text-align:center; font-size: 28px;">
+      <em>What if the last thing<br>someone said to you<br>wasn't the last thing?</em>
+    </p>
+  </div>
+
+  <!-- SCENE 1: Creator label -->
+  <div class="scene" id="scene-1">
+    <div class="transition-label">The creator side</div>
+  </div>
+
+  <!-- SCENE 2: Who is this for? -->
+  <div class="scene" id="scene-2">
+    <div class="label">Step 1 of 3</div>
+    <p class="prompt">Who is this for?</p>
+    <div class="typed-answer" id="name-answer"></div>
+  </div>
+
+  <!-- SCENE 3: Guided question -->
+  <div class="scene" id="scene-3">
+    <div class="label">Step 2 of 3</div>
+    <p class="prompt">Tell Maya something<br>she doesn't know<br>about you.</p>
+    <div class="typed-answer" id="story-answer"></div>
+    <div class="waveform-container" id="waveform-box" style="opacity:0; transition: opacity 0.5s ease;">
+      <div class="wave-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="#0a0a0b" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="23" stroke="#0a0a0b" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="waveform" id="waveform"></div>
+      <div class="wave-time" id="wave-time">0:00</div>
+    </div>
+  </div>
+
+  <!-- SCENE 4: Saved -->
+  <div class="scene" id="scene-4">
+    <div class="label">Step 3 of 3</div>
+    <p class="prompt">Saved.</p>
+    <p style="font-size: 16px; line-height: 1.7; color: var(--text-dim); font-weight: 300;">
+      Maya will hear this in your voice,<br>in your words, when the time comes.
+    </p>
+    <div class="saved visible" style="margin-top: 40px;">
+      <div class="check">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <span>Voice captured · Memory stored · Consent recorded</span>
+    </div>
+  </div>
+
+  <!-- SCENE 5: Transition -->
+  <div class="scene" id="scene-5">
+    <div class="transition-label">Some time later · The recipient side</div>
+  </div>
+
+  <!-- SCENE 6: Recipient chat -->
+  <div class="scene" id="scene-6">
+    <div class="label">Maya's View</div>
+    <div class="chat" id="chat">
+      <!-- bubbles injected by JS -->
+    </div>
+  </div>
+
+  <!-- SCENE 7: End -->
+  <div class="scene" id="scene-7">
+    <div class="end-card">
+      <div class="logo">Ovyu</div>
+      <div class="tagline">A private legacy, from one person to another.</div>
+      <div class="line" id="end-line"></div>
+      <div class="footer-text" id="end-footer">Someone is going to build this. It should be built right.</div>
+    </div>
+  </div>
+
+</div>
+
+<button class="restart-btn" id="restart">↻ Replay</button>
+
+<script>
+  // ---- Utilities ----
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const scenes = document.querySelectorAll('.scene');
+  const progress = document.getElementById('progress');
+  const totalScenes = scenes.length;
+
+  function setProgress(sceneIndex) {
+    const pct = ((sceneIndex + 1) / totalScenes) * 100;
+    progress.style.width = pct + '%';
+  }
+
+  async function showScene(id) {
+    const el = document.getElementById(id);
+    const idx = Array.from(scenes).indexOf(el);
+    scenes.forEach(s => {
+      if (s.classList.contains('active')) {
+        s.classList.add('fade-out');
+        setTimeout(() => {
+          s.classList.remove('active', 'fade-out');
+          s.style.display = 'none';
+        }, 600);
+      }
+    });
+    await wait(700);
+    el.style.display = 'block';
+    requestAnimationFrame(() => {
+      el.classList.add('active');
+      setProgress(idx);
+    });
+    await wait(300);
+  }
+
+  // ---- Typewriter ----
+  async function typeText(elId, text, speed = 45) {
+    const el = document.getElementById(elId);
+    el.innerHTML = '<span class="cursor"></span>';
+    for (let i = 0; i < text.length; i++) {
+      const cursor = el.querySelector('.cursor');
+      const span = document.createTextNode(text[i]);
+      el.insertBefore(span, cursor);
+      await wait(speed);
+    }
+    await wait(400);
+    const cursor = el.querySelector('.cursor');
+    if (cursor) cursor.remove();
+  }
+
+  // ---- Waveform animation ----
+  function initWaveform() {
+    const container = document.getElementById('waveform');
+    container.innerHTML = '';
+    const barCount = 60;
+    for (let i = 0; i < barCount; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = '4px';
+      container.appendChild(bar);
+    }
+  }
+
+  async function animateWaveform(durationMs) {
+    const box = document.getElementById('waveform-box');
+    box.style.opacity = '1';
+    const bars = document.querySelectorAll('#waveform .bar');
+    const timeEl = document.getElementById('wave-time');
+    const startTime = Date.now();
+    const barCount = bars.length;
+
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = elapsed / durationMs;
+
+        // Update time
+        const secs = Math.floor(elapsed / 1000);
+        const ms = Math.floor((elapsed % 1000) / 100);
+        timeEl.textContent = `0:${String(secs).padStart(2,'0')}`;
+
+        // Animate bars
+        const activeIndex = Math.floor(progress * barCount);
+        bars.forEach((bar, i) => {
+          if (i <= activeIndex) {
+            bar.classList.add('active');
+            const h = 4 + Math.random() * 24;
+            bar.style.height = h + 'px';
+          }
+        });
+
+        if (elapsed >= durationMs) {
+          clearInterval(interval);
+          bars.forEach(b => {
+            b.classList.add('active');
+            b.style.height = (4 + Math.random() * 20) + 'px';
+          });
+          timeEl.textContent = '0:0' + Math.floor(durationMs / 1000);
+          resolve();
+        }
+      }, 80);
+    });
+  }
+
+  // ---- Chat ----
+  const chatMessages = [
+    { type: 'system', text: 'Your dad left something here for you, Maya.' },
+    { type: 'recipient', text: 'Dad, were you ever shy?' },
+    { type: 'thinking', text: '' },
+    { type: 'creator', speaker: 'Dad', text: 'Oh god, yes. I was terrible at parties. You know, when you were about three, you used to hide behind my legs whenever we\'d go somewhere. And honestly… I was hiding behind you too. You got your shyness from me, kid.', voice: true },
+    { type: 'recipient', text: 'I didn\'t know that.' },
+    { type: 'thinking', text: '' },
+    { type: 'creator', speaker: 'Dad', text: 'There\'s a lot you didn\'t know. I\'m glad you\'re asking.', voice: true },
+  ];
+
+  async function addChatBubble(msg) {
+    const chat = document.getElementById('chat');
+
+    if (msg.type === 'thinking') {
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble creator';
+      bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+      chat.appendChild(bubble);
+      requestAnimationFrame(() => bubble.classList.add('visible'));
+      await wait(2000);
+      chat.removeChild(bubble);
+      return;
+    }
+
+    const bubble = document.createElement('div');
+
+    if (msg.type === 'system') {
+      bubble.className = 'chat-bubble creator';
+      bubble.innerHTML = `<div style="color: var(--text-dim); font-size: 15px;">${msg.text}</div>`;
+    } else if (msg.type === 'recipient') {
+      bubble.className = 'chat-bubble recipient';
+      bubble.textContent = msg.text;
+    } else if (msg.type === 'creator') {
+      bubble.className = 'chat-bubble creator';
+      let html = `<div class="speaker">${msg.speaker}'s voice</div>`;
+      html += `<div>${msg.text}</div>`;
+      if (msg.voice) {
+        html += `<div class="voice-indicator"><div class="mini-bars"><span></span><span></span><span></span><span></span><span></span></div> Playing in his voice</div>`;
+      }
+      bubble.innerHTML = html;
+    }
+
+    chat.appendChild(bubble);
+    await wait(50);
+    bubble.classList.add('visible');
+  }
+
+  // ---- Main sequence ----
+  async function run() {
+    // Reset
+    document.getElementById('restart').classList.remove('visible');
+    document.getElementById('chat').innerHTML = '';
+    document.getElementById('name-answer').innerHTML = '';
+    document.getElementById('story-answer').innerHTML = '';
+    document.getElementById('waveform-box').style.opacity = '0';
+    progress.style.width = '0%';
+    initWaveform();
+
+    // Scene 0: Opening quote
+    await showScene('scene-0');
+    await wait(3500);
+
+    // Scene 1: Creator label
+    await showScene('scene-1');
+    await wait(2000);
+
+    // Scene 2: "Who is this for?"
+    await showScene('scene-2');
+    await wait(1200);
+    await typeText('name-answer', 'My daughter, Maya.', 55);
+    await wait(1800);
+
+    // Scene 3: Tell Maya something
+    await showScene('scene-3');
+    await wait(1000);
+    const story = 'When you were three, you used to hide behind my legs at every party. And honestly… I was hiding behind you too. I was never good at those things. You got your shyness from me, kid.';
+    await typeText('story-answer', story, 35);
+    await wait(600);
+    await animateWaveform(4000);
+    await wait(1500);
+
+    // Scene 4: Saved
+    await showScene('scene-4');
+    await wait(3000);
+
+    // Scene 5: Transition
+    await showScene('scene-5');
+    await wait(2500);
+
+    // Scene 6: Chat
+    await showScene('scene-6');
+    await wait(800);
+
+    for (const msg of chatMessages) {
+      await addChatBubble(msg);
+      if (msg.type === 'thinking') continue;
+      await wait(msg.type === 'creator' ? 3500 : 2000);
+    }
+
+    await wait(3000);
+
+    // Scene 7: End card
+    await showScene('scene-7');
+    await wait(400);
+    document.getElementById('end-line').classList.add('visible');
+    document.getElementById('end-footer').classList.add('visible');
+
+    await wait(1500);
+    document.getElementById('restart').classList.add('visible');
+  }
+
+  // Start
+  run();
+
+  // Replay
+  document.getElementById('restart').addEventListener('click', () => {
+    scenes.forEach(s => { s.classList.remove('active','fade-out'); s.style.display = 'none'; });
+    run();
+  });
+</script>
+
+</body>
+</html>
