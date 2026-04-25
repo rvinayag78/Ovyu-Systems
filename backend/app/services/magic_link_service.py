@@ -1,9 +1,12 @@
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from app.core.security import create_session_token
@@ -104,7 +107,10 @@ async def request_magic_link(email: str, mode: str, ip: str, db: AsyncSession) -
 
     from app.services.email_service import EmailService
     link_url = f"{settings.frontend_url}/magic-link/verify?token={raw}"
-    EmailService().send_magic_link(email, link_url, mode)
+    try:
+        EmailService().send_magic_link(email, link_url, mode)
+    except Exception as exc:
+        logger.error("magic_link email send failed for %s: %s", email, exc, exc_info=True)
 
 
 async def verify_magic_link(raw_token: str, db: AsyncSession) -> dict:

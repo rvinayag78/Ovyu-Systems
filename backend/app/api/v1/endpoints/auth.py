@@ -1,6 +1,10 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.core.config import settings
 from app.core.database import get_db
@@ -36,8 +40,8 @@ async def begin_registration(body: BeginRegistrationRequest) -> BeginRegistratio
     verify_url = f"{settings.frontend_url}/verify?token={token}"
     try:
         EmailService().send_maker_verification(str(body.maker_email), verify_url)
-    except Exception:
-        pass  # email failure must not block signup
+    except Exception as exc:
+        logger.error("begin_registration email send failed for %s: %s", body.maker_email, exc, exc_info=True)
     return BeginRegistrationResponse(detail="Verification email sent")
 
 
