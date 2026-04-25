@@ -1,0 +1,164 @@
+import secrets
+import unicodedata
+from datetime import datetime, timedelta, timezone
+from uuid import UUID
+
+from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.contract import Contract, ContractPath, ContractStatus
+from app.models.invitation_token import InvitationToken, InviteeRole
+from app.models.signature import Signature, SignerRole
+from app.models.user import User
+from app.schemas.contract import ContractCreate
+
+INVITATION_TTL_DAYS = 7
+
+
+def _normalize(name: str) -> str:
+    return unicodedata.normalize("NFC", name.strip().lower())
+
+
+class ContractService:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create_contract(self, maker: User, data: ContractCreate) -> tuple[Contract, InvitationToken]:
+        if data.path == ContractPath.PRIVATE and not data.tc_email:
+            raise HTTPException(status_code=422, detail="tc_email required for private path")
+
+        initial_status = ContractStatus.PENDING_KEEPER if data.path == ContractPath.AWARE else ContractStatus.PENDING_TC
+
+        contract = Contract(
+            maker_id=maker.id,
+            keeper_name=data.keeper_name,
+            keeper_email=str(data.keeper_email),
+            relationship=data.relationship,
+            tc_name=data.tc_name,
+            tc_email=str(data.tc_email) if data.tc_email else None,
+            path=data.path,
+            status=initial_status,
+        )
+        self.db.add(contract)
+        await self.db.flush()
+
+        invitee_email = str(data.keeper_email) if data.path == ContractPath.AWARE else str(data.tc_email)
+        invitee_role = InviteeRole.KEEPER if data.path == ContractPath.AWARE else InviteeRole.TC
+
+        raw_token = secrets.token_urlsafe(48)
+        invitation = InvitationToken(
+            contract_id=contract.id,
+            token=raw_token,
+            token_hash=InvitationToken.hash_token(raw_token),
+            invitee_email=invitee_email,
+            invitee_role=invitee_role,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=INVITATION_TTL_DAYS),
+        )
+        self.db.add(invitation)
+        await self.db.commit()
+        await self.db.refresh(contract)
+        await self.db.refresh(invitation)
+        return contract, invitation
+
+    async def sign_contract(self, contract_id: UUID, maker: User, ip_address: str, typed_name: str, user_agent: str = "") -> Contract:
+        contract = await self._get_or_404(contract_id)
+        if contract.maker_id != maker.id:
+            raise HTTPException(status_code=403, detail="Not your contract")
+
+        if _normalize(typed_name) != _normalize(maker.full_name):
+            raise HTTPException(status_code=422, detail="Typed name does not match your account name.")
+
+        existing = await self.db.execute(
+            select(Signature).where(Signature.contract_id == contract_id, Signature.role == SignerRole.MAKER)
+        )
+        if existing.scalar_one_or_none():
+            raise HTTPException(status_code=409, detail="Already signed")
+
+        sig = Signature(
+            contract_id=contract_id, user_id=maker.id, role=SignerRole.MAKER,
+            typed_name=typed_name.strip(), matched_against=maker.full_name,
+            ip_address=ip_address, user_agent=user_agent,
+        )
+        self.db.add(sig)
+        contract.maker_signed_at = datetime.now(timezone.utc)
+        contract.pending_expires_at = datetime.now(timezone.utc) + timedelta(days=365)
+        await self.db.commit()
+        await self.db.refresh(contract)
+        return contract
+
+    async def accept_invitation(self, token_str: str, accepting_user: User | None, ip_address: str, typed_name: str, user_agent: str = "") -> Contract:
+        result = await self.db.execute(select(InvitationToken).where(InvitationToken.token == token_str))
+        invitation = result.scalar_one_or_none()
+
+        if invitation is None or invitation.used:
+            raise HTTPException(status_code=404, detail="Invalid or expired invitation")
+        if invitation.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Invitation has expired")
+
+        contract = await self._get_or_404(invitation.contract_id)
+        is_keeper = invitation.invitee_role == InviteeRole.KEEPER
+        canonical = contract.keeper_name if is_keeper else contract.tc_name
+
+        if canonical and _normalize(typed_name) != _normalize(canonical):
+            raise HTTPException(status_code=422, detail="Typed name does not match.")
+
+        role = SignerRole.KEEPER if is_keeper else SignerRole.TC
+        sig = Signature(
+            contract_id=contract.id, user_id=accepting_user.id if accepting_user else None,
+            role=role, typed_name=typed_name.strip(), matched_against=canonical,
+            ip_address=ip_address, user_agent=user_agent,
+        )
+        self.db.add(sig)
+
+        if is_keeper:
+            contract.keeper_id = accepting_user.id if accepting_user else None
+        else:
+            contract.tc_id = accepting_user.id if accepting_user else None
+
+        contract.status = ContractStatus.LOCKED
+        contract.locked_at = datetime.now(timezone.utc)
+        contract.pending_expires_at = None
+        now = datetime.now(timezone.utc)
+        invitation.used = True
+        invitation.used_at = now
+        invitation.consumed_at = now
+
+        await self.db.commit()
+        await self.db.refresh(contract)
+        return contract
+
+    async def get_invitation_preview(self, token_str: str) -> dict:
+        result = await self.db.execute(select(InvitationToken).where(InvitationToken.token == token_str))
+        invitation = result.scalar_one_or_none()
+
+        if invitation is None or invitation.used:
+            raise HTTPException(status_code=404, detail="Invalid or expired invitation")
+        if invitation.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Invitation has expired")
+
+        contract = await self._get_or_404(invitation.contract_id)
+        maker_result = await self.db.execute(select(User).where(User.id == contract.maker_id))
+        maker = maker_result.scalar_one_or_none()
+
+        return {
+            "invitee_role": invitation.invitee_role.value,
+            "maker_name": maker.full_name if maker else None,
+            "keeper_name": contract.keeper_name,
+            "tc_name": contract.tc_name,
+            "relationship": contract.relationship,
+            "contract_id": invitation.contract_id,
+        }
+
+    async def get_contract(self, contract_id: UUID, requesting_user: User) -> Contract:
+        contract = await self._get_or_404(contract_id)
+        if requesting_user.id not in (contract.maker_id, contract.keeper_id, contract.tc_id):
+            raise HTTPException(status_code=403, detail="Access denied")
+        return contract
+
+    async def _get_or_404(self, contract_id: UUID) -> Contract:
+        result = await self.db.execute(select(Contract).where(Contract.id == contract_id))
+        contract = result.scalar_one_or_none()
+        if contract is None:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        return contract

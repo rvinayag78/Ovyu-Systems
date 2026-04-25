@@ -1,0 +1,116 @@
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_db
+from app.core.dependencies import get_current_user
+from app.models.user import User
+from app.schemas.contract import (
+    AcceptInvitationRequest,
+    ContractCreate,
+    ContractRead,
+    InvitationPreview,
+    SignContractRequest,
+)
+from app.services.contract_service import ContractService
+from app.services.email_service import EmailService
+from app.core.config import settings
+
+router = APIRouter()
+
+
+def _get_client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+@router.post("", response_model=ContractRead, status_code=201)
+async def create_contract(
+    body: ContractCreate,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ContractRead:
+    svc = ContractService(db)
+    contract, invitation = await svc.create_contract(current_user, body)
+
+    invite_url = f"{settings.frontend_url}/invite/{invitation.token}"
+    email_svc = EmailService()
+    invitee_email = invitation.invitee_email
+    invitee_name = body.keeper_name if invitation.invitee_role.value == "keeper" else (body.tc_name or "")
+    email_svc.send_invitation(
+        invitee_email=invitee_email,
+        invitee_name=invitee_name,
+        maker_name=current_user.full_name,
+        invite_url=invite_url,
+        role=invitation.invitee_role.value,
+    )
+    return ContractRead.model_validate(contract)
+
+
+@router.get("/{contract_id}", response_model=ContractRead)
+async def get_contract(
+    contract_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ContractRead:
+    svc = ContractService(db)
+    contract = await svc.get_contract(contract_id, current_user)
+    return ContractRead.model_validate(contract)
+
+
+@router.post("/{contract_id}/sign", response_model=ContractRead)
+async def sign_contract(
+    contract_id: UUID,
+    body: SignContractRequest,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ContractRead:
+    svc = ContractService(db)
+    contract = await svc.sign_contract(
+        contract_id=contract_id,
+        maker=current_user,
+        ip_address=_get_client_ip(request),
+        typed_name=body.typed_name,
+        user_agent=request.headers.get("user-agent", ""),
+    )
+    return ContractRead.model_validate(contract)
+
+
+@router.get("/invite/{token}", response_model=InvitationPreview)
+async def get_invite_preview(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+) -> InvitationPreview:
+    svc = ContractService(db)
+    preview = await svc.get_invitation_preview(token)
+    return InvitationPreview(**preview)
+
+
+@router.post("/invite/{token}/accept", response_model=ContractRead)
+async def accept_invitation(
+    token: str,
+    body: AcceptInvitationRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> ContractRead:
+    svc = ContractService(db)
+    contract = await svc.accept_invitation(
+        token_str=token,
+        accepting_user=None,
+        ip_address=_get_client_ip(request),
+        typed_name=body.typed_name,
+        user_agent=request.headers.get("user-agent", ""),
+    )
+    from sqlalchemy import select as sa_select
+    from app.models.user import User as UserModel
+    maker_result = await db.execute(sa_select(UserModel).where(UserModel.id == contract.maker_id))
+    maker = maker_result.scalar_one_or_none()
+    if maker:
+        signer_name = body.typed_name.strip()
+        EmailService().send_contract_locked(maker.email, signer_name)
+    return ContractRead.model_validate(contract)

@@ -1,0 +1,504 @@
+/* ============================================================
+   Ovyu Design Tokens — source: colors_and_type.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* surfaces */
+  --ovyu-cream: #F7F8F3;
+  --ovyu-paper: #FBFBF7;
+  --ovyu-ink: #1A1A1A;
+  --ovyu-ink-soft: #373737;
+  --ovyu-muted: #9C9C9C;
+  --ovyu-border: #E5E5E5;
+  --ovyu-divider: rgba(217, 217, 217, 0.3);
+  --ovyu-divider-strong: #D9D9D9;
+  --ovyu-footer-text: #F5F0E8;
+  --ovyu-black: #000000;
+
+  /* accent */
+  --ovyu-olive: #916D21;
+  --ovyu-olive-hover: #A07C2D;
+  --ovyu-olive-press: #7E5E1B;
+
+  /* callout */
+  --ovyu-callout: #FBEDD3;
+  --ovyu-callout-border: #E8DCA8;
+  --ovyu-callout-ring: #C9A84C;
+
+  /* status */
+  --ovyu-status-signed: #4FB07D;
+  --ovyu-status-pending: #EC9B42;
+  --ovyu-status-notified: #9C9C9C;
+
+  /* signal */
+  --ovyu-focus: #916D21;
+  --ovyu-error: #B4372C;
+  --ovyu-error-soft: #FCE8E5;
+
+  /* type */
+  --ovyu-font-serif: 'Instrument Serif', Fraunces, Georgia, serif;
+  --ovyu-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  /* radii */
+  --ovyu-radius-sm: 8px;
+  --ovyu-radius-md: 15px;
+  --ovyu-radius-input: 10px;
+  --ovyu-radius-callout: 20px;
+  --ovyu-radius-callout-sm: 12px;
+  --ovyu-radius-pill: 9999px;
+
+  /* spacing */
+  --ovyu-gutter: 80px;
+  --ovyu-gutter-mobile: 24px;
+  --ovyu-card-pad: 60px;
+  --ovyu-card-pad-mobile: 24px;
+
+  /* borders */
+  --ovyu-border-card: 2px solid var(--ovyu-border);
+  --ovyu-border-header: 3px solid var(--ovyu-border);
+
+  /* shadows */
+  --ovyu-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* motion */
+  --ovyu-ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ovyu-dur-fast: 120ms;
+  --ovyu-dur-base: 180ms;
+
+  /* layout */
+  --ovyu-header-h: 103px;
+  --ovyu-footer-h: 103px;
+  --ovyu-content-max: 1280px;
+}
+
+/* ── Reset & base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--ovyu-font-sans);
+  color: var(--ovyu-ink);
+  background: var(--ovyu-cream);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { margin: 0; font-size: 16px; line-height: 1.55; color: var(--ovyu-ink); }
+
+h1, h2, h3, h4 { margin: 0; }
+
+p { margin: 0; }
+
+a {
+  color: var(--ovyu-ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+a:hover { text-decoration: underline; }
+
+*:focus-visible {
+  outline: 2px solid var(--ovyu-focus);
+  outline-offset: 2px;
+}
+
+/* ── Page shell ───────────────────────────────────────────── */
+.ovyu-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--ovyu-cream); }
+
+.ovyu-main {
+  flex: 1;
+  padding: 80px var(--ovyu-gutter) 120px;
+  max-width: var(--ovyu-content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.ovyu-header {
+  height: var(--ovyu-header-h);
+  background: #fff;
+  border-bottom: var(--ovyu-border-header);
+  padding: 0 var(--ovyu-gutter);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+
+.ovyu-wordmark {
+  font-family: var(--ovyu-font-serif);
+  font-weight: 700; font-size: 40px;
+  color: var(--ovyu-ink); text-decoration: none;
+  letter-spacing: -0.01em; line-height: 1;
+  border-bottom: none !important;
+}
+
+.ovyu-header__nav { display: flex; align-items: center; gap: 36px; }
+
+.ovyu-header__link {
+  font-size: 16px; font-weight: 500;
+  color: var(--ovyu-ink); text-decoration: none;
+}
+.ovyu-header__link:hover { text-decoration: underline; }
+
+.ovyu-btn-login {
+  font-family: var(--ovyu-font-sans); font-size: 16px; font-weight: 700;
+  color: var(--ovyu-ink); background: transparent;
+  border: 2px solid var(--ovyu-ink); border-radius: var(--ovyu-radius-pill);
+  padding: 12px 38px; cursor: pointer;
+  transition: background var(--ovyu-dur-fast), color var(--ovyu-dur-fast);
+}
+.ovyu-btn-login:hover { background: var(--ovyu-ink); color: #fff; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+.ovyu-footer {
+  background: var(--ovyu-black);
+  padding: 0 var(--ovyu-gutter);
+  height: var(--ovyu-footer-h);
+  display: flex; align-items: center;
+}
+
+.ovyu-footer__inner {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; gap: 48px;
+}
+
+.ovyu-footer__nav { display: flex; gap: 27px; }
+.ovyu-footer__nav a {
+  font-size: 13px; letter-spacing: 0.02em;
+  color: var(--ovyu-footer-text); text-decoration: none; text-transform: uppercase;
+}
+
+.ovyu-footer__notice {
+  flex: 1; max-width: 920px;
+  font-size: 11px; font-weight: 300; letter-spacing: 0.02em; line-height: 1.4;
+  color: var(--ovyu-footer-text); text-transform: uppercase; margin: 0;
+}
+
+.ovyu-footer__legal {
+  display: flex; align-items: center; gap: 18px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em;
+}
+.ovyu-footer__legal a { color: var(--ovyu-footer-text); text-decoration: none; }
+.ovyu-footer__sep { width: 1px; height: 10px; background: #444; }
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.ovyu-btn {
+  font-family: var(--ovyu-font-sans);
+  cursor: pointer;
+  transition: background var(--ovyu-dur-fast), color var(--ovyu-dur-fast), transform var(--ovyu-dur-fast);
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; text-decoration: none;
+}
+.ovyu-btn:active { transform: scale(0.99); }
+
+/* Olive — only the Begin button */
+.ovyu-btn--begin {
+  background: var(--ovyu-olive); color: #fff;
+  font-size: 22px; font-weight: 400;
+  border-radius: 13px;
+  padding: 19px 60px;
+  min-width: 263px;
+}
+.ovyu-btn--begin:hover { background: var(--ovyu-olive-hover); color: #fff; text-decoration: none; }
+.ovyu-btn--begin:active { background: var(--ovyu-olive-press); }
+
+/* Primary black */
+.ovyu-btn--primary {
+  background: var(--ovyu-ink); color: var(--ovyu-footer-text);
+  font-weight: 700; font-size: 16px;
+  border-radius: var(--ovyu-radius-sm);
+  padding: 15px 51px;
+}
+.ovyu-btn--primary:hover { background: var(--ovyu-ink-soft); color: var(--ovyu-footer-text); text-decoration: none; }
+.ovyu-btn--primary:disabled { background: var(--ovyu-border); color: var(--ovyu-muted); cursor: not-allowed; transform: none; }
+.ovyu-btn--wide { width: 100%; padding: 20px 24px; }
+
+/* Outline */
+.ovyu-btn--outline {
+  background: transparent; color: var(--ovyu-ink);
+  border: 2px solid var(--ovyu-ink);
+  border-radius: var(--ovyu-radius-sm);
+  font-weight: 700; font-size: 16px;
+  padding: 13px 49px;
+}
+.ovyu-btn--outline:hover { background: var(--ovyu-ink); color: var(--ovyu-footer-text); text-decoration: none; }
+
+/* Text link button */
+.ovyu-textlink {
+  background: transparent; border: none; padding: 0;
+  font-family: var(--ovyu-font-sans); font-size: 14px;
+  color: var(--ovyu-ink-soft); cursor: pointer;
+  text-decoration: underline;
+}
+.ovyu-textlink:hover { color: var(--ovyu-ink); }
+
+/* ── Form controls ────────────────────────────────────────── */
+.ovyu-field { display: flex; flex-direction: column; gap: 8px; }
+
+.ovyu-field__label {
+  font-weight: 700; font-size: 16px;
+  color: var(--ovyu-ink-soft);
+}
+
+.ovyu-field__helper { font-size: 14px; line-height: 1.5; color: var(--ovyu-ink-soft); }
+.ovyu-field__helper.is-error { color: var(--ovyu-error); }
+
+.ovyu-input {
+  font-family: var(--ovyu-font-sans); font-size: 14px;
+  color: var(--ovyu-ink); background: #fff;
+  border: 1px solid var(--ovyu-muted);
+  border-radius: var(--ovyu-radius-input);
+  padding: 18px 14px; outline: none;
+  transition: border-color var(--ovyu-dur-fast);
+  width: 100%;
+}
+.ovyu-input::placeholder { color: var(--ovyu-muted); }
+.ovyu-input:focus { border-color: var(--ovyu-olive); }
+.ovyu-input.is-error { border-color: var(--ovyu-error); }
+
+.ovyu-select { position: relative; width: 100%; }
+.ovyu-select__native {
+  appearance: none; -webkit-appearance: none;
+  font-family: var(--ovyu-font-sans); font-size: 14px;
+  color: var(--ovyu-ink); background: #fff;
+  border: 1px solid var(--ovyu-border);
+  border-radius: var(--ovyu-radius-input);
+  padding: 18px 38px 18px 14px; width: 100%; cursor: pointer;
+  outline: none; transition: border-color var(--ovyu-dur-fast);
+}
+.ovyu-select__native.is-empty { color: var(--ovyu-muted); }
+.ovyu-select__native:focus { border-color: var(--ovyu-olive); }
+.ovyu-select__chev {
+  position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px; color: var(--ovyu-muted); pointer-events: none;
+}
+
+/* Checkbox cards (aware / private toggle) */
+.ovyu-checkcard {
+  display: flex; align-items: flex-start; gap: 12px;
+  border: 2px solid var(--ovyu-border);
+  border-radius: var(--ovyu-radius-sm);
+  padding: 16px 20px;
+  cursor: pointer; background: var(--ovyu-paper);
+  transition: border-color var(--ovyu-dur-fast), background var(--ovyu-dur-fast);
+  font-size: 15px; color: var(--ovyu-ink-soft); text-align: left;
+}
+.ovyu-checkcard.is-selected { border-color: var(--ovyu-ink); background: var(--ovyu-ink); color: var(--ovyu-footer-text); }
+.ovyu-checkcard__dot {
+  width: 20px; height: 20px; border-radius: 9999px; border: 2px solid var(--ovyu-border);
+  flex: 0 0 20px; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--ovyu-dur-fast);
+}
+.is-selected .ovyu-checkcard__dot { border-color: var(--ovyu-footer-text); }
+.ovyu-checkcard__dot-fill { width: 10px; height: 10px; border-radius: 9999px; background: var(--ovyu-footer-text); }
+
+/* ── Section labels ───────────────────────────────────────── */
+.ovyu-section-label {
+  font-weight: 700; font-size: 14px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ovyu-olive); margin: 0 0 16px;
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+.ovyu-card {
+  background: var(--ovyu-paper);
+  border: var(--ovyu-border-card);
+  border-radius: var(--ovyu-radius-md);
+  padding: 48px;
+}
+
+/* ── Callouts ─────────────────────────────────────────────── */
+.ovyu-callout {
+  background: var(--ovyu-callout);
+  border: 1px solid var(--ovyu-callout-border);
+  border-radius: var(--ovyu-radius-callout-sm);
+  padding: 16px 20px;
+}
+.ovyu-callout__title {
+  font-weight: 700; font-size: 14px; color: var(--ovyu-ink); margin: 0 0 6px;
+}
+.ovyu-callout__body { font-size: 14px; line-height: 1.5; color: var(--ovyu-ink-soft); }
+
+.ovyu-callout--hero {
+  border-radius: var(--ovyu-radius-callout);
+  border: 2px solid var(--ovyu-callout-ring);
+  padding: 36px 42px;
+}
+.ovyu-callout--hero .ovyu-callout__title { font-size: 20px; margin-bottom: 12px; color: var(--ovyu-ink-soft); }
+.ovyu-callout--hero .ovyu-callout__body { font-size: 18px; line-height: 1.55; }
+.ovyu-callout--hero .ovyu-callout__body p { margin: 0 0 12px; }
+.ovyu-callout--hero .ovyu-callout__body p:last-child { margin: 0; }
+
+/* ── Status table ─────────────────────────────────────────── */
+.ovyu-table {
+  background: var(--ovyu-paper);
+  border: var(--ovyu-border-card);
+  border-radius: var(--ovyu-radius-md);
+  padding: 32px 40px;
+}
+.ovyu-table__head, .ovyu-table__row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  gap: 24px; align-items: center;
+}
+.ovyu-table__head {
+  font-weight: 700; font-size: 16px;
+  color: var(--ovyu-ink); padding: 8px 0 14px;
+  border-bottom: 2px solid var(--ovyu-divider-strong);
+}
+.ovyu-table__row {
+  font-size: 18px; color: var(--ovyu-ink); padding: 22px 0;
+  border-bottom: 1px solid var(--ovyu-divider);
+}
+.ovyu-table__row:last-child { border-bottom: none; }
+.ovyu-table__party { font-weight: 700; line-height: 1.2; }
+.ovyu-table__party small { display: block; margin-top: 4px; font-weight: 400; color: var(--ovyu-muted); font-size: 14px; }
+.ovyu-table__date { color: var(--ovyu-ink-soft); font-size: 16px; }
+
+.ovyu-statusbadge { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
+.ovyu-statusbadge--signed { color: var(--ovyu-status-signed); }
+.ovyu-statusbadge--pending { color: var(--ovyu-status-pending); }
+.ovyu-statusbadge--notified { color: var(--ovyu-muted); }
+.ovyu-statusdot { width: 10px; height: 10px; border-radius: 9999px; flex: 0 0 10px; }
+.ovyu-statusdot--signed { background: var(--ovyu-status-signed); }
+.ovyu-statusdot--pending { background: var(--ovyu-status-pending); }
+.ovyu-statusdot--notified { background: var(--ovyu-muted); }
+
+/* ── Contract grid ────────────────────────────────────────── */
+.ovyu-contract-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 32px; align-items: start;
+}
+.ovyu-contract-card {
+  background: var(--ovyu-paper);
+  border: var(--ovyu-border-card);
+  border-radius: var(--ovyu-radius-md);
+  padding: 44px;
+}
+.ovyu-contract-card h3 {
+  font-family: var(--ovyu-font-serif); font-size: 28px; font-weight: 400;
+  margin: 0 0 8px; color: var(--ovyu-ink);
+}
+.ovyu-contract-card .party-line {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ovyu-olive); margin: 0 0 20px;
+}
+.ovyu-contract-card dl {
+  margin: 0 0 24px; display: grid;
+  grid-template-columns: max-content 1fr; gap: 6px 16px;
+  font-size: 15px;
+}
+.ovyu-contract-card dt { color: var(--ovyu-muted); }
+.ovyu-contract-card dd { margin: 0; color: var(--ovyu-ink); font-weight: 500; }
+.ovyu-contract-card .contract-body { font-size: 15px; line-height: 1.65; color: var(--ovyu-ink-soft); margin: 0 0 16px; }
+.ovyu-contract-card .footnote { font-size: 13px; color: var(--ovyu-muted); margin-top: 8px; }
+
+/* ── Hero layout ──────────────────────────────────────────── */
+.ovyu-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 600px) 380px;
+  gap: 80px; align-items: start;
+}
+.ovyu-hero__copy h1 { margin-bottom: 24px; font-family: var(--ovyu-font-serif); font-size: clamp(40px, 5vw, 72px); line-height: 1.05; letter-spacing: -0.01em; }
+.ovyu-hero__copy .ovyu-sub { display: block; font-size: 22px; line-height: 1.4; color: var(--ovyu-ink-soft); margin-bottom: 18px; }
+.ovyu-hero__copy p { font-size: 16px; line-height: 1.55; color: var(--ovyu-ink-soft); margin: 0 0 36px; }
+
+.ovyu-hero__sidebar {
+  background: #fff; border: 1.5px solid #ddd;
+  padding: 40px 36px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.ovyu-hero__step { padding: 24px 0; }
+.ovyu-hero__step:first-child { padding-top: 0; }
+.ovyu-hero__step:last-child { padding-bottom: 0; }
+.ovyu-hero__step .num {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ovyu-muted); display: block; margin-bottom: 6px;
+}
+.ovyu-hero__step h3 {
+  font-family: var(--ovyu-font-serif); font-size: 28px; font-weight: 400;
+  color: var(--ovyu-ink); line-height: 1.05; margin: 0 0 8px;
+}
+.ovyu-hero__step p { font-size: 15px; line-height: 1.55; color: var(--ovyu-ink-soft); margin: 0; }
+.ovyu-hero__divider { border: 0; height: 1px; background: var(--ovyu-divider-strong); margin: 0; }
+
+/* ── Form grid (Screen 2) ─────────────────────────────────── */
+.ovyu-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 80px; align-items: start;
+}
+.ovyu-form-section { display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Confirmation (Screens 8/28) ──────────────────────────── */
+.ovyu-confirm {
+  background: var(--ovyu-paper);
+  border: var(--ovyu-border-card);
+  border-radius: var(--ovyu-radius-md);
+  padding: 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+  max-width: 860px; margin: 0 auto;
+}
+.ovyu-confirm-circle {
+  width: 110px; height: 110px; border-radius: 9999px;
+  background: var(--ovyu-callout);
+  border: 3px solid var(--ovyu-callout-ring);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ovyu-font-serif); font-size: 56px;
+  color: var(--ovyu-callout-ring); line-height: 1;
+}
+.ovyu-confirm h1 { font-family: var(--ovyu-font-serif); font-size: 56px; line-height: 1.05; letter-spacing: -0.01em; text-align: center; }
+.ovyu-confirm > p { font-size: 20px; color: var(--ovyu-muted); margin: 0; text-align: center; }
+.ovyu-confirm__divider { width: 100%; height: 2px; background: var(--ovyu-divider-strong); }
+
+/* ── Pricing ──────────────────────────────────────────────── */
+.ovyu-pricing {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+}
+.ovyu-pricing__card {
+  background: #fff; border: 3px solid var(--ovyu-ink); border-radius: 16px;
+  padding: 40px 36px; display: flex; flex-direction: column; gap: 32px;
+  align-items: center; text-align: center;
+}
+.ovyu-pricing__card.is-disabled { background: #E7E7E7; border: 3px solid rgba(136,136,136,0.4); opacity: 0.55; }
+.ovyu-pricing__title { font-family: var(--ovyu-font-serif); font-size: 36px; font-weight: 600; margin: 0; }
+.ovyu-pricing__price { font-family: var(--ovyu-font-serif); font-size: 56px; line-height: 1; font-weight: 400; margin: 0; }
+.ovyu-pricing__tag { font-size: 18px; color: var(--ovyu-muted); }
+.ovyu-pricing__list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 8px;
+  font-size: 16px; color: var(--ovyu-ink-soft); width: 100%; text-align: left;
+}
+.ovyu-pricing__list li::before { content: '· '; color: var(--ovyu-muted); margin-right: 6px; }
+
+/* ── Page headers ─────────────────────────────────────────── */
+.ovyu-page-header { margin-bottom: 56px; }
+.ovyu-page-header h1 { font-family: var(--ovyu-font-serif); font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 16px; }
+.ovyu-page-header .ovyu-sub { display: block; font-size: 20px; line-height: 1.4; color: var(--ovyu-ink-soft); max-width: 760px; }
+
+/* ── Utility ──────────────────────────────────────────────── */
+.ovyu-error-text { font-size: 14px; color: var(--ovyu-error); margin-top: 8px; }
+.ovyu-muted-text { font-size: 14px; color: var(--ovyu-muted); }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .ovyu-hero { grid-template-columns: 1fr; }
+}
+@media (max-width: 1000px) {
+  .ovyu-form-grid { grid-template-columns: 1fr; gap: 40px; }
+  .ovyu-contract-grid { grid-template-columns: 1fr; }
+  .ovyu-pricing { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .ovyu-main { padding: 48px var(--ovyu-gutter-mobile) 80px; }
+  .ovyu-header, .ovyu-footer { padding: 0 var(--ovyu-gutter-mobile); }
+  .ovyu-footer { height: auto; padding: 24px var(--ovyu-gutter-mobile); }
+  .ovyu-footer__inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .ovyu-contract-card, .ovyu-confirm { padding: var(--ovyu-card-pad-mobile); }
+  .ovyu-table { padding: 20px; }
+  .ovyu-table__head, .ovyu-table__row { grid-template-columns: 1fr 1fr; }
+}
