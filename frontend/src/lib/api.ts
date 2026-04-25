@@ -43,4 +43,12 @@ export const api = {
 
   acceptInvitation: (token: string, typed_name: string) =>
     req(`/contracts/accept/${token}`, { method: "POST", body: JSON.stringify({ typed_name }) }),
+
+  requestMagicLink: (email: string, mode: "login" | "tc") =>
+    req("/auth/request-magic-link", { method: "POST", body: JSON.stringify({ email, mode }) }),
+
+  verifyMagicLink: (token: string) =>
+    req<{ session_token: string; role: string; maker_stage: string | null; contract_id: string | null }>(
+      `/auth/magic-link/verify?token=${encodeURIComponent(token)}`
+    ),
 };

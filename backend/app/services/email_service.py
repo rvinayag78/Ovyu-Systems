@@ -64,6 +64,32 @@ class EmailService:
         """
         self._send(invitee_email, subject, html)
 
+    def send_magic_link(self, email: str, link_url: str, mode: str) -> None:
+        if mode == "tc":
+            subject = "Your Transfer Contact link — Ovyu"
+            heading = "Activate the Transfer."
+            body = "You've been named as a Transfer Contact. Click below to continue."
+        else:
+            subject = "Your sign-in link — Ovyu"
+            heading = "Here's your sign-in link."
+            body = "Click the button below to sign in. This link expires in 15 minutes and can only be used once."
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#1A1A1A;padding:32px;text-align:center">
+            <span style="font-family:Georgia,serif;font-style:italic;font-size:48px;color:#F7F8F3">ovyu</span>
+          </div>
+          <div style="padding:48px 40px;background:#fff;text-align:center">
+            <h1 style="font-family:Georgia,serif;font-size:32px;margin:0 0 16px">{heading}</h1>
+            <p style="font-size:16px;color:#555;margin:0 0 32px">{body}</p>
+            <a href="{link_url}" style="display:inline-block;background:#1A1A1A;color:#F5F0E8;font-size:16px;font-weight:700;padding:15px 48px;border-radius:8px;text-decoration:none">Continue →</a>
+          </div>
+          <div style="background:#ddd;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com · If you didn't request this, you can safely ignore it.
+          </div>
+        </div>
+        """
+        self._send(email, subject, html)
+
     def send_contract_locked(self, maker_email: str, signer_name: str) -> None:
         html = f"""
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto">

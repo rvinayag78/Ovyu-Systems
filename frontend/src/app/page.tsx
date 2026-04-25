@@ -15,7 +15,7 @@ export default function LandingPage() {
               Ovyu lets you upload your voice, stories, and personality for one named person to
               access when you&apos;re gone. Private. Consensual. Yours.
             </p>
-            <Link href="/contract/new" className="ovyu-btn ovyu-btn--begin">Begin →</Link>
+            <Link href="/signup" className="ovyu-btn ovyu-btn--begin">Begin →</Link>
           </div>
 
           <aside className="ovyu-hero__sidebar" aria-label="How it works">

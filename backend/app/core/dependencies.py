@@ -16,11 +16,16 @@ async def get_verified_claims(
 ) -> dict:
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    from app.core.security import decode_session_token
+    # Try our own session JWT first
+    payload = decode_session_token(credentials.credentials)
+    if payload:
+        return payload
+    # Fall back to Cognito JWT (signature not verified in dev — replace with JWKS in prod)
     try:
-        # Cognito JWTs — verify issuer + audience in production via JWKS
         payload = jwt.decode(
             credentials.credentials,
-            options={"verify_signature": False},  # replace with JWKS in prod
+            options={"verify_signature": False},
         )
         return payload
     except JWTError:

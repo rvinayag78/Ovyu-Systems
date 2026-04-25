@@ -12,6 +12,7 @@ import app.models.user  # noqa: F401
 import app.models.contract  # noqa: F401
 import app.models.invitation_token  # noqa: F401
 import app.models.signature  # noqa: F401
+import app.models.magic_link_token  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

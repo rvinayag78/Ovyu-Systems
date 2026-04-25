@@ -1,0 +1,58 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { api } from "@/lib/api";
+
+const STAGE_ROUTES: Record<string, (contractId: string | null) => string> = {
+  no_contract: () => "/signup",
+  unsigned: (id) => id ? `/contract/sign?id=${id}` : "/signup",
+  awaiting_other: (id) => id ? `/contract/status?id=${id}` : "/signup",
+  ready_to_upload: () => "/upload/start",
+  active: () => "/dashboard",
+};
+
+export function VerifyClient() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const ran = useRef(false);
+
+  useEffect(() => {
+    if (ran.current) return;
+    ran.current = true;
+    const token = params.get("token");
+    if (!token) { router.replace("/login"); return; }
+
+    api.verifyMagicLink(token).then(result => {
+      sessionStorage.setItem("ovyu_session", result.session_token);
+      sessionStorage.setItem("ovyu_role", result.role);
+
+      if (result.role === "tc") {
+        router.replace("/activate-transfer/coming-soon");
+        return;
+      }
+      if (result.role === "keeper") {
+        router.replace("/keeper/coming-soon");
+        return;
+      }
+
+      const stage = result.maker_stage ?? "no_contract";
+      const dest = STAGE_ROUTES[stage]?.(result.contract_id) ?? "/signup";
+      router.replace(dest);
+    }).catch(() => {
+      router.replace("/login?error=invalid_link");
+    });
+  }, [params, router]);
+
+  return (
+    <div className="ovyu-page">
+      <Header />
+      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontSize: 18, color: "var(--ovyu-ink-soft)" }}>Signing you in…</p>
+      </main>
+      <Footer />
+    </div>
+  );
+}
