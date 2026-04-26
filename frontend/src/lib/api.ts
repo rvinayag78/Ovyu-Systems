@@ -47,7 +47,7 @@ export const api = {
     req<{ invitee_role: "keeper" | "tc"; maker_name: string; keeper_name: string; tc_name: string; relationship: string; contract_id: string }>(`/contracts/invite/${token}`),
 
   acceptInvitation: (token: string, typed_name: string) =>
-    req(`/contracts/accept/${token}`, { method: "POST", body: JSON.stringify({ typed_name }) }),
+    req(`/contracts/invite/${token}/accept`, { method: "POST", body: JSON.stringify({ typed_name }) }),
 
   requestMagicLink: (email: string, mode: "login" | "tc") =>
     req("/auth/request-magic-link", { method: "POST", body: JSON.stringify({ email, mode }) }),

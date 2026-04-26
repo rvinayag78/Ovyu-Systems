@@ -80,8 +80,9 @@ test.describe("Keeper invitation flow", () => {
 
   test("invitation preview shows maker name and keeper name", async ({ page }) => {
     await page.goto(`/invite/${invitationToken}`);
-    await expect(page.getByText(MAKER_NAME)).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(KEEPER_NAME)).toBeVisible();
+    // h1 contains "Maker would like Ovyu to be for you"
+    await expect(page.getByRole("heading", { name: new RegExp(MAKER_NAME) })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(`${KEEPER_NAME} · Keeper`)).toBeVisible();
   });
 
   test("accept invitation with correct name → locked confirmation", async ({ page }) => {
@@ -91,10 +92,10 @@ test.describe("Keeper invitation flow", () => {
     const nameInput = page.getByPlaceholder(/type your full name/i)
       .or(page.getByLabel(/type.*name|full name/i));
     await nameInput.fill(KEEPER_NAME);
-    await page.getByRole("button", { name: /accept|sign/i }).click();
+    await page.getByRole("button", { name: /accept and sign/i }).click();
 
-    await expect(page).toHaveURL(/\/invite\/.*\/done|\/contract\/status/, { timeout: 10_000 });
-    await expect(page.getByText(/locked|confirmed|accepted/i)).toBeVisible();
+    await expect(page).toHaveURL(/\/invite\/.*\/done/, { timeout: 10_000 });
+    await expect(page.getByText(/you've signed/i)).toBeVisible();
   });
 
   test("invalid invitation token shows 404 message", async ({ page }) => {
