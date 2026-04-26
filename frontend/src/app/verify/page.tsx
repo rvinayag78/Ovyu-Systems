@@ -16,6 +16,7 @@ function VerifyInner() {
     api.verifyToken(token)
       .then(data => {
         sessionStorage.setItem("ovyu_pending", JSON.stringify(data));
+        sessionStorage.setItem("ovyu_reg_token", token);
         router.replace("/register");
       })
       .catch(err => setError(err instanceof Error ? err.message : "Link invalid or expired."));

@@ -38,7 +38,13 @@ export const api = {
     path: "aware" | "private"; tc_name?: string; tc_email?: string;
   }) => req<{ id: string }>("/contracts", { method: "POST", body: JSON.stringify(p) }),
 
-  getContract: (id: string) => req<{ id: string; path: string; status: string; maker_signed_at?: string }>(`/contracts/${id}`),
+  completeRegistration: (token: string) =>
+    req<{ session_token: string; contract_id: string; full_name: string }>(
+      "/auth/complete-registration", { method: "POST", body: JSON.stringify({ token }) }
+    ),
+
+  getContract: (id: string) =>
+    req<{ id: string; path: string; status: string; maker_signed_at?: string; keeper_name?: string; tc_name?: string; relationship?: string }>(`/contracts/${id}`),
 
   signContract: (id: string, typed_name: string) =>
     req(`/contracts/${id}/sign`, { method: "POST", body: JSON.stringify({ typed_name }) }),

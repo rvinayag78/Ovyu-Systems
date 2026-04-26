@@ -33,6 +33,16 @@ class VerifyTokenResponse(BaseModel):
     tc_email: str | None = None
 
 
+class CompleteRegistrationRequest(BaseModel):
+    token: str  # the email verification JWT from /verify?token=...
+
+
+class CompleteRegistrationResponse(BaseModel):
+    session_token: str
+    contract_id: str
+    full_name: str
+
+
 class UserSyncRequest(BaseModel):
     full_name: str
 

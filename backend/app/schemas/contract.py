@@ -21,6 +21,9 @@ class ContractRead(BaseModel):
     status: ContractStatus
     maker_signed_at: datetime | None = None
     locked_at: datetime | None = None
+    keeper_name: str | None = None
+    tc_name: str | None = None
+    relationship: str | None = None
 
     model_config = {"from_attributes": True}
 

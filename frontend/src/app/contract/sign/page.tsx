@@ -13,7 +13,7 @@ function SignInner() {
   const params = useSearchParams();
   const contractId = params.get("id") ?? "";
 
-  const [contract, setContract] = useState<{ id: string; path: string; status: string } | null>(null);
+  const [contract, setContract] = useState<{ id: string; path: string; status: string; keeper_name?: string; tc_name?: string } | null>(null);
   const [makerName, setMakerName] = useState("");
   const [typedName, setTypedName] = useState("");
   const [error, setError] = useState("");
@@ -24,10 +24,9 @@ function SignInner() {
     api.getContract(contractId)
       .then(c => setContract(c))
       .catch(() => setError("Contract not found."));
-    // Load maker name: magic-link flow stores it as ovyu_maker_name; registration flow stores in ovyu_pending
-    const makerNameDirect = sessionStorage.getItem("ovyu_maker_name");
-    if (makerNameDirect) {
-      setMakerName(makerNameDirect);
+    const stored = sessionStorage.getItem("ovyu_maker_name");
+    if (stored) {
+      setMakerName(stored);
     } else {
       const raw = sessionStorage.getItem("ovyu_pending");
       if (raw) {
@@ -78,7 +77,7 @@ function SignInner() {
             <h3>Between</h3>
             <dl>
               <dt>Party A</dt><dd>{makerName || "You"} · Maker</dd>
-              <dt>Party B</dt><dd>{isPrivate ? "Transfer Contact" : "Keeper"}</dd>
+              <dt>Party B</dt><dd>{isPrivate ? (contract?.tc_name || "Transfer Contact") : (contract?.keeper_name || "Keeper")} · {isPrivate ? "Transfer Contact" : "Keeper"}</dd>
               <dt>Drafted</dt><dd>{today}</dd>
             </dl>
 

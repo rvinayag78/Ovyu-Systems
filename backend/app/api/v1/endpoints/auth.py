@@ -14,6 +14,8 @@ from app.models.user import User
 from app.schemas.auth import (
     BeginRegistrationRequest,
     BeginRegistrationResponse,
+    CompleteRegistrationRequest,
+    CompleteRegistrationResponse,
     UserRead,
     UserSyncRequest,
     VerifyTokenResponse,
@@ -60,6 +62,79 @@ async def verify_token(token: str) -> VerifyTokenResponse:
         path=payload["path"],
         tc_name=payload.get("tc_name"),
         tc_email=payload.get("tc_email"),
+    )
+
+
+# ── Complete registration (no password — email-verified, magic-link only) ────
+
+@router.post("/complete-registration", response_model=CompleteRegistrationResponse)
+async def complete_registration(
+    body: CompleteRegistrationRequest,
+    db: AsyncSession = Depends(get_db),
+) -> CompleteRegistrationResponse:
+    import uuid as _uuid
+    from sqlalchemy import select as _select
+    from app.core.security import create_session_token
+    from app.models.user import User
+    from app.models.contract import ContractPath
+    from app.schemas.contract import ContractCreate
+    from app.services.contract_service import ContractService
+    from app.services.email_service import EmailService
+
+    payload = decode_email_verification_token(body.token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+
+    email = str(payload["maker_email"]).strip().lower()
+    full_name = f"{payload['first_name']} {payload['last_name']}"
+
+    # Create user if not exists
+    result = await db.execute(_select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    if not user:
+        uid = _uuid.uuid4()
+        user = User(
+            id=uid,
+            cognito_sub=f"email-{uid}",
+            email=email,
+            full_name=full_name,
+            email_verified=True,
+        )
+        db.add(user)
+        await db.flush()
+
+    # Create contract + invitation token via service (handles token generation)
+    svc = ContractService(db)
+    contract_data = ContractCreate(
+        keeper_name=payload["keeper_name"],
+        keeper_email=payload["keeper_email"],
+        relationship=payload.get("relationship"),
+        path=ContractPath(payload["path"]),
+        tc_name=payload.get("tc_name"),
+        tc_email=payload.get("tc_email"),
+    )
+    contract, invitation = await svc.create_contract(user, contract_data)
+
+    # Send invitation email
+    from app.core.config import settings as _settings
+    invite_url = f"{_settings.frontend_url}/invite/{invitation.token}"
+    invitee_name = payload["keeper_name"] if invitation.invitee_role.value == "keeper" else (payload.get("tc_name") or "")
+    try:
+        EmailService().send_invitation(
+            invitee_email=invitation.invitee_email,
+            invitee_name=invitee_name,
+            maker_name=full_name,
+            invite_url=invite_url,
+            role=invitation.invitee_role.value,
+        )
+    except Exception as exc:
+        logger.error("send_invitation failed for %s: %s", invitation.invitee_email, exc, exc_info=True)
+
+    session_jwt = create_session_token(str(user.id), user.email, "login")
+    return CompleteRegistrationResponse(
+        session_token=session_jwt,
+        contract_id=str(contract.id),
+        full_name=full_name,
     )
 
 
