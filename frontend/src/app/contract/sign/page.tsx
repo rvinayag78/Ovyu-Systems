@@ -54,8 +54,10 @@ function SignInner() {
   }
 
   if (error && !contract) return (
-    <div style={{ minHeight: "100vh", background: "var(--ovyu-cream)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: "var(--ovyu-error)" }}>{error}</p>
+    <div className="ovyu-page"><Header />
+      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "var(--ovyu-error)" }}>{error}</p>
+      </main><Footer />
     </div>
   );
 

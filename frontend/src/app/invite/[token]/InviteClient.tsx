@@ -33,17 +33,21 @@ export function InviteClient() {
   }, [token]);
 
   if (fetchError) return (
-    <div style={{ minHeight: "100vh", background: "var(--ovyu-cream)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <div style={{ textAlign: "center" }}>
-        <p style={{ color: "var(--ovyu-error)", marginBottom: 12 }}>{fetchError}</p>
-        <a href="/" style={{ fontSize: 14, textDecoration: "underline" }}>Return home</a>
-      </div>
+    <div className="ovyu-page"><Header />
+      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ color: "var(--ovyu-error)", marginBottom: 12 }}>{fetchError}</p>
+          <a href="/" style={{ fontSize: 14, textDecoration: "underline" }}>Return home</a>
+        </div>
+      </main><Footer />
     </div>
   );
 
   if (!preview) return (
-    <div style={{ minHeight: "100vh", background: "var(--ovyu-cream)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: "var(--ovyu-muted)" }}>Loading invitation…</p>
+    <div className="ovyu-page"><Header />
+      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "var(--ovyu-muted)" }}>Loading invitation…</p>
+      </main><Footer />
     </div>
   );
 
