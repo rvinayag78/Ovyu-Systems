@@ -74,7 +74,7 @@ test.describe("Maker flow", () => {
 
     // Should redirect to status page showing awaiting message
     await expect(page).toHaveURL(/\/contract\/status/, { timeout: 10_000 });
-    await expect(page.getByText(/waiting|awaiting|keeper/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/we're waiting on your keeper/i)).toBeVisible({ timeout: 8_000 });
 
     // Cleanup: delete contract so afterAll deleteUser works cleanly
     // (invitation_tokens cascade from contract delete in deleteUser)

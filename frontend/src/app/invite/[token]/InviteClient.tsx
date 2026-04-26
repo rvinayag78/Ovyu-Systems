@@ -11,7 +11,12 @@ function normalize(s: string) { return s.trim().toLowerCase().normalize("NFC"); 
 type Preview = { invitee_role: "keeper" | "tc"; maker_name: string; keeper_name: string; tc_name: string; relationship: string; contract_id: string };
 
 export function InviteClient() {
-  const { token } = useParams<{ token: string }>();
+  // useParams returns the static pre-rendered segment ("_") under Amplify rewrite.
+  // Read the actual token from the browser URL instead so real invite links work.
+  const paramsToken = useParams<{ token: string }>()?.token;
+  const token = typeof window !== "undefined"
+    ? window.location.pathname.split("/invite/")[1]?.split("/")[0] ?? paramsToken
+    : paramsToken;
   const router = useRouter();
   const [preview, setPreview] = useState<Preview | null>(null);
   const [fetchError, setFetchError] = useState("");
