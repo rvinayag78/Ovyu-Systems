@@ -1,8 +1,13 @@
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
 async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const session = typeof window !== "undefined" ? sessionStorage.getItem("ovyu_session") : null;
   const res = await fetch(`${BASE}/api/v1${path}`, {
-    headers: { "Content-Type": "application/json", ...(init.headers ?? {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(session ? { Authorization: `Bearer ${session}` } : {}),
+      ...(init.headers ?? {}),
+    },
     ...init,
   });
   if (!res.ok) {
