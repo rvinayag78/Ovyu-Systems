@@ -79,6 +79,7 @@ class VerifyMagicLinkResponse(BaseModel):
     role: str
     maker_stage: str | None
     contract_id: str | None
+    full_name: str
 
 
 @router.post("/request-magic-link", response_model=RequestMagicLinkResponse)

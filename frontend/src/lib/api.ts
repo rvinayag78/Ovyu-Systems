@@ -48,7 +48,7 @@ export const api = {
     req("/auth/request-magic-link", { method: "POST", body: JSON.stringify({ email, mode }) }),
 
   verifyMagicLink: (token: string) =>
-    req<{ session_token: string; role: string; maker_stage: string | null; contract_id: string | null }>(
+    req<{ session_token: string; role: string; maker_stage: string | null; contract_id: string | null; full_name: string }>(
       `/auth/magic-link/verify?token=${encodeURIComponent(token)}`
     ),
 };

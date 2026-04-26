@@ -141,6 +141,7 @@ async def verify_magic_link(raw_token: str, db: AsyncSession) -> dict:
             "role": "tc",
             "maker_stage": None,
             "contract_id": None,
+            "full_name": user.full_name,
         }
 
     # Maker flow: derive stage
@@ -150,4 +151,5 @@ async def verify_magic_link(raw_token: str, db: AsyncSession) -> dict:
         "role": "maker",
         "maker_stage": maker_stage,
         "contract_id": str(contract_id) if contract_id else None,
+        "full_name": user.full_name,
     }

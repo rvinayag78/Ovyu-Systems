@@ -24,11 +24,16 @@ function SignInner() {
     api.getContract(contractId)
       .then(c => setContract(c))
       .catch(() => setError("Contract not found."));
-    // Load maker name from pending session
-    const raw = sessionStorage.getItem("ovyu_pending");
-    if (raw) {
-      const p = JSON.parse(raw);
-      setMakerName(`${p.first_name} ${p.last_name}`);
+    // Load maker name: magic-link flow stores it as ovyu_maker_name; registration flow stores in ovyu_pending
+    const makerNameDirect = sessionStorage.getItem("ovyu_maker_name");
+    if (makerNameDirect) {
+      setMakerName(makerNameDirect);
+    } else {
+      const raw = sessionStorage.getItem("ovyu_pending");
+      if (raw) {
+        const p = JSON.parse(raw);
+        setMakerName(`${p.first_name} ${p.last_name}`);
+      }
     }
   }, [contractId]);
 

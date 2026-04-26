@@ -14,3 +14,13 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+  customRules:
+    - source: /invite/<*>
+      target: /invite/_/index.html
+      status: "200"
+    - source: /magic-link/verify
+      target: /magic-link/verify/index.html
+      status: "200"
+    - source: /<*>
+      target: /index.html
+      status: "404-200"

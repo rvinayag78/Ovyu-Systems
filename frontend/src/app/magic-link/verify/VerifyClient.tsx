@@ -28,6 +28,7 @@ export function VerifyClient() {
     api.verifyMagicLink(token).then(result => {
       sessionStorage.setItem("ovyu_session", result.session_token);
       sessionStorage.setItem("ovyu_role", result.role);
+      if (result.full_name) sessionStorage.setItem("ovyu_maker_name", result.full_name);
 
       if (result.role === "tc") {
         router.replace("/activate-transfer/coming-soon");
