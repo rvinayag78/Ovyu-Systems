@@ -95,7 +95,7 @@ test.describe("Keeper invitation flow", () => {
     await page.getByRole("button", { name: /accept and sign/i }).click();
 
     await expect(page).toHaveURL(/\/invite\/.*\/done/, { timeout: 10_000 });
-    await expect(page.getByText(/you've signed/i)).toBeVisible();
+    await expect(page.getByText(/you've signed/i)).toBeVisible({ timeout: 10_000 });
   });
 
   test("invalid invitation token shows 404 message", async ({ page }) => {

@@ -57,7 +57,8 @@ export function InviteClient() {
     setError(""); setLoading(true);
     try {
       await api.acceptInvitation(token, typedName);
-      router.push(`/invite/${token}/done?maker=${encodeURIComponent(preview!.maker_name)}`);
+      // Hard-navigate so Amplify rewrite delivers invite/_.html and Next.js renders DonePage
+      window.location.href = `/invite/${token}/done?maker=${encodeURIComponent(preview!.maker_name)}`;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Acceptance failed.");
     } finally {
