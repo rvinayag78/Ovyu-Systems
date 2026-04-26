@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -17,12 +18,12 @@ export function InviteClient() {
   const token = typeof window !== "undefined"
     ? window.location.pathname.split("/invite/")[1]?.split("/")[0] ?? paramsToken
     : paramsToken;
-  const router = useRouter();
   const [preview, setPreview] = useState<Preview | null>(null);
   const [fetchError, setFetchError] = useState("");
   const [typedName, setTypedName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   useEffect(() => {
     if (!token || token === "_") return;
@@ -46,6 +47,22 @@ export function InviteClient() {
     </div>
   );
 
+  if (accepted) return (
+    <div className="ovyu-page">
+      <Header />
+      <main className="ovyu-main" style={{ display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
+        <div className="ovyu-confirm">
+          <div className="ovyu-confirm-circle">✓</div>
+          <h1>You&apos;ve signed.</h1>
+          <p>The contract between you and {preview.maker_name} is now in place.</p>
+          <div className="ovyu-confirm__divider" />
+          <Link href="/" className="ovyu-btn ovyu-btn--primary">Done</Link>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+
   const isKeeper = preview.invitee_role === "keeper";
   const canonicalName = isKeeper ? preview.keeper_name : preview.tc_name;
   const nameMatch = canonicalName ? normalize(typedName) === normalize(canonicalName) : false;
@@ -57,8 +74,7 @@ export function InviteClient() {
     setError(""); setLoading(true);
     try {
       await api.acceptInvitation(token, typedName);
-      // Hard-navigate so Amplify rewrite delivers invite/_.html and Next.js renders DonePage
-      window.location.href = `/invite/${token}/done?maker=${encodeURIComponent(preview!.maker_name)}`;
+      setAccepted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Acceptance failed.");
     } finally {
@@ -167,7 +183,7 @@ export function InviteClient() {
                 {loading ? "Signing…" : "I accept and sign"}
               </button>
               <button type="button" className="ovyu-btn ovyu-btn--outline ovyu-btn--wide"
-                onClick={() => router.push("/")}>
+                onClick={() => { window.location.href = "/"; }}>
                 Decline
               </button>
             </div>
