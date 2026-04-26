@@ -1,7 +1,10 @@
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -41,13 +44,16 @@ async def create_contract(
     email_svc = EmailService()
     invitee_email = invitation.invitee_email
     invitee_name = body.keeper_name if invitation.invitee_role.value == "keeper" else (body.tc_name or "")
-    email_svc.send_invitation(
-        invitee_email=invitee_email,
-        invitee_name=invitee_name,
-        maker_name=current_user.full_name,
-        invite_url=invite_url,
-        role=invitation.invitee_role.value,
-    )
+    try:
+        email_svc.send_invitation(
+            invitee_email=invitee_email,
+            invitee_name=invitee_name,
+            maker_name=current_user.full_name,
+            invite_url=invite_url,
+            role=invitation.invitee_role.value,
+        )
+    except Exception as exc:
+        logger.error("send_invitation failed for %s: %s", invitee_email, exc, exc_info=True)
     return ContractRead.model_validate(contract)
 
 
@@ -112,5 +118,8 @@ async def accept_invitation(
     maker = maker_result.scalar_one_or_none()
     if maker:
         signer_name = body.typed_name.strip()
-        EmailService().send_contract_locked(maker.email, signer_name)
+        try:
+            EmailService().send_contract_locked(maker.email, signer_name)
+        except Exception as exc:
+            logger.error("send_contract_locked failed for %s: %s", maker.email, exc, exc_info=True)
     return ContractRead.model_validate(contract)

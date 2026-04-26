@@ -39,7 +39,16 @@ async def get_current_user(
     sub = claims.get("sub")
     if not sub:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    result = await db.execute(select(User).where(User.cognito_sub == sub))
+    # Session JWTs use the user UUID as sub; Cognito JWTs use cognito_sub
+    if claims.get("purpose") == "session":
+        import uuid as _uuid
+        try:
+            uid = _uuid.UUID(sub)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        result = await db.execute(select(User).where(User.id == uid))
+    else:
+        result = await db.execute(select(User).where(User.cognito_sub == sub))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")

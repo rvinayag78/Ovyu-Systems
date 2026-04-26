@@ -40,8 +40,8 @@ class Contract(Base):
     tc_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     tc_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
 
-    path: Mapped[ContractPath] = mapped_column(Enum(ContractPath))
-    status: Mapped[ContractStatus] = mapped_column(Enum(ContractStatus), index=True)
+    path: Mapped[ContractPath] = mapped_column(Enum(ContractPath, values_callable=lambda x: [e.value for e in x]))
+    status: Mapped[ContractStatus] = mapped_column(Enum(ContractStatus, values_callable=lambda x: [e.value for e in x]), index=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     maker_signed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
