@@ -1,6 +1,10 @@
+import logging
+
 import boto3
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class EmailService:
@@ -10,7 +14,9 @@ class EmailService:
 
     def _send(self, to: str, subject: str, html: str, text: str = "") -> None:
         if not settings.ses_from_email:
-            return  # skip in local dev
+            logger.info("SES not configured — skipping email", extra={"to": to, "subject": subject})
+            return
+        logger.info("Sending email", extra={"to": to, "subject": subject, "from": self.sender})
         self.client.send_email(
             Source=self.sender,
             Destination={"ToAddresses": [to]},

@@ -7,8 +7,9 @@ from mangum import Mangum
 
 from app.api.v1 import router as v1_router
 from app.core.config import settings
+from app.core.logging import configure_logging
 
-logging.basicConfig(level=logging.INFO)
+configure_logging(level="DEBUG" if settings.debug else "INFO")
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -27,9 +28,29 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def request_logger(request: Request, call_next):
+    import time
+    start = time.perf_counter()
+    response = await call_next(request)
+    ms = round((time.perf_counter() - start) * 1000)
+    level = logging.ERROR if response.status_code >= 500 else (logging.WARNING if response.status_code >= 400 else logging.INFO)
+    logger.log(level, "http", extra={
+        "method": request.method,
+        "path": request.url.path,
+        "status": response.status_code,
+        "ms": ms,
+    })
+    return response
+
+
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.error("Unhandled error on %s %s", request.method, request.url.path, exc_info=exc)
+    logger.error(
+        "Unhandled error",
+        exc_info=exc,
+        extra={"method": request.method, "path": request.url.path},
+    )
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 

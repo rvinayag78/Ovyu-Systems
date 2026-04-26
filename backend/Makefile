@@ -1,4 +1,4 @@
-.PHONY: dev migrate upgrade downgrade shell
+.PHONY: dev migrate upgrade downgrade logs errors tail query
 
 dev:
 	uvicorn app.main:app --reload --port 8000
@@ -12,5 +12,14 @@ upgrade:
 downgrade:
 	alembic downgrade -1
 
-shell:
-	python -c "import asyncio; from app.core.database import AsyncSessionLocal; print('db ready')"
+logs:
+	@bash scripts/logs.sh recent
+
+errors:
+	@bash scripts/logs.sh errors
+
+tail:
+	@bash scripts/logs.sh tail
+
+query:
+	@bash scripts/logs.sh query
