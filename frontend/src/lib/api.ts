@@ -28,7 +28,7 @@ export const api = {
     req("/auth/begin-registration", { method: "POST", body: JSON.stringify(p) }),
 
   verifyToken: (token: string) =>
-    req<PendingReg>(`/auth/verify?token=${encodeURIComponent(token)}`),
+    req<PendingReg>(`/auth/verify-token?token=${encodeURIComponent(token)}`),
 
   register: (p: { cognito_sub: string; email: string; full_name: string }) =>
     req("/auth/me", { method: "POST", body: JSON.stringify(p) }),
