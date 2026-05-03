@@ -2,30 +2,41 @@
    Ovyu Design Tokens — source: colors_and_type.css
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
 
 :root {
   /* surfaces */
-  --ovyu-cream: #F7F8F3;
-  --ovyu-paper: #FBFBF7;
-  --ovyu-ink: #1A1A1A;
-  --ovyu-ink-soft: #373737;
-  --ovyu-muted: #9C9C9C;
-  --ovyu-border: #E5E5E5;
-  --ovyu-divider: rgba(217, 217, 217, 0.3);
-  --ovyu-divider-strong: #D9D9D9;
-  --ovyu-footer-text: #F5F0E8;
+  --ovyu-cream: #f8f7f5;
+  --ovyu-paper: #ffffff;
+  --ovyu-cream-warm: #f5edd6;
+  --ovyu-ink: #1a1a1a;
+  --ovyu-ink-soft: #444444;
+  --ovyu-muted: #888888;
+  --ovyu-border: #e1e1e1;
+  --ovyu-divider: rgba(217, 217, 217, 0.4);
+  --ovyu-divider-strong: #d9d9d9;
+  --ovyu-footer-text: #f5f0e8;
   --ovyu-black: #000000;
 
-  /* accent */
-  --ovyu-olive: #916D21;
-  --ovyu-olive-hover: #A07C2D;
-  --ovyu-olive-press: #7E5E1B;
+  /* gold accent (Figma: #c9a84c) */
+  --ovyu-gold: #c9a84c;
+  --ovyu-gold-hover: #b8963f;
+  --ovyu-gold-press: #a8882e;
+  --ovyu-gold-dark: #8a6e30;
+  /* keep olive as alias so existing refs still compile */
+  --ovyu-olive: var(--ovyu-gold);
+  --ovyu-olive-hover: var(--ovyu-gold-hover);
+  --ovyu-olive-press: var(--ovyu-gold-press);
+
+  /* maker dashboard */
+  --ovyu-avatar-purple: #4b3c5e;
+  --ovyu-maker-contract: #efeaf2;
+  --ovyu-maker-lavender: #6a4d7d;
 
   /* callout */
-  --ovyu-callout: #FBEDD3;
-  --ovyu-callout-border: #E8DCA8;
-  --ovyu-callout-ring: #C9A84C;
+  --ovyu-callout: #f5edd6;
+  --ovyu-callout-border: #c9a84c;
+  --ovyu-callout-ring: #c9a84c;
 
   /* status */
   --ovyu-status-signed: #4FB07D;
@@ -190,16 +201,27 @@ a:hover { text-decoration: underline; }
 }
 .ovyu-btn:active { transform: scale(0.99); }
 
-/* Olive — only the Begin button */
+/* Gold — Begin button */
 .ovyu-btn--begin {
-  background: var(--ovyu-olive); color: #fff;
+  background: var(--ovyu-gold); color: #fff;
   font-size: 22px; font-weight: 400;
-  border-radius: 13px;
+  border-radius: 11px;
   padding: 19px 60px;
   min-width: 263px;
 }
-.ovyu-btn--begin:hover { background: var(--ovyu-olive-hover); color: #fff; text-decoration: none; }
-.ovyu-btn--begin:active { background: var(--ovyu-olive-press); }
+.ovyu-btn--begin:hover { background: var(--ovyu-gold-hover); color: #fff; text-decoration: none; }
+.ovyu-btn--begin:active { background: var(--ovyu-gold-press); }
+
+/* Gold — email verify button */
+.ovyu-btn--gold {
+  background: var(--ovyu-gold); color: #fff;
+  font-size: 22px; font-weight: 700;
+  border-radius: 11px;
+  padding: 19px 60px;
+  min-width: 418px; height: 63px;
+}
+.ovyu-btn--gold:hover { background: var(--ovyu-gold-hover); color: #fff; text-decoration: none; }
+.ovyu-btn--gold:active { background: var(--ovyu-gold-press); }
 
 /* Primary black */
 .ovyu-btn--primary {
@@ -483,6 +505,224 @@ a:hover { text-decoration: underline; }
 /* ── Utility ──────────────────────────────────────────────── */
 .ovyu-error-text { font-size: 14px; color: var(--ovyu-error); margin-top: 8px; }
 .ovyu-muted-text { font-size: 14px; color: var(--ovyu-muted); }
+
+/* ── Logged-in avatar ─────────────────────────────────────── */
+.ovyu-avatar {
+  width: 51px; height: 51px; border-radius: 9999px;
+  background: var(--ovyu-avatar-purple);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ovyu-font-serif); font-size: 33px;
+  color: #fff; cursor: pointer; border: none;
+  flex-shrink: 0;
+}
+
+/* ── Email verified screen ────────────────────────────────── */
+.ovyu-verified {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 47px; text-align: center;
+  padding: 80px 24px;
+}
+.ovyu-verified__badge {
+  width: 123px; height: 123px; border-radius: 9999px;
+  background: var(--ovyu-avatar-purple);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ovyu-font-serif); font-style: italic;
+  font-size: 64px; color: #fff; line-height: 1;
+}
+.ovyu-verified__heading {
+  font-family: var(--ovyu-font-serif); font-size: clamp(36px, 4vw, 64px);
+  line-height: 1.1; color: var(--ovyu-ink); margin: 0;
+}
+.ovyu-verified__heading em { font-style: italic; }
+.ovyu-verified__body {
+  font-size: 22px; color: var(--ovyu-ink-soft); line-height: 1.5;
+  max-width: 620px; margin: 0;
+}
+.ovyu-verified__note {
+  font-style: italic; font-size: 16px; color: var(--ovyu-ink-soft);
+}
+
+/* ── Maker contracts dashboard ────────────────────────────── */
+.ovyu-contracts-page { padding: 80px 110px 120px; max-width: 1920px; }
+.ovyu-contracts-title {
+  font-family: var(--ovyu-font-serif); font-style: italic;
+  font-size: clamp(36px, 4vw, 64px); color: var(--ovyu-ink);
+  margin: 0 0 50px;
+}
+.ovyu-contracts-section { display: flex; flex-direction: column; gap: 20px; }
+.ovyu-contracts-eyebrow {
+  font-weight: 700; font-size: 18px; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--ovyu-gold); margin: 0;
+}
+.ovyu-contract-row {
+  background: var(--ovyu-maker-contract);
+  height: 100px; padding: 18px 55px;
+  display: flex; align-items: center;
+}
+.ovyu-contract-row__inner {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+}
+.ovyu-contract-row__left {
+  display: flex; align-items: center; gap: 40px;
+  flex: 0 0 auto; min-width: 400px;
+}
+.ovyu-contract-row__avatar {
+  width: 50px; height: 50px; border-radius: 9999px;
+  background: rgba(75,60,94,0.2); border: 1px solid var(--ovyu-avatar-purple);
+  flex-shrink: 0;
+}
+.ovyu-contract-row__meta { display: flex; flex-direction: column; gap: 9px; }
+.ovyu-contract-row__role {
+  font-weight: 700; font-size: 16px;
+  text-transform: uppercase; color: var(--ovyu-maker-lavender);
+  letter-spacing: 0.04em; margin: 0;
+}
+.ovyu-contract-row__name {
+  font-family: var(--ovyu-font-serif); font-weight: 700;
+  font-size: 30px; color: var(--ovyu-ink); margin: 0;
+}
+.ovyu-contract-row__status {
+  font-style: italic; font-size: 18px; color: var(--ovyu-muted);
+}
+.ovyu-contract-row__action {
+  font-style: italic; font-size: 18px; color: var(--ovyu-ink);
+  text-decoration: underline; cursor: pointer;
+}
+
+/* ── Email preview screen (maker-email-sent) ──────────────── */
+.ovyu-email-preview {
+  max-width: 1500px; margin: 0 auto; background: var(--ovyu-cream);
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.ovyu-email-preview__header {
+  background: #000; height: 184px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ovyu-email-preview__logo {
+  font-family: var(--ovyu-font-serif); font-size: 64px;
+  color: #fff; font-weight: 700;
+}
+.ovyu-email-preview__logo em { font-style: italic; }
+.ovyu-email-preview__body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 39px; text-align: center; padding: 80px 24px;
+  max-width: 565px; margin: 0 auto; width: 100%;
+}
+.ovyu-email-preview__heading {
+  font-family: var(--ovyu-font-serif); font-size: clamp(32px, 3vw, 44px);
+  color: var(--ovyu-ink); margin: 0;
+}
+.ovyu-email-preview__heading em { font-style: italic; }
+.ovyu-email-preview__sub { font-size: 22px; color: var(--ovyu-ink-soft); margin: 0; }
+.ovyu-email-preview__p { font-size: 18px; color: var(--ovyu-ink-soft); margin: 0; max-width: 451px; }
+.ovyu-email-preview__legal { font-style: italic; font-size: 14px; color: var(--ovyu-ink-soft); margin: 0; }
+.ovyu-email-preview__footer {
+  background: var(--ovyu-divider-strong); height: 84px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--ovyu-muted); text-align: center;
+}
+
+/* ── Maker-begin form layout ──────────────────────────────── */
+.ovyu-begin-form { display: flex; flex-direction: column; gap: 0; }
+.ovyu-begin-row {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+}
+.ovyu-begin-row--keeper {
+  display: grid; gap: 14px;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  margin-top: 32px;
+}
+.ovyu-begin-divider {
+  height: 3px; background: var(--ovyu-divider-strong);
+  margin: 28px 0;
+}
+.ovyu-begin-keeper-grid {
+  display: grid;
+  grid-template-columns: minmax(0,400px) minmax(0,250px) 1fr;
+  gap: 14px; align-items: start;
+  margin-top: 32px;
+}
+.ovyu-begin-awareness {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ovyu-begin-awareness-label {
+  font-weight: 700; font-size: 16px; color: var(--ovyu-ink-soft); margin-bottom: 6px;
+}
+.ovyu-begin-checkbox-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; color: var(--ovyu-ink-soft); cursor: pointer;
+}
+.ovyu-begin-checkbox {
+  width: 24px; height: 24px; border-radius: 4px;
+  border: 1px solid var(--ovyu-muted); background: #fff;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #fff; font-weight: 700;
+}
+.ovyu-begin-checkbox.is-checked {
+  background: var(--ovyu-ink-soft); border-color: var(--ovyu-ink-soft);
+}
+.ovyu-tc-callout {
+  background: var(--ovyu-cream-warm);
+  border: 1.667px solid var(--ovyu-gold);
+  border-radius: 13px; padding: 36px;
+  display: flex; flex-direction: column; gap: 20px;
+  margin-top: 24px;
+}
+.ovyu-tc-callout__header {
+  display: flex; gap: 24px; align-items: flex-start;
+}
+.ovyu-tc-callout__title {
+  font-weight: 700; font-size: 20px; color: var(--ovyu-ink-soft);
+  margin: 0; white-space: nowrap;
+}
+.ovyu-tc-callout__desc {
+  font-style: italic; font-size: 14px; color: var(--ovyu-ink); margin: 0;
+}
+.ovyu-tc-callout__fields {
+  display: flex; gap: 45px;
+}
+
+/* ── Contract sign — Figma layout ─────────────────────────── */
+.ovyu-contract-grid-v2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.84fr) minmax(0, 1fr);
+  gap: 49px; align-items: start;
+  margin-top: 42px;
+}
+.ovyu-contract-card-v2 {
+  background: var(--ovyu-paper);
+  border: 2px solid var(--ovyu-border);
+  border-radius: 15px;
+  padding: 60px;
+  height: 580px; overflow-y: auto;
+}
+.ovyu-contract-sign-panel {
+  background: var(--ovyu-paper);
+  border: 2px solid var(--ovyu-border);
+  border-radius: 15px;
+  padding: 50px 44px 31px 52px;
+  height: 580px;
+  display: flex; flex-direction: column; gap: 20px; justify-content: center;
+}
+.ovyu-contract-sign-title {
+  font-family: var(--ovyu-font-serif); font-weight: 700;
+  font-size: 28px; color: var(--ovyu-ink); margin: 0;
+}
+.ovyu-contract-sign-desc {
+  font-size: 20px; color: var(--ovyu-muted); margin: 0;
+}
+.ovyu-contract-footnote {
+  font-style: italic; font-size: 16px; color: var(--ovyu-muted);
+  margin-top: 16px;
+}
+.ovyu-gold-callout {
+  background: var(--ovyu-cream-warm);
+  border: 2px solid var(--ovyu-gold);
+  border-radius: 8px; padding: 10px 29px;
+  font-size: 16px; color: var(--ovyu-ink); text-align: center;
+}
 
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 1100px) {

@@ -9,9 +9,9 @@ import { api } from "@/lib/api";
 const STAGE_ROUTES: Record<string, (contractId: string | null) => string> = {
   no_contract: () => "/signup",
   unsigned: (id) => id ? `/contract/sign?id=${id}` : "/signup",
-  awaiting_other: (id) => id ? `/contract/status?id=${id}` : "/signup",
+  awaiting_other: (id) => id ? `/maker-contracts?id=${id}` : "/signup",
   ready_to_upload: () => "/upload/start",
-  active: () => "/dashboard",
+  active: () => "/maker-contracts",
 };
 
 export function VerifyClient() {
@@ -29,6 +29,7 @@ export function VerifyClient() {
       sessionStorage.setItem("ovyu_session", result.session_token);
       sessionStorage.setItem("ovyu_role", result.role);
       if (result.full_name) sessionStorage.setItem("ovyu_maker_name", result.full_name);
+      if (result.contract_id) sessionStorage.setItem("ovyu_contract_id", result.contract_id);
 
       if (result.role === "tc") {
         router.replace("/activate-transfer/coming-soon");
