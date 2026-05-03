@@ -155,10 +155,10 @@ function ContractViewInner() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p style={{ fontWeight: 700, fontSize: 18, color: "var(--ovyu-gold-dark)", textTransform: "uppercase", marginBottom: 10 }}>
+      <p style={{ fontWeight: 700, fontSize: 22, color: "var(--ovyu-gold)", textTransform: "uppercase", marginBottom: 10 }}>
         {title}
       </p>
-      <p style={{ fontSize: 15, color: "#444", lineHeight: 1.7, margin: 0 }}>{children}</p>
+      <p style={{ fontSize: 16, color: "#444", lineHeight: 1.7, margin: 0 }}>{children}</p>
     </div>
   );
 }

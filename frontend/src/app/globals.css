@@ -136,8 +136,8 @@ a:hover { text-decoration: underline; }
 }
 /* Home page: exact Figma layout — 1920×1080 */
 .ovyu-main--home {
-  /* 148px from page top/bottom, header/footer each 103px → 45px inner padding */
-  padding: 45px 240px 45px 175px;
+  /* Figma: content left=179px, right=241px (1920-179-1500), top/bottom=148-103=45px */
+  padding: 45px 241px 45px 179px;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -166,7 +166,7 @@ a:hover { text-decoration: underline; }
 .ovyu-wordmark:hover { text-decoration: none; }
 .ovyu-wordmark img { display: block; }
 
-.ovyu-header__nav { display: flex; align-items: center; gap: 36px; }
+.ovyu-header__nav { display: flex; align-items: center; gap: 117px; }
 
 .ovyu-header__link {
   font-size: 16px; font-weight: 500;
@@ -191,13 +191,13 @@ a:hover { text-decoration: underline; }
   overflow: hidden;
 }
 
-/* Figma: content starts left-[68px], gap-[199px] between 3 groups, centered */
+/* Figma: content starts left-[68px], gap-[199px] between 3 groups */
 .ovyu-footer__inner {
   display: flex; align-items: center;
   gap: 199px;
   width: 100%;
   padding: 0 68px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .ovyu-footer__nav { display: flex; gap: 27px; flex-shrink: 0; }
@@ -254,12 +254,12 @@ a:hover { text-decoration: underline; }
 .ovyu-btn--gold:hover { background: var(--ovyu-gold-hover); color: #fff; text-decoration: none; }
 .ovyu-btn--gold:active { background: var(--ovyu-gold-press); }
 
-/* Primary black */
+/* Primary black — Figma: 304×48px, Helvetica Bold 16px, radius 8px */
 .ovyu-btn--primary {
   background: var(--ovyu-ink); color: var(--ovyu-footer-text);
-  font-weight: 400; font-size: 18px;
+  font-weight: 700; font-size: 16px;
   border-radius: var(--ovyu-radius-sm);
-  padding: 12px 40px;
+  width: 304px; height: 48px; padding: 0;
 }
 .ovyu-btn--primary:hover { background: var(--ovyu-ink-soft); color: var(--ovyu-footer-text); text-decoration: none; }
 .ovyu-btn--primary:disabled { background: var(--ovyu-border); color: var(--ovyu-muted); cursor: not-allowed; transform: none; }
@@ -348,7 +348,7 @@ a:hover { text-decoration: underline; }
 
 /* ── Section labels ───────────────────────────────────────── */
 .ovyu-section-label {
-  font-weight: 700; font-size: 14px;
+  font-weight: 700; font-size: 18px;
   letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--ovyu-olive); margin: 0 0 16px;
 }
@@ -450,15 +450,15 @@ a:hover { text-decoration: underline; }
 .ovyu-contract-card .footnote { font-size: 13px; color: var(--ovyu-muted); margin-top: 8px; }
 
 /* ── Hero layout ──────────────────────────────────────────── */
-/* 3-column grid: text (532px) | spacer (1fr) | sidebar (378px) — Figma exact */
+/* Figma: flex row, space-between — text (532px) | spacer | sidebar (378px) */
 .ovyu-hero {
   flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 532px) 1fr minmax(0, 378px);
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   min-height: 0;
 }
-.ovyu-hero__copy { grid-column: 1; display: flex; flex-direction: column; gap: 25px; }
+.ovyu-hero__copy { display: flex; flex-direction: column; gap: 25px; width: 532px; flex-shrink: 0; }
 /* H1: 456×100 — Georgia 88px, "A bit" Regular + "of you." Italic */
 .ovyu-hero__copy h1 { margin: 0; font-family: var(--ovyu-font-serif); font-size: 88px; line-height: normal; font-weight: 400; }
 /* Subtitle: 534×25 — Helvetica Regular 22px, single line */
@@ -467,13 +467,13 @@ a:hover { text-decoration: underline; }
 .ovyu-hero__copy p { font-size: 18px; font-weight: 300; line-height: 1.2; color: var(--ovyu-muted); margin: 0; max-width: 473px; }
 
 .ovyu-hero__sidebar {
-  grid-column: 3;
+  width: 378px; flex-shrink: 0;
   align-self: stretch;
   background: #fff; border: 1.667px solid #ddd;
   padding: 41px 35px;
   display: flex; flex-direction: column; justify-content: center; gap: 0;
 }
-.ovyu-hero__step { padding: 24px 0; }
+.ovyu-hero__step { padding: 25px 0; }
 .ovyu-hero__step:first-child { padding-top: 0; }
 .ovyu-hero__step:last-child { padding-bottom: 0; }
 .ovyu-hero__step .num {
@@ -486,7 +486,7 @@ a:hover { text-decoration: underline; }
   color: var(--ovyu-ink); line-height: 1.05; margin: 0 0 8px;
 }
 .ovyu-hero__step p { font-size: 15px; line-height: 1.55; color: var(--ovyu-ink-soft); margin: 0; }
-.ovyu-hero__divider { border: 0; height: 1px; background: var(--ovyu-divider-strong); margin: 0; }
+.ovyu-hero__divider { border: 0; height: 2.5px; background: #d9d9d9; margin: 0; width: 284px; }
 
 /* ── Form grid (Screen 2) ─────────────────────────────────── */
 .ovyu-form-grid {
@@ -548,8 +548,8 @@ a:hover { text-decoration: underline; }
 
 /* ── Page headers ─────────────────────────────────────────── */
 .ovyu-page-header { margin-bottom: 45px; }
-.ovyu-page-header h1 { font-family: var(--ovyu-font-serif); font-size: clamp(26px, 4vw, 45px); line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 13px; }
-.ovyu-page-header .ovyu-sub { display: block; font-size: 16px; line-height: 1.4; color: var(--ovyu-ink-soft); max-width: 608px; }
+.ovyu-page-header h1 { font-family: var(--ovyu-font-serif); font-size: 64px; line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 13px; }
+.ovyu-page-header .ovyu-sub { display: block; font-size: 22px; line-height: 1.4; color: var(--ovyu-ink-soft); max-width: 608px; }
 
 /* ── Utility ──────────────────────────────────────────────── */
 .ovyu-error-text { font-size: 14px; color: var(--ovyu-error); margin-top: 8px; }
@@ -557,10 +557,10 @@ a:hover { text-decoration: underline; }
 
 /* ── Logged-in avatar ─────────────────────────────────────── */
 .ovyu-avatar {
-  width: 41px; height: 41px; border-radius: 9999px;
+  width: 51px; height: 51px; border-radius: 25.5px;
   background: var(--ovyu-avatar-purple);
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--ovyu-font-serif); font-size: 26px;
+  font-family: var(--ovyu-font-serif); font-size: 32px;
   color: #fff; cursor: pointer; border: none;
   flex-shrink: 0;
 }
@@ -605,7 +605,7 @@ a:hover { text-decoration: underline; }
 }
 .ovyu-contract-row {
   background: var(--ovyu-maker-contract);
-  height: 80px; padding: 14px 44px;
+  height: 100px; padding: 18px 55px;
   display: flex; align-items: center;
 }
 .ovyu-contract-row__inner {
@@ -623,26 +623,26 @@ a:hover { text-decoration: underline; }
 }
 .ovyu-contract-row__meta { display: flex; flex-direction: column; gap: 7px; }
 .ovyu-contract-row__role {
-  font-weight: 700; font-size: 13px;
+  font-weight: 700; font-size: 16px;
   text-transform: uppercase; color: var(--ovyu-maker-lavender);
   letter-spacing: 0.04em; margin: 0;
 }
 .ovyu-contract-row__name {
-  font-family: var(--ovyu-font-serif); font-weight: 400;
-  font-size: 22px; color: var(--ovyu-ink); margin: 0;
+  font-family: var(--ovyu-font-serif); font-weight: 700;
+  font-size: 30px; color: var(--ovyu-ink); margin: 0;
 }
 .ovyu-contract-row__status {
-  font-style: italic; font-size: 14px; color: var(--ovyu-muted);
+  font-style: italic; font-size: 18px; color: var(--ovyu-muted);
 }
 .ovyu-contract-row__action {
-  font-style: italic; font-size: 14px; color: var(--ovyu-ink);
+  font-style: italic; font-size: 18px; color: var(--ovyu-ink);
   text-decoration: underline; cursor: pointer;
 }
 
 /* ── Keeper contract row ───────────────────────────────────── */
 .ovyu-keeper-row {
   background: #eceee5;
-  height: 80px; padding: 14px 44px;
+  height: 100px; padding: 18px 55px;
   display: flex; align-items: center;
 }
 .ovyu-keeper-row__inner {
@@ -654,19 +654,19 @@ a:hover { text-decoration: underline; }
   flex: 0 0 auto; min-width: 320px;
 }
 .ovyu-keeper-row__label {
-  font-weight: 700; font-size: 13px;
+  font-weight: 700; font-size: 16px;
   text-transform: uppercase; color: #5c6b4a;
   letter-spacing: 0.04em; margin: 0;
 }
 .ovyu-keeper-row__from {
-  font-family: var(--ovyu-font-serif); font-weight: 400;
-  font-size: 22px; color: var(--ovyu-ink); margin: 0;
+  font-family: var(--ovyu-font-serif); font-weight: 700;
+  font-size: 30px; color: var(--ovyu-ink); margin: 0;
 }
 .ovyu-keeper-row__status {
-  font-style: italic; font-size: 14px; color: var(--ovyu-muted);
+  font-style: italic; font-size: 18px; color: var(--ovyu-muted);
 }
 .ovyu-keeper-row__action {
-  font-style: italic; font-size: 14px; color: var(--ovyu-ink);
+  font-style: italic; font-size: 18px; color: var(--ovyu-ink);
   text-decoration: underline; cursor: pointer;
   background: none; border: none; padding: 0;
 }
@@ -807,7 +807,8 @@ a:hover { text-decoration: underline; }
 
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 1100px) {
-  .ovyu-hero { grid-template-columns: 1fr; }
+  .ovyu-hero { flex-wrap: wrap; }
+  .ovyu-hero__copy, .ovyu-hero__sidebar { width: 100%; }
 }
 @media (max-width: 1000px) {
   .ovyu-form-grid { grid-template-columns: 1fr; gap: 40px; }

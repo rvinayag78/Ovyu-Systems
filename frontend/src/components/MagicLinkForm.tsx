@@ -63,9 +63,9 @@ export function MagicLinkForm({ mode }: Props) {
     <div className="ovyu-page">
       <Header />
       <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ maxWidth: 480, width: "100%" }}>
+        <div style={{ maxWidth: 632, width: "100%" }}>
           <div style={{ marginBottom: 40 }}>
-            <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: "clamp(32px,4vw,52px)", lineHeight: 1.05, marginBottom: 12 }}>
+            <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: 64, lineHeight: 1.05, marginBottom: 12 }}>
               {heading}
             </h1>
             <p style={{ fontSize: 17, color: "var(--ovyu-ink-soft)", lineHeight: 1.55 }}>{sub}</p>
@@ -89,7 +89,6 @@ export function MagicLinkForm({ mode }: Props) {
               type="submit"
               className="ovyu-btn ovyu-btn--primary"
               disabled={loading || !email.trim()}
-              style={{ width: "100%" }}
             >
               {loading ? "Sending…" : btnLabel}
             </button>
