@@ -186,34 +186,41 @@ a:hover { text-decoration: underline; }
 /* ── Footer ───────────────────────────────────────────────── */
 .ovyu-footer {
   background: var(--ovyu-black);
-  padding: 0 var(--ovyu-gutter);
   height: var(--ovyu-footer-h);
   display: flex; align-items: center;
+  overflow: hidden;
 }
 
+/* Figma: content starts left-[68px], gap-[199px] between 3 groups, centered */
 .ovyu-footer__inner {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; gap: 48px;
+  display: flex; align-items: center;
+  gap: 199px;
+  width: 100%;
+  padding: 0 68px;
+  justify-content: center;
 }
 
-.ovyu-footer__nav { display: flex; gap: 27px; }
+.ovyu-footer__nav { display: flex; gap: 27px; flex-shrink: 0; }
 .ovyu-footer__nav a {
   font-size: 13px; letter-spacing: 0.02em;
   color: var(--ovyu-footer-text); text-decoration: none; text-transform: uppercase;
 }
 
+/* Figma: Helvetica Light Oblique 11px, w-[918px] */
 .ovyu-footer__notice {
-  flex: 1;
-  font-size: 9px; font-weight: 300; font-style: italic; letter-spacing: 0.02em; line-height: 1;
+  font-size: 11px; font-weight: 300; font-style: italic; letter-spacing: 0.02em; line-height: 1.3;
   color: var(--ovyu-footer-text); text-transform: uppercase; margin: 0;
-  white-space: nowrap;
+  width: 918px; flex-shrink: 0;
 }
 
+/* Figma: @ 2026 OVYU | MANAGE COOKIES | LEGAL | PRIVACY — w-[350px] */
 .ovyu-footer__legal {
   display: flex; align-items: center; gap: 18px;
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em;
+  flex-shrink: 0; white-space: nowrap;
 }
 .ovyu-footer__legal a { color: var(--ovyu-footer-text); text-decoration: none; }
+.ovyu-footer__legal span:not(.ovyu-footer__sep) { color: var(--ovyu-footer-text); }
 .ovyu-footer__sep { width: 1px; height: 10px; background: #444; }
 
 /* ── Buttons ──────────────────────────────────────────────── */
@@ -226,13 +233,12 @@ a:hover { text-decoration: underline; }
 }
 .ovyu-btn:active { transform: scale(0.99); }
 
-/* Gold — Begin button */
+/* Gold — Begin button: 263×63 Figma exact */
 .ovyu-btn--begin {
   background: var(--ovyu-gold); color: #fff;
-  font-size: 18px; font-weight: 400;
+  font-size: 22px; font-weight: 400;
   border-radius: 11px;
-  padding: 15px 48px;
-  min-width: 210px;
+  width: 263px; height: 63px;
 }
 .ovyu-btn--begin:hover { background: var(--ovyu-gold-hover); color: #fff; text-decoration: none; }
 .ovyu-btn--begin:active { background: var(--ovyu-gold-press); }
@@ -453,9 +459,12 @@ a:hover { text-decoration: underline; }
   min-height: 0;
 }
 .ovyu-hero__copy { grid-column: 1; display: flex; flex-direction: column; gap: 25px; }
-.ovyu-hero__copy h1 { margin: 0; font-family: var(--ovyu-font-serif); font-size: 88px; line-height: 1.05; letter-spacing: -0.01em; }
-.ovyu-hero__copy .ovyu-sub { display: block; font-size: 22px; font-weight: 400; line-height: 1.4; color: var(--ovyu-ink-soft); }
-.ovyu-hero__copy p { font-size: 18px; font-weight: 300; line-height: 1.55; color: var(--ovyu-muted); margin: 0; }
+/* H1: 456×100 — Georgia 88px, "A bit" Regular + "of you." Italic */
+.ovyu-hero__copy h1 { margin: 0; font-family: var(--ovyu-font-serif); font-size: 88px; line-height: normal; font-weight: 400; }
+/* Subtitle: 534×25 — Helvetica Regular 22px, single line */
+.ovyu-hero__copy .ovyu-sub { display: block; font-size: 22px; font-weight: 400; line-height: normal; white-space: nowrap; color: var(--ovyu-ink-soft); }
+/* Body: 473×63 — Helvetica Light 18px, 3 lines */
+.ovyu-hero__copy p { font-size: 18px; font-weight: 300; line-height: 1.2; color: var(--ovyu-muted); margin: 0; max-width: 473px; }
 
 .ovyu-hero__sidebar {
   grid-column: 3;

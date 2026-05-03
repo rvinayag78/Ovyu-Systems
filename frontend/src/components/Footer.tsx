@@ -11,7 +11,7 @@ export function Footer() {
           AND CONVERSATIONS, BEYOND WHAT IS REQUIRED TO OPERATE THIS SERVICE.
         </p>
         <div className="ovyu-footer__legal">
-          <span>© 2026 OVYU</span>
+          <span>@ 2026 OVYU</span>
           <a href="/cookies">MANAGE COOKIES</a>
           <span className="ovyu-footer__sep" aria-hidden="true" />
           <a href="/legal">LEGAL</a>
