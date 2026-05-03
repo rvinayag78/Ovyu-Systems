@@ -476,6 +476,15 @@ a:hover { text-decoration: underline; }
 .ovyu-confirm h1 { font-family: var(--ovyu-font-serif); font-size: 56px; line-height: 1.05; letter-spacing: -0.01em; text-align: center; }
 .ovyu-confirm > p { font-size: 20px; color: var(--ovyu-muted); margin: 0; text-align: center; }
 .ovyu-confirm__divider { width: 100%; height: 2px; background: var(--ovyu-divider-strong); }
+.ovyu-tc-what-happens {
+  background: var(--ovyu-cream-warm);
+  border: 2px solid var(--ovyu-gold);
+  border-radius: 20px; padding: 32px 40px;
+  display: flex; flex-direction: column; gap: 12px;
+  width: 100%;
+}
+.ovyu-tc-what-happens__title { font-weight: 700; font-size: 18px; color: var(--ovyu-ink-soft); margin: 0; }
+.ovyu-tc-what-happens__body { font-size: 16px; color: var(--ovyu-ink-soft); line-height: 1.6; margin: 0; }
 
 /* ── Pricing ──────────────────────────────────────────────── */
 .ovyu-pricing {

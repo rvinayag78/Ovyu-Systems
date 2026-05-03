@@ -104,6 +104,16 @@ async def accept_invitation(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> ContractRead:
+    from sqlalchemy import select as sa_select
+    from app.models.user import User as UserModel
+    from app.models.invitation_token import InvitationToken as InvitationTokenModel, InviteeRole as InviteeRoleModel
+
+    # Capture invitee email + role before the token is consumed
+    inv_result = await db.execute(sa_select(InvitationTokenModel).where(InvitationTokenModel.token == token))
+    invitation_record = inv_result.scalar_one_or_none()
+    invitee_email = invitation_record.invitee_email if invitation_record else None
+    is_tc = invitation_record and invitation_record.invitee_role == InviteeRoleModel.TC
+
     svc = ContractService(db)
     contract = await svc.accept_invitation(
         token_str=token,
@@ -112,8 +122,6 @@ async def accept_invitation(
         typed_name=body.typed_name,
         user_agent=request.headers.get("user-agent", ""),
     )
-    from sqlalchemy import select as sa_select
-    from app.models.user import User as UserModel
     maker_result = await db.execute(sa_select(UserModel).where(UserModel.id == contract.maker_id))
     maker = maker_result.scalar_one_or_none()
     if maker:
@@ -122,4 +130,13 @@ async def accept_invitation(
             EmailService().send_contract_locked(maker.email, signer_name)
         except Exception as exc:
             logger.error("send_contract_locked failed for %s: %s", maker.email, exc, exc_info=True)
+        if is_tc and invitee_email:
+            try:
+                EmailService().send_tc_signed_confirmation(
+                    tc_email=invitee_email,
+                    maker_name=maker.full_name,
+                    keeper_name=contract.keeper_name or "their Keeper",
+                )
+            except Exception as exc:
+                logger.error("send_tc_signed_confirmation failed for %s: %s", invitee_email, exc, exc_info=True)
     return ContractRead.model_validate(contract)

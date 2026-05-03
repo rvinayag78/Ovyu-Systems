@@ -52,8 +52,37 @@ class EmailService:
         self._send(maker_email, "Confirm your email — Ovyu", html)
 
     def send_invitation(self, invitee_email: str, invitee_name: str, maker_name: str, invite_url: str, role: str) -> None:
-        subject = f"{maker_name} has invited you to Ovyu" if role == "keeper" else f"{maker_name} has named you as their Transfer Contact"
-        html = f"""
+        if role == "tc":
+            subject = f"{maker_name} has chosen you as their Transfer Contact"
+            html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f8f7f5">
+          <div style="background:#000;padding:40px;text-align:center">
+            <span style="font-family:Georgia,serif;font-weight:700;font-size:48px;color:#fff">ov<em>yu</em></span>
+          </div>
+          <div style="padding:48px 40px;background:#f8f7f5">
+            <h1 style="font-family:Georgia,serif;font-size:32px;color:#1a1a1a;text-align:center;margin:0 0 12px">{maker_name} has chosen you as their Transfer Contact.</h1>
+            <p style="font-size:18px;color:#888;text-align:center;margin:0 0 28px">This comes with a responsibility. Please read carefully.</p>
+            <p style="font-size:16px;color:#444;margin:0 0 12px">{maker_name} is using Ovyu to leave a piece of themselves for someone they love. They have named you as their Transfer Contact — the person responsible for initiating the Transfer when the time comes.</p>
+            <p style="font-size:16px;color:#444;margin:0 0 20px">As Transfer Contact, your role is specific:</p>
+            <div style="background:#f5edd6;border:3px solid #c9a84c;border-radius:16px;padding:28px 32px;margin:0 0 24px">
+              <p style="font-size:15px;color:#444;margin:0 0 12px">1. &nbsp;When {maker_name} passes, provide Ovyu with evidence of their passing (such as a death certificate or official notice).</p>
+              <p style="font-size:15px;color:#444;margin:0 0 12px">2. &nbsp;Confirm the Keeper's name and email so we can reach them.</p>
+              <p style="font-size:15px;color:#444;margin:0">3. &nbsp;You have all the time you need.</p>
+            </div>
+            <p style="font-size:12px;color:#888;text-align:center;font-style:italic;margin:0 0 24px">By continuing you agree to Ovyu's Terms of Use and Privacy Policy.</p>
+            <div style="text-align:center">
+              <a href="{invite_url}" style="display:inline-block;background:#c9a84c;color:#fff;font-size:16px;font-weight:700;padding:16px 40px;border-radius:11px;text-decoration:none">Review the contract and accept this role</a>
+            </div>
+            <p style="font-size:12px;color:#888;text-align:center;font-style:italic;margin:24px 0 0">This button takes you to ovyu.com where you can read the full contract and sign.</p>
+          </div>
+          <div style="background:#d9d9d9;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com &nbsp;·&nbsp; You received this because {maker_name} named you as their Transfer Contact. If this is a mistake, you may decline.
+          </div>
+        </div>
+            """
+        else:
+            subject = f"{maker_name} has invited you to Ovyu"
+            html = f"""
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
           <div style="background:#1A1A1A;padding:32px;text-align:center">
             <span style="font-family:Georgia,serif;font-style:italic;font-size:48px;color:#F7F8F3">ovyu</span>
@@ -67,8 +96,33 @@ class EmailService:
             ovyu.com · This link expires in 7 days and is single-use.
           </div>
         </div>
-        """
+            """
         self._send(invitee_email, subject, html)
+
+    def send_tc_signed_confirmation(self, tc_email: str, maker_name: str, keeper_name: str) -> None:
+        subject = f"Thank you for signing — Ovyu"
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f8f7f5">
+          <div style="background:#000;padding:40px;text-align:center">
+            <span style="font-family:Georgia,serif;font-weight:700;font-size:48px;color:#fff">ov<em>yu</em></span>
+          </div>
+          <div style="padding:56px 40px;background:#f8f7f5;text-align:center">
+            <h1 style="font-family:Georgia,serif;font-style:italic;font-size:36px;color:#1a1a1a;margin:0 0 12px">Thank you for signing.</h1>
+            <p style="font-size:20px;color:#444;margin:0 0 36px">{maker_name} has been notified.</p>
+            <div style="text-align:left;max-width:520px;margin:0 auto">
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0 0 16px">You've agreed to one thing: when {maker_name} passes, you'll let Ovyu know. That's what activates the transfer to {keeper_name}.</p>
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0 0 16px">You won't see what {maker_name} is leaving. You won't be involved in what {keeper_name} receives. Your role begins and ends with that one notification.</p>
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0 0 16px">{maker_name} is recording a welcome message for {keeper_name} that will play when the transfer begins. You don't need to explain anything to {keeper_name}, or speak with them at all. Once you've notified Ovyu, we take it from there.</p>
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0 0 16px">A copy of what you signed is attached to this email. Please save it. You won't have an Ovyu account, so this is your record.</p>
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0">Until {maker_name} passes, there's nothing you need to do.</p>
+            </div>
+          </div>
+          <div style="background:#d9d9d9;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com &nbsp;·&nbsp; This is a transactional email sent because you signed as a Transfer Contact.
+          </div>
+        </div>
+        """
+        self._send(tc_email, subject, html)
 
     def send_magic_link(self, email: str, link_url: str, mode: str) -> None:
         if mode == "tc":
