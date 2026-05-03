@@ -6,6 +6,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 type Contract = {
   id: string; path: string; status: string;
   maker_name?: string; keeper_name?: string; tc_name?: string; relationship?: string;
@@ -15,6 +18,17 @@ type Contract = {
 function fmt(iso?: string) {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#c9a84c", textTransform: "uppercase", marginBottom: "10px", margin: "0 0 10px" }}>
+        {title}
+      </p>
+      <p style={{ fontFamily: sans, fontSize: "16px", color: "#444", lineHeight: "1.5", margin: 0 }}>{children}</p>
+    </div>
+  );
 }
 
 function ContractViewInner() {
@@ -36,21 +50,21 @@ function ContractViewInner() {
   }, [contractId]);
 
   if (error) return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main ovyu-main--contract-view" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "var(--ovyu-error)" }}>{error}</p>
-      </main>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C" }}>{error}</p>
+      </div>
       <Footer />
     </div>
   );
 
   if (!contract) return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main ovyu-main--contract-view" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "var(--ovyu-muted)" }}>Loading…</p>
-      </main>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Loading…</p>
+      </div>
       <Footer />
     </div>
   );
@@ -63,109 +77,108 @@ function ContractViewInner() {
   const keeperSigned = fmt(contract.locked_at);
 
   return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main ovyu-main--contract-view">
-        {/* Title row */}
-        <div style={{ marginBottom: 23 }}>
-          <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: 64, color: "var(--ovyu-ink)", margin: "0 0 8px", fontWeight: 400 }}>
-            ov<em>yu</em> Agreement
-          </h1>
-          <div style={{ display: "flex", gap: 48, alignItems: "center", flexWrap: "wrap" }}>
-            <span style={{ fontSize: 22, color: "var(--ovyu-ink)", fontStyle: "italic", fontFamily: "var(--ovyu-font-sans)" }}>
-              Between {maker} and {keeper}
-            </span>
-            {makerSigned && (
-              <span style={{ fontSize: 18, color: "var(--ovyu-muted)", fontStyle: "italic" }}>
-                Signed by {maker} on {makerSigned}
+
+      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+        <div style={{ position: "absolute", left: "58px", top: "40px", width: "1804px", display: "flex", flexDirection: "column", gap: "23px" }}>
+          {/* Title row */}
+          <div>
+            <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px" }}>
+              ov<em>yu</em> Agreement
+            </h1>
+            <div style={{ display: "flex", gap: "48px", alignItems: "center", flexWrap: "wrap" }}>
+              <span style={{ fontFamily: sans, fontSize: "22px", color: "#1a1a1a", fontStyle: "italic" }}>
+                Between {maker} and {keeper}
               </span>
-            )}
-            {keeperSigned && (
-              <span style={{ fontSize: 18, color: "var(--ovyu-muted)", fontStyle: "italic" }}>
-                Signed by {keeper} on {keeperSigned}
-              </span>
-            )}
-            <button
-              onClick={() => window.print()}
-              style={{ fontSize: 18, color: "var(--ovyu-ink)", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "auto" }}
-            >
-              Download ⤓
-            </button>
+              {makerSigned && (
+                <span style={{ fontFamily: sans, fontSize: "18px", color: "#888", fontStyle: "italic" }}>
+                  Signed by {maker} on {makerSigned}
+                </span>
+              )}
+              {keeperSigned && (
+                <span style={{ fontFamily: sans, fontSize: "18px", color: "#888", fontStyle: "italic" }}>
+                  Signed by {keeper} on {keeperSigned}
+                </span>
+              )}
+              <button
+                onClick={() => window.print()}
+                style={{ fontFamily: sans, fontSize: "18px", color: "#1a1a1a", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "auto" }}
+              >
+                Download ⤓
+              </button>
+            </div>
           </div>
+
+          {/* Contract body */}
+          <div style={{ background: "#fff", padding: "40px", display: "flex", gap: "66px", alignItems: "flex-start", borderRadius: "8px" }}>
+            {/* Left column — 760px */}
+            <div style={{ width: "760px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "14px" }}>
+              <Section title="What this is">
+                {maker} has chosen to leave a piece of themselves — in their voice, stories, and memories — for {keeper} to receive after they&apos;re gone. Ovyu is the platform that holds it and delivers it. This agreement is between the two of them. Ovyu is a witness, not a party.
+              </Section>
+
+              <Section title={`What ${maker} is leaving for ${keeper}.`}>
+                A private upload made by {maker}, in their own time. It may include their voice, recorded stories, written memories, and a welcome message recorded for {keeper}.<br /><br />
+                The upload is created entirely by {maker}. Ovyu does not edit, alter, or generate content on their behalf. Their voice is cloned through ElevenLabs to allow {keeper} to have a conversation with what they&apos;ve left, using only the words and memories they chose to share.
+              </Section>
+
+              <Section title={`When ${keeper} receives it.`}>
+                After {maker} passes, the transfer is activated by {isPrivate ? tcName : "the Transfer Contact"}, who {maker} has chosen for that role. Once activated, {keeper} is notified and can begin accessing what {maker} has left.<br /><br />
+                The transfer does not happen automatically. It requires a human action from the Transfer Contact.
+              </Section>
+
+              <Section title={`What ${keeper} agrees to.`}>
+                To receive what {maker} has left, privately, for themselves.<br /><br />
+                Not to share, copy, distribute, or publish any part of the upload, including {maker}&apos;s voice, stories, or any conversation generated from their cloned voice.<br /><br />
+                To treat what they receive as a private gift between two people.
+              </Section>
+            </div>
+
+            {/* Right column — 888px */}
+            <div style={{ width: "888px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "21px" }}>
+              <Section title="Withdrawing.">
+                Either {maker} or {keeper} may withdraw from this agreement at any time before the transfer is activated.<br /><br />
+                If {maker} withdraws, the upload is deleted. {keeper} is told the agreement was withdrawn, but not why.<br /><br />
+                If {keeper} withdraws, {maker} is told they&apos;ve stepped back, but not why. {maker} may choose to name a different Keeper, or stop entirely.<br /><br />
+                After the transfer is activated, the upload belongs to {keeper}. They can stop using it at any time and can ask Ovyu to delete it.
+              </Section>
+
+              <Section title="What Ovyu does.">
+                Stores the upload, the voice clone, and this agreement, securely.<br /><br />
+                Delivers the upload to {keeper} when the transfer is activated, and not before.<br /><br />
+                Does not share, sell, or retain personal data beyond what is required to operate this service.<br /><br />
+                Does not access the contents of the upload except as required to deliver it.
+              </Section>
+
+              <Section title="What Ovyu does not do.">
+                Notify anyone of {maker}&apos;s passing. That is the Transfer Contact&apos;s role.<br /><br />
+                Verify the death of the Maker. Ovyu acts on the Transfer Contact&apos;s notification.<br /><br />
+                Hold the upload indefinitely if the service ends. If Ovyu shuts down, both parties will be notified, and the upload will be made available for export before deletion.
+              </Section>
+            </div>
+          </div>
+
+          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "14px", color: "#888", margin: 0, textAlign: "right" }}>
+            Your digital signature carries the same intent as a handwritten signature within the Ovyu platform.
+          </p>
         </div>
+      </div>
 
-        {/* Contract body */}
-        <div style={{ background: "#fff", padding: 40, display: "flex", gap: 66, alignItems: "flex-start" }}>
-          {/* Left column — Figma: w=760px */}
-          <div style={{ width: 760, flexShrink: 0, display: "flex", flexDirection: "column", gap: 14 }}>
-            <Section title="What this is">
-              {maker} has chosen to leave a piece of themselves — in their voice, stories, and memories — for {keeper} to receive after they&apos;re gone. Ovyu is the platform that holds it and delivers it. This agreement is between the two of them. Ovyu is a witness, not a party.
-            </Section>
-
-            <Section title={`What ${maker} is leaving for ${keeper}.`}>
-              A private upload made by {maker}, in their own time. It may include their voice, recorded stories, written memories, and a welcome message recorded for {keeper}.<br /><br />
-              The upload is created entirely by {maker}. Ovyu does not edit, alter, or generate content on their behalf. Their voice is cloned through ElevenLabs to allow {keeper} to have a conversation with what they&apos;ve left, using only the words and memories they chose to share.
-            </Section>
-
-            <Section title={`When ${keeper} receives it.`}>
-              After {maker} passes, the transfer is activated by {isPrivate ? tcName : "the Transfer Contact"}, who {maker} has chosen for that role. Once activated, {keeper} is notified and can begin accessing what {maker} has left.<br /><br />
-              The transfer does not happen automatically. It requires a human action from the Transfer Contact.
-            </Section>
-
-            <Section title={`What ${keeper} agrees to.`}>
-              To receive what {maker} has left, privately, for themselves.<br /><br />
-              Not to share, copy, distribute, or publish any part of the upload, including {maker}&apos;s voice, stories, or any conversation generated from their cloned voice.<br /><br />
-              To treat what they receive as a private gift between two people.
-            </Section>
-          </div>
-
-          {/* Right column — Figma: w=888px */}
-          <div style={{ width: 888, flexShrink: 0, display: "flex", flexDirection: "column", gap: 21 }}>
-            <Section title="Withdrawing.">
-              Either {maker} or {keeper} may withdraw from this agreement at any time before the transfer is activated.<br /><br />
-              If {maker} withdraws, the upload is deleted. {keeper} is told the agreement was withdrawn, but not why.<br /><br />
-              If {keeper} withdraws, {maker} is told they&apos;ve stepped back, but not why. {maker} may choose to name a different Keeper, or stop entirely.<br /><br />
-              After the transfer is activated, the upload belongs to {keeper}. They can stop using it at any time and can ask Ovyu to delete it.
-            </Section>
-
-            <Section title="What Ovyu does.">
-              Stores the upload, the voice clone, and this agreement, securely.<br /><br />
-              Delivers the upload to {keeper} when the transfer is activated, and not before.<br /><br />
-              Does not share, sell, or retain personal data beyond what is required to operate this service.<br /><br />
-              Does not access the contents of the upload except as required to deliver it.
-            </Section>
-
-            <Section title="What Ovyu does not do.">
-              Notify anyone of {maker}&apos;s passing. That is the Transfer Contact&apos;s role.<br /><br />
-              Verify the death of the Maker. Ovyu acts on the Transfer Contact&apos;s notification.<br /><br />
-              Hold the upload indefinitely if the service ends. If Ovyu shuts down, both parties will be notified, and the upload will be made available for export before deletion.
-            </Section>
-          </div>
-        </div>
-
-        <p style={{ textAlign: "right", fontStyle: "italic", fontSize: 14, color: "var(--ovyu-muted)", marginTop: 16 }}>
-          Your digital signature carries the same intent as a handwritten signature within the Ovyu platform.
-        </p>
-      </main>
       <Footer />
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <p style={{ fontWeight: 700, fontSize: 22, color: "var(--ovyu-gold)", textTransform: "uppercase", marginBottom: 10 }}>
-        {title}
-      </p>
-      <p style={{ fontSize: 16, color: "#444", lineHeight: 1.7, margin: 0 }}>{children}</p>
     </div>
   );
 }
 
 export default function KeeperContractViewPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--ovyu-cream)" }} />}>
+    <Suspense fallback={
+      <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <Header variant="loggedIn" initial="?" />
+        <div style={{ flex: 1 }} />
+        <Footer />
+      </div>
+    }>
       <ContractViewInner />
     </Suspense>
   );

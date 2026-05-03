@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { api } from "@/lib/api";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
 
 function VerifyInner() {
   const router = useRouter();
@@ -23,21 +27,39 @@ function VerifyInner() {
   }, [params, router]);
 
   if (error) return (
-    <div style={{ minHeight: "100vh", background: "var(--ovyu-cream)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <div style={{ textAlign: "center", maxWidth: 400 }}>
-        <p style={{ color: "var(--ovyu-error)", marginBottom: 16 }}>{error}</p>
-        <a href="/contract/new" style={{ fontSize: 14, color: "var(--ovyu-ink)", textDecoration: "underline" }}>Start over</a>
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedOut" />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", marginBottom: "16px" }}>{error}</p>
+          <a href="/signup" style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a", textDecoration: "underline" }}>Start over</a>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--ovyu-cream)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ color: "var(--ovyu-muted)" }}>Verifying…</p>
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedOut" />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Verifying…</p>
+      </div>
+      <Footer />
     </div>
   );
 }
 
 export default function VerifyPage() {
-  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--ovyu-cream)" }} />}><VerifyInner /></Suspense>;
+  return (
+    <Suspense fallback={
+      <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <Header variant="loggedOut" />
+        <div style={{ flex: 1 }} />
+        <Footer />
+      </div>
+    }>
+      <VerifyInner />
+    </Suspense>
+  );
 }

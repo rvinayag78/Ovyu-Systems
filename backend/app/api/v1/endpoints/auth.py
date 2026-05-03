@@ -110,6 +110,24 @@ async def complete_registration(
         user.full_name = full_name
         await db.flush()
 
+    # Return existing active contract if one already exists (prevents duplicate entries)
+    from app.models.contract import Contract, ContractStatus
+    existing_result = await db.execute(
+        _select(Contract).where(
+            Contract.maker_id == user.id,
+            Contract.status.not_in([ContractStatus.WITHDRAWN_BY_MAKER, ContractStatus.WITHDRAWN_BY_KEEPER]),
+        ).order_by(Contract.created_at.desc()).limit(1)
+    )
+    existing_contract = existing_result.scalar_one_or_none()
+    if existing_contract:
+        await db.commit()
+        session_jwt = create_session_token(str(user.id), user.email, "login")
+        return CompleteRegistrationResponse(
+            session_token=session_jwt,
+            contract_id=str(existing_contract.id),
+            full_name=full_name,
+        )
+
     # Create contract + invitation token via service (handles token generation)
     svc = ContractService(db)
     contract_data = ContractCreate(

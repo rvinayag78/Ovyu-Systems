@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 const STAGE_ROUTES: Record<string, (contractId: string | null) => string> = {
   no_contract: () => "/signup",
   unsigned: (id) => id ? `/contract/sign?id=${id}` : "/signup",
@@ -49,11 +51,11 @@ export function VerifyClient() {
   }, [params, router]);
 
   return (
-    <div className="ovyu-page">
-      <Header />
-      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontSize: 18, color: "var(--ovyu-ink-soft)" }}>Signing you in…</p>
-      </main>
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedOut" />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Signing you in…</p>
+      </div>
       <Footer />
     </div>
   );

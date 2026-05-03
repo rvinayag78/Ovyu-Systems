@@ -1,23 +1,33 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 type Contract = { id: string; path: string; status: string; maker_signed_at?: string };
 
+const BADGE: Record<string, { bg: string; dot: string; color: string }> = {
+  signed:   { bg: "#e6f4ea", dot: "#2e7d32", color: "#2e7d32" },
+  pending:  { bg: "#fff8e1", dot: "#c9a84c", color: "#8a6e30" },
+  notified: { bg: "#f0f0f0", dot: "#888",    color: "#555"    },
+};
+
 function StatusInner() {
-  const router = useRouter();
   const params = useSearchParams();
   const contractId = params.get("id") ?? "";
-
+  const [initial, setInitial] = useState("?");
   const [contract, setContract] = useState<Contract | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const name = sessionStorage.getItem("ovyu_maker_name") ?? "";
+    setInitial(name[0]?.toUpperCase() ?? "?");
     if (!contractId) return;
     const poll = () => api.getContract(contractId).then(setContract).catch(() => setError("Contract not found."));
     poll();
@@ -26,17 +36,22 @@ function StatusInner() {
   }, [contractId]);
 
   if (error) return (
-    <div className="ovyu-page"><Header />
-      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "var(--ovyu-error)" }}>{error}</p>
-      </main><Footer />
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedIn" initial={initial} />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C" }}>{error}</p>
+      </div>
+      <Footer />
     </div>
   );
+
   if (!contract) return (
-    <div className="ovyu-page"><Header />
-      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "var(--ovyu-muted)" }}>Loading…</p>
-      </main><Footer />
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedIn" initial={initial} />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Loading…</p>
+      </div>
+      <Footer />
     </div>
   );
 
@@ -64,50 +79,73 @@ function StatusInner() {
   ];
 
   return (
-    <div className="ovyu-page">
-      <Header />
-      <main className="ovyu-main">
-        <div className="ovyu-page-header">
-          <h1>Contract status.</h1>
-          <span className="ovyu-sub">{sub}</span>
-        </div>
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedIn" initial={initial} />
 
-        <div className="ovyu-table">
-          <div className="ovyu-table__head">
-            <span>Party</span><span>Role</span><span>Status</span><span>Date</span>
+      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+        <div style={{ position: "absolute", left: "58px", top: "40px", width: "1804px", display: "flex", flexDirection: "column", gap: "32px" }}>
+          {/* Title */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0 }}>
+              Contract status.
+            </h1>
+            <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#888", margin: 0 }}>{sub}</p>
           </div>
-          {rows.map(row => (
-            <div key={row.party} className="ovyu-table__row">
-              <span className="ovyu-table__party">
-                {row.party}
-                {row.detail && <small>{row.detail}</small>}
-              </span>
-              <span>{row.role}</span>
-              <span className={`ovyu-statusbadge ovyu-statusbadge--${row.status}`}>
-                <span className={`ovyu-statusdot ovyu-statusdot--${row.status}`} />
-                {row.label}
-              </span>
-              <span className="ovyu-table__date">{row.date}</span>
+
+          {/* Table */}
+          <div style={{ background: "#fff", border: "2px solid #e1e1e1", borderRadius: "12px", overflow: "hidden" }}>
+            {/* Header row */}
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", padding: "18px 32px", borderBottom: "2px solid #e1e1e1", background: "#f8f7f5" }}>
+              {["Party", "Role", "Status", "Date"].map(h => (
+                <span key={h} style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>{h}</span>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {isLocked ? (
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 32 }}>
-            <Link href="/plan" className="ovyu-btn ovyu-btn--primary">Continue to upload →</Link>
+            {rows.map((row, i) => (
+              <div key={row.party} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr", padding: "24px 32px", borderBottom: i < rows.length - 1 ? "1px solid #e1e1e1" : "none", alignItems: "center" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{row.party}</span>
+                  {row.detail && <small style={{ fontFamily: sans, fontSize: "14px", color: "#888" }}>{row.detail}</small>}
+                </div>
+                <span style={{ fontFamily: sans, fontSize: "16px", color: "#444" }}>{row.role}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "6px 14px", background: BADGE[row.status].bg, borderRadius: "100px", width: "fit-content", fontFamily: sans, fontSize: "14px", fontWeight: 700, color: BADGE[row.status].color }}>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: BADGE[row.status].dot, flexShrink: 0 }} />
+                  {row.label}
+                </span>
+                <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>{row.date}</span>
+              </div>
+            ))}
           </div>
-        ) : (
-          <p className="ovyu-muted-text" style={{ marginTop: 24, maxWidth: 640 }}>
-            We&apos;ll email you when {isPrivate ? "your Transfer Contact" : "they"} responds.
-            You don&apos;t need to do anything in the meantime.
-          </p>
-        )}
-      </main>
+
+          {isLocked ? (
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Link href="/plan" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "62px", padding: "0 40px", background: "#1a1a1a", borderRadius: "8px", fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#f5f0e8", textDecoration: "none" }}>
+                Continue to upload →
+              </Link>
+            </div>
+          ) : (
+            <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0, maxWidth: "640px" }}>
+              We&apos;ll email you when {isPrivate ? "your Transfer Contact" : "they"} responds.
+              You don&apos;t need to do anything in the meantime.
+            </p>
+          )}
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
 }
 
 export default function StatusPage() {
-  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "var(--ovyu-cream)" }} />}><StatusInner /></Suspense>;
+  return (
+    <Suspense fallback={
+      <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <Header variant="loggedIn" initial="?" />
+        <div style={{ flex: 1 }} />
+        <Footer />
+      </div>
+    }>
+      <StatusInner />
+    </Suspense>
+  );
 }
