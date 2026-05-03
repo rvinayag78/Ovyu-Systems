@@ -44,7 +44,7 @@ export const api = {
     ),
 
   getContract: (id: string) =>
-    req<{ id: string; path: string; status: string; maker_signed_at?: string; locked_at?: string; keeper_name?: string; tc_name?: string; relationship?: string }>(`/contracts/${id}`),
+    req<{ id: string; path: string; status: string; maker_signed_at?: string; locked_at?: string; keeper_name?: string; tc_name?: string; relationship?: string; maker_name?: string }>(`/contracts/${id}`),
 
   signContract: (id: string, typed_name: string) =>
     req(`/contracts/${id}/sign`, { method: "POST", body: JSON.stringify({ typed_name }) }),

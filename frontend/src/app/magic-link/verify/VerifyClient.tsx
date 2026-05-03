@@ -36,7 +36,8 @@ export function VerifyClient() {
         return;
       }
       if (result.role === "keeper") {
-        router.replace("/keeper/coming-soon");
+        if (result.contract_id) sessionStorage.setItem("ovyu_contract_id", result.contract_id);
+        router.replace(`/keeper/contracts${result.contract_id ? `?id=${result.contract_id}` : ""}`);
         return;
       }
 

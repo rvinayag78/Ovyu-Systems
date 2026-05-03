@@ -144,6 +144,23 @@ async def verify_magic_link(raw_token: str, db: AsyncSession) -> dict:
             "full_name": user.full_name,
         }
 
+    # Keeper users are created with a synthetic cognito_sub starting with "keeper:"
+    if user.cognito_sub and user.cognito_sub.startswith("keeper:"):
+        keeper_result = await db.execute(
+            select(Contract)
+            .where(Contract.keeper_id == user.id)
+            .order_by(Contract.locked_at.desc())
+            .limit(1)
+        )
+        keeper_contract = keeper_result.scalar_one_or_none()
+        return {
+            "session_token": session_jwt,
+            "role": "keeper",
+            "maker_stage": None,
+            "contract_id": str(keeper_contract.id) if keeper_contract else None,
+            "full_name": user.full_name,
+        }
+
     # Maker flow: derive stage
     maker_stage, contract_id = await get_maker_stage(user, db)
     return {

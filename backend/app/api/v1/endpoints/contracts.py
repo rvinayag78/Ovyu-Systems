@@ -63,9 +63,13 @@ async def get_contract(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ContractRead:
+    from sqlalchemy import select as sa_select
     svc = ContractService(db)
     contract = await svc.get_contract(contract_id, current_user)
-    return ContractRead.model_validate(contract)
+    data = ContractRead.model_validate(contract)
+    maker_result = await db.execute(sa_select(User).where(User.id == contract.maker_id))
+    maker = maker_result.scalar_one_or_none()
+    return data.model_copy(update={"maker_name": maker.full_name if maker else None})
 
 
 @router.post("/{contract_id}/sign", response_model=ContractRead)

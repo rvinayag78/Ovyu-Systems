@@ -103,6 +103,21 @@ class ContractService:
         if canonical and _normalize(typed_name) != _normalize(canonical):
             raise HTTPException(status_code=422, detail="Typed name does not match.")
 
+        # Create a User record for keepers so they can log in via magic link later
+        if is_keeper and accepting_user is None:
+            existing = await self.db.execute(select(User).where(User.email == invitation.invitee_email))
+            keeper_user = existing.scalar_one_or_none()
+            if keeper_user is None:
+                keeper_user = User(
+                    cognito_sub=f"keeper:{invitation.invitee_email}",
+                    email=invitation.invitee_email,
+                    full_name=contract.keeper_name or typed_name.strip(),
+                    email_verified=True,
+                )
+                self.db.add(keeper_user)
+                await self.db.flush()
+            accepting_user = keeper_user
+
         role = SignerRole.KEEPER if is_keeper else SignerRole.TC
         sig = Signature(
             contract_id=contract.id, user_id=accepting_user.id if accepting_user else None,
