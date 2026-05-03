@@ -81,7 +81,7 @@
   /* layout */
   --ovyu-header-h: 82px;
   --ovyu-footer-h: 82px;
-  --ovyu-content-max: 1760px;
+  --ovyu-content-max: 1800px;
 }
 
 /* ── Reset & base ─────────────────────────────────────────── */
@@ -132,6 +132,11 @@ a:hover { text-decoration: underline; }
   margin: 0 auto;
   width: 100%;
 }
+.ovyu-main--center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 /* ── Header ───────────────────────────────────────────────── */
 .ovyu-header {
@@ -139,8 +144,14 @@ a:hover { text-decoration: underline; }
   background: #fff;
   border-bottom: var(--ovyu-border-header);
   padding: 0 var(--ovyu-gutter);
-  display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center;
+}
+.ovyu-header__inner {
+  max-width: var(--ovyu-content-max);
+  margin: 0 auto;
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
 }
 
 .ovyu-wordmark {
@@ -430,12 +441,12 @@ a:hover { text-decoration: underline; }
 /* ── Hero layout ──────────────────────────────────────────── */
 .ovyu-hero {
   display: grid;
-  grid-template-columns: minmax(0, 600px) 380px;
-  gap: 80px; align-items: start;
+  grid-template-columns: 1fr minmax(0, 378px);
+  gap: 80px; align-items: center;
 }
-.ovyu-hero__copy h1 { margin-bottom: 20px; font-family: var(--ovyu-font-serif); font-size: clamp(32px, 5vw, 58px); line-height: 1.05; letter-spacing: -0.01em; }
+.ovyu-hero__copy h1 { margin-bottom: 20px; font-family: var(--ovyu-font-serif); font-size: clamp(32px, 5vw, 70px); line-height: 1.05; letter-spacing: -0.01em; }
 .ovyu-hero__copy .ovyu-sub { display: block; font-size: 18px; line-height: 1.4; color: var(--ovyu-ink-soft); margin-bottom: 14px; }
-.ovyu-hero__copy p { font-size: 14px; line-height: 1.55; color: var(--ovyu-ink-soft); margin: 0 0 29px; }
+.ovyu-hero__copy p { font-size: 14px; font-weight: 300; line-height: 1.55; color: var(--ovyu-muted); margin: 0 0 29px; }
 
 .ovyu-hero__sidebar {
   background: #fff; border: 1.5px solid #ddd;

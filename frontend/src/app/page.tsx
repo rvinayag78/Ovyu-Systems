@@ -12,18 +12,18 @@ export default function LandingPage() {
   return (
     <div className="ovyu-page">
       <Header />
-      <main className="ovyu-main">
+      <main className="ovyu-main ovyu-main--center">
         <section className="ovyu-hero">
           {/* Left — hero copy */}
           <div className="ovyu-hero__copy">
             <h1>
               A bit <em>of you.</em>
             </h1>
-            <span className="ovyu-sub">Keep yourself for the one person who needs you most.</span>
-            <p>
+            <span className="ovyu-sub" style={{ fontSize: 22, fontWeight: 400, color: "var(--ovyu-ink-soft)" }}>Keep yourself for the one person who needs you most.</span>
+            <p style={{ fontSize: 18, fontWeight: 300, color: "var(--ovyu-muted)" }}>
               Ovyu lets you upload your voice, stories, and personality for one named person to
               access when you&apos;re gone.{" "}
-              <span style={{ whiteSpace: "nowrap" }}>Private. Consensual. Yours.</span>
+              Private. Consensual. Yours.
             </p>
             <Link href="/signup" className="ovyu-btn ovyu-btn--begin">Begin &nbsp;→</Link>
           </div>
@@ -64,7 +64,7 @@ function SidebarStep({ src, width, height, caption }: {
         src={src} alt=""
         style={{ width, height, display: "block", marginBottom: 12 }}
       />
-      <p style={{ fontStyle: "italic", fontSize: 16, color: "var(--ovyu-muted)", margin: 0 }}>
+      <p style={{ fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "var(--ovyu-muted)", margin: 0 }}>
         {caption}
       </p>
     </div>
