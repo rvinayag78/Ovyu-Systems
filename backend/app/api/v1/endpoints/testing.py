@@ -120,6 +120,23 @@ class CleanupResponse(BaseModel):
     kept_contract_id: str | None
 
 
+class UserLookupResponse(BaseModel):
+    emails: list[str]
+
+
+@router.get("/users", response_model=UserLookupResponse)
+async def list_users(
+    q: str = "",
+    db: AsyncSession = Depends(get_db),
+) -> UserLookupResponse:
+    """Return all user emails (optionally filtered by substring). Test use only."""
+    _guard()
+    from sqlalchemy import select as sa_select
+    result = await db.execute(sa_select(User.email).order_by(User.email))
+    emails = [row for row in result.scalars().all() if q.lower() in row.lower()]
+    return UserLookupResponse(emails=emails)
+
+
 @router.post("/cleanup-maker-contracts", response_model=CleanupResponse)
 async def cleanup_maker_contracts(
     body: CleanupRequest,
