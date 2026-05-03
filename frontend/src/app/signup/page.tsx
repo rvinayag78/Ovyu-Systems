@@ -63,7 +63,7 @@ export default function SignupPage() {
   return (
     <div className="ovyu-page">
       <Header />
-      <main className="ovyu-main">
+      <main className="ovyu-main ovyu-main--signup">
         <div className="ovyu-page-header">
           <h1><em>Let&apos;s </em>get started.</h1>
           <span className="ovyu-sub">A little about you and who this is for.</span>

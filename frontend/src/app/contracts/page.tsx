@@ -152,11 +152,11 @@ export default function ContractsPage() {
   return (
     <div className="ovyu-page">
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main">
-        <div style={{ maxWidth: 1700 }}>
+      <main className="ovyu-main ovyu-main--contracts">
+        <div style={{ width: "100%" }}>
           <h1 style={{
             fontFamily: "var(--ovyu-font-serif)", fontStyle: "italic",
-            fontSize: "clamp(36px,4vw,64px)", color: "var(--ovyu-ink)", marginBottom: 50,
+            fontSize: 64, color: "var(--ovyu-ink)", marginBottom: 50,
           }}>
             Your contracts
           </h1>

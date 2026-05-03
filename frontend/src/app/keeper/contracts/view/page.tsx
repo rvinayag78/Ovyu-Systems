@@ -38,7 +38,7 @@ function ContractViewInner() {
   if (error) return (
     <div className="ovyu-page">
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <main className="ovyu-main ovyu-main--contract-view" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ color: "var(--ovyu-error)" }}>{error}</p>
       </main>
       <Footer />
@@ -48,7 +48,7 @@ function ContractViewInner() {
   if (!contract) return (
     <div className="ovyu-page">
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <main className="ovyu-main ovyu-main--contract-view" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ color: "var(--ovyu-muted)" }}>Loading…</p>
       </main>
       <Footer />
@@ -65,29 +65,29 @@ function ContractViewInner() {
   return (
     <div className="ovyu-page">
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main">
+      <main className="ovyu-main ovyu-main--contract-view">
         {/* Title row */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: "clamp(36px,4vw,64px)", color: "var(--ovyu-ink)", margin: "0 0 8px" }}>
-            <em>ovyu</em> Agreement
+        <div style={{ marginBottom: 23 }}>
+          <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: 64, color: "var(--ovyu-ink)", margin: "0 0 8px", fontWeight: 400 }}>
+            ov<em>yu</em> Agreement
           </h1>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 48px", alignItems: "center" }}>
-            <span style={{ fontSize: 18, color: "var(--ovyu-ink)", fontStyle: "italic" }}>
+          <div style={{ display: "flex", gap: 48, alignItems: "center", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 22, color: "var(--ovyu-ink)", fontStyle: "italic", fontFamily: "var(--ovyu-font-sans)" }}>
               Between {maker} and {keeper}
             </span>
             {makerSigned && (
-              <span style={{ fontSize: 16, color: "var(--ovyu-muted)", fontStyle: "italic" }}>
+              <span style={{ fontSize: 18, color: "var(--ovyu-muted)", fontStyle: "italic" }}>
                 Signed by {maker} on {makerSigned}
               </span>
             )}
             {keeperSigned && (
-              <span style={{ fontSize: 16, color: "var(--ovyu-muted)", fontStyle: "italic" }}>
+              <span style={{ fontSize: 18, color: "var(--ovyu-muted)", fontStyle: "italic" }}>
                 Signed by {keeper} on {keeperSigned}
               </span>
             )}
             <button
               onClick={() => window.print()}
-              style={{ fontSize: 16, color: "var(--ovyu-ink)", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "auto" }}
+              style={{ fontSize: 18, color: "var(--ovyu-ink)", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "auto" }}
             >
               Download ⤓
             </button>
@@ -95,9 +95,9 @@ function ContractViewInner() {
         </div>
 
         {/* Contract body */}
-        <div style={{ background: "#fff", padding: "40px 48px", display: "flex", gap: 66, flexWrap: "wrap" }}>
-          {/* Left column */}
-          <div style={{ flex: "1 1 500px", display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ background: "#fff", padding: 40, display: "flex", gap: 66, alignItems: "flex-start" }}>
+          {/* Left column — Figma: w=760px */}
+          <div style={{ width: 760, flexShrink: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             <Section title="What this is">
               {maker} has chosen to leave a piece of themselves — in their voice, stories, and memories — for {keeper} to receive after they&apos;re gone. Ovyu is the platform that holds it and delivers it. This agreement is between the two of them. Ovyu is a witness, not a party.
             </Section>
@@ -119,8 +119,8 @@ function ContractViewInner() {
             </Section>
           </div>
 
-          {/* Right column */}
-          <div style={{ flex: "1 1 500px", display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Right column — Figma: w=888px */}
+          <div style={{ width: 888, flexShrink: 0, display: "flex", flexDirection: "column", gap: 21 }}>
             <Section title="Withdrawing.">
               Either {maker} or {keeper} may withdraw from this agreement at any time before the transfer is activated.<br /><br />
               If {maker} withdraws, the upload is deleted. {keeper} is told the agreement was withdrawn, but not why.<br /><br />

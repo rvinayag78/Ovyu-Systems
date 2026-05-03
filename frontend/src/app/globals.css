@@ -129,11 +129,17 @@ a:hover { text-decoration: underline; }
 
 .ovyu-main {
   flex: 1;
-  padding: 64px var(--ovyu-gutter) 96px;
+  padding: 64px 0 96px;
   max-width: var(--ovyu-content-max);
   margin: 0 auto;
   width: 100%;
 }
+/* Signup/Begin — Figma: content left=60px (1800px centered), top=241px → 138px from header */
+.ovyu-main--signup { padding-top: 138px; padding-bottom: 96px; }
+/* Contracts dashboard — Figma: content left=110px (1700px centered), top=181px → 78px from header */
+.ovyu-main--contracts { max-width: 1700px; padding-top: 78px; }
+/* Signed contract view — Figma: content left=58px (1804px centered), top=143px → 40px from header */
+.ovyu-main--contract-view { max-width: 1804px; padding-top: 40px; }
 /* Home page: exact Figma layout — 1920×1080 */
 .ovyu-main--home {
   /* Figma: content left=179px, right=241px (1920-179-1500), top/bottom=148-103=45px */
@@ -169,19 +175,21 @@ a:hover { text-decoration: underline; }
 .ovyu-header__nav { display: flex; align-items: center; gap: 117px; }
 
 .ovyu-header__link {
-  font-size: 16px; font-weight: 500;
+  font-size: 16px; font-weight: 400;
   color: var(--ovyu-ink); text-decoration: none;
 }
 .ovyu-header__link:hover { text-decoration: underline; }
 
 .ovyu-btn-login {
-  font-family: var(--ovyu-font-sans); font-size: 14px; font-weight: 400;
-  color: var(--ovyu-ink); background: transparent;
-  border: 2px solid var(--ovyu-ink); border-radius: var(--ovyu-radius-pill);
-  padding: 9px 28px; cursor: pointer;
-  transition: background var(--ovyu-dur-fast), color var(--ovyu-dur-fast);
+  font-family: var(--ovyu-font-sans); font-size: 16px; font-weight: 700;
+  color: #fff; background: var(--ovyu-ink);
+  border: none; border-radius: 8px;
+  height: 52px; width: 136px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background var(--ovyu-dur-fast);
 }
-.ovyu-btn-login:hover { background: var(--ovyu-ink); color: #fff; }
+.ovyu-btn-login:hover { background: var(--ovyu-ink-soft); }
 
 /* ── Footer ───────────────────────────────────────────────── */
 .ovyu-footer {

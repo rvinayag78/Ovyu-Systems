@@ -57,7 +57,7 @@ function SidebarStep({ src, naturalW, naturalH, caption }: {
     <div className="ovyu-hero__step">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt="" width={naturalW} height={naturalH} style={{ display: "block", marginBottom: 12, maxWidth: "100%" }} />
-      <p style={{ fontStyle: "italic", fontWeight: 300, fontSize: 16, color: "var(--ovyu-muted)", margin: 0, lineHeight: 1.55 }}>
+      <p style={{ fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "var(--ovyu-muted)", margin: 0, lineHeight: "normal" }}>
         {caption}
       </p>
     </div>
