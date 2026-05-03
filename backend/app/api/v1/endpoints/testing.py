@@ -120,6 +120,23 @@ class CleanupResponse(BaseModel):
     kept_contract_id: str | None
 
 
+class WipeResponse(BaseModel):
+    deleted: dict[str, int]
+
+
+@router.delete("/wipe", response_model=WipeResponse)
+async def wipe_all_data(db: AsyncSession = Depends(get_db)) -> WipeResponse:
+    """Delete all rows from every table. Test use only."""
+    _guard()
+    from sqlalchemy import text
+    counts: dict[str, int] = {}
+    for table in ["signatures", "invitation_tokens", "magic_link_tokens", "contracts", "users"]:
+        result = await db.execute(text(f"DELETE FROM {table}"))
+        counts[table] = result.rowcount
+    await db.commit()
+    return WipeResponse(deleted=counts)
+
+
 class UserLookupResponse(BaseModel):
     emails: list[str]
 
