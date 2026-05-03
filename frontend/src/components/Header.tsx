@@ -8,8 +8,9 @@ type HeaderProps = {
 export function Header({ variant = "loggedOut", initial }: HeaderProps) {
   return (
     <header className="ovyu-header">
-      <Link href="/" className="ovyu-wordmark">
-        ov<em style={{ fontStyle: "italic" }}>yu</em>
+      <Link href="/" className="ovyu-wordmark" aria-label="ovyu home">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/ovyu-wordmark.svg" alt="ovyu" height={32} style={{ width: "auto", display: "block" }} />
       </Link>
       <nav className="ovyu-header__nav">
         <Link href="/activate-transfer" className="ovyu-header__link">Activate Transfer</Link>

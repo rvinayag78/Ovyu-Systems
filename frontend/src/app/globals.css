@@ -2,7 +2,7 @@
    Ovyu Design Tokens — source: colors_and_type.css
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
+/* No external font imports — Georgia and Helvetica are system fonts */
 
 :root {
   /* surfaces */
@@ -49,8 +49,8 @@
   --ovyu-error-soft: #FCE8E5;
 
   /* type */
-  --ovyu-font-serif: 'Instrument Serif', Fraunces, Georgia, serif;
-  --ovyu-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --ovyu-font-serif: Georgia, serif;
+  --ovyu-font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   /* radii */
   --ovyu-radius-sm: 8px;
@@ -101,6 +101,15 @@ h1, h2, h3, h4 { margin: 0; font-weight: 400; }
 
 p { margin: 0; }
 
+/* Helvetica Light (Para 4) — muted descriptive text */
+.ovyu-text-light { font-weight: 300; color: var(--ovyu-muted); }
+/* Helvetica Light Oblique (Para 5, 7) — muted italic text */
+.ovyu-text-light-oblique { font-weight: 300; font-style: italic; color: var(--ovyu-muted); }
+/* Helvetica Bold All Caps (Para 1, 3) — gold section labels */
+.ovyu-label-gold { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ovyu-gold); }
+/* Helvetica Bold All Caps (Para 6) — black section labels */
+.ovyu-label-black { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ovyu-ink); }
+
 a {
   color: var(--ovyu-ink);
   text-decoration: none;
@@ -135,13 +144,11 @@ a:hover { text-decoration: underline; }
 }
 
 .ovyu-wordmark {
-  font-family: var(--ovyu-font-serif);
-  font-weight: 400; font-size: 32px;
-  color: var(--ovyu-ink); text-decoration: none;
-  letter-spacing: -0.01em; line-height: 1;
-  border-bottom: none !important;
+  display: flex; align-items: center;
+  text-decoration: none; border-bottom: none !important;
 }
 .ovyu-wordmark:hover { text-decoration: none; }
+.ovyu-wordmark img { display: block; }
 
 .ovyu-header__nav { display: flex; align-items: center; gap: 36px; }
 
@@ -152,7 +159,7 @@ a:hover { text-decoration: underline; }
 .ovyu-header__link:hover { text-decoration: underline; }
 
 .ovyu-btn-login {
-  font-family: var(--ovyu-font-sans); font-size: 14px; font-weight: 700;
+  font-family: var(--ovyu-font-sans); font-size: 14px; font-weight: 400;
   color: var(--ovyu-ink); background: transparent;
   border: 2px solid var(--ovyu-ink); border-radius: var(--ovyu-radius-pill);
   padding: 9px 28px; cursor: pointer;
@@ -181,7 +188,7 @@ a:hover { text-decoration: underline; }
 
 .ovyu-footer__notice {
   flex: 1;
-  font-size: 9px; font-weight: 300; letter-spacing: 0.02em; line-height: 1;
+  font-size: 9px; font-weight: 300; font-style: italic; letter-spacing: 0.02em; line-height: 1;
   color: var(--ovyu-footer-text); text-transform: uppercase; margin: 0;
   white-space: nowrap;
 }
@@ -217,7 +224,7 @@ a:hover { text-decoration: underline; }
 /* Gold — email verify button */
 .ovyu-btn--gold {
   background: var(--ovyu-gold); color: #fff;
-  font-size: 18px; font-weight: 700;
+  font-size: 18px; font-weight: 400;
   border-radius: 11px;
   padding: 15px 48px;
   min-width: 335px; height: 50px;
@@ -228,7 +235,7 @@ a:hover { text-decoration: underline; }
 /* Primary black */
 .ovyu-btn--primary {
   background: var(--ovyu-ink); color: var(--ovyu-footer-text);
-  font-weight: 700; font-size: 14px;
+  font-weight: 400; font-size: 18px;
   border-radius: var(--ovyu-radius-sm);
   padding: 12px 40px;
 }
@@ -241,7 +248,7 @@ a:hover { text-decoration: underline; }
   background: transparent; color: var(--ovyu-ink);
   border: 2px solid var(--ovyu-ink);
   border-radius: var(--ovyu-radius-sm);
-  font-weight: 700; font-size: 16px;
+  font-weight: 400; font-size: 18px;
   padding: 13px 49px;
 }
 .ovyu-btn--outline:hover { background: var(--ovyu-ink); color: var(--ovyu-footer-text); text-decoration: none; }
