@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     backend_url: str = "http://localhost:8000"
 
+    # Set TESTING=true in CI / staging only — never in production
+    testing: bool = False
+
     @property
     def database_url(self) -> str:
         return (

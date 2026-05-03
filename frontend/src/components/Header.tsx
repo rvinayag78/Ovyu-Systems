@@ -25,7 +25,6 @@ export function Header({ variant = "loggedOut", initial }: HeaderProps) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "0 60px",
       }}>
         <Link href="/" aria-label="ovyu home">
           {/* eslint-disable-next-line @next/next/no-img-element */}

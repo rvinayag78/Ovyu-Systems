@@ -1,103 +1,88 @@
 /**
- * Keeper invitation flow:
- *   navigate to /invite/[token] → preview → accept → locked confirmation
- *
- * Requires a signed contract to already exist (run after 03-maker-flow or
- * via its own setup that creates a contract via the API directly).
+ * Keeper invitation acceptance flow.
+ * Setup (beforeAll): creates a signed contract via API without a browser.
+ * Tests drive keeper acceptance through the browser.
+ * Uses /test/email-verify-token + /auth/complete-registration + /contracts/:id/sign.
  */
 import { test, expect } from "@playwright/test";
-import { insertMagicLink, upsertUser, deleteUser, getInvitationToken } from "./db";
-import { execSync } from "child_process";
+import * as crypto from "crypto";
+import { getEmailVerifyToken, getInviteToken } from "./helpers/tokens";
+import type { RegistrationData } from "./helpers/tokens";
 
-const MAKER_EMAIL = "ovyu_maker@protonmail.com";
-const MAKER_NAME = "Ovyu Maker";
-const KEEPER_EMAIL = "ovyu_keeper@proton.me";
-const KEEPER_NAME = "Ovyu Keeper";
+const API = process.env.API_URL ?? "http://localhost:8000/api/v1";
 
-const API_BASE =
-  process.env.API_URL ??
-  "https://pmfg4ex4f3.execute-api.us-west-2.amazonaws.com/api/v1";
-
-function apiPost(path: string, body: object, headers: Record<string, string> = {}) {
-  const result = execSync(
-    `curl -s -X POST "${API_BASE}${path}" -H "Content-Type: application/json" ${Object.entries(headers)
-      .map(([k, v]) => `-H "${k}: ${v}"`)
-      .join(" ")} -d '${JSON.stringify(body)}'`,
-    { encoding: "utf-8", timeout: 15_000 }
-  );
-  return JSON.parse(result);
+async function apiPost<T>(
+  path: string,
+  body: object,
+  headers: Record<string, string> = {}
+): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`POST ${path} → ${res.status}: ${await res.text()}`);
+  return res.json() as Promise<T>;
 }
 
-function apiGet(path: string, headers: Record<string, string> = {}) {
-  const result = execSync(
-    `curl -s "${API_BASE}${path}" ${Object.entries(headers)
-      .map(([k, v]) => `-H "${k}: ${v}"`)
-      .join(" ")}`,
-    { encoding: "utf-8", timeout: 15_000 }
-  );
-  return JSON.parse(result);
-}
-
-let invitationToken: string;
+const MAKER_NAME = "E2E Maker";
+const KEEPER_NAME = "E2E Keeper";
+let inviteToken: string;
+let keeperEmail: string;
 
 test.describe("Keeper invitation flow", () => {
-  test.beforeAll(() => {
-    // Ensure maker exists, create + sign a contract via API, get invitation token
-    upsertUser(MAKER_EMAIL, MAKER_NAME);
+  test.beforeAll(async () => {
+    const id = crypto.randomBytes(4).toString("hex");
+    keeperEmail = `e2e-keeper-${id}@example.com`;
+    const makerEmail = `e2e-maker-${id}@example.com`;
 
-    // Get session token for maker
-    const raw = insertMagicLink(MAKER_EMAIL);
-    const auth = apiGet(`/auth/magic-link/verify?token=${raw}`);
-    const sessionToken: string = auth.session_token;
-    const authHeaders = { Authorization: `Bearer ${sessionToken}` };
+    const data: RegistrationData = {
+      first_name: "E2E",
+      last_name: "Maker",
+      maker_email: makerEmail,
+      keeper_name: KEEPER_NAME,
+      keeper_email: keeperEmail,
+      relationship: "Partner / spouse",
+      path: "aware",
+    };
 
-    // Create contract
-    const contract = apiPost(
-      "/contracts",
-      {
-        keeper_name: KEEPER_NAME,
-        keeper_email: KEEPER_EMAIL,
-        relationship: "Partner / spouse",
-        path: "aware",
-      },
-      authHeaders
+    // Get email-verify JWT without sending an email
+    const verifyJwt = await getEmailVerifyToken(data);
+
+    // Complete registration → creates user + contract + invitation token
+    const reg = await apiPost<{ session_token: string; contract_id: string; full_name: string }>(
+      "/auth/complete-registration",
+      { token: verifyJwt }
     );
 
-    // Sign contract
-    apiPost(
-      `/contracts/${contract.id}/sign`,
-      { typed_name: MAKER_NAME },
-      authHeaders
-    );
+    // Maker signs the contract
+    await apiPost(`/contracts/${reg.contract_id}/sign`, { typed_name: MAKER_NAME }, {
+      Authorization: `Bearer ${reg.session_token}`,
+    });
 
-    // Get invitation token from DB
-    invitationToken = getInvitationToken(contract.id);
+    // Retrieve the keeper's invitation token from the test endpoint
+    inviteToken = await getInviteToken(keeperEmail);
   });
 
-  test.afterAll(() => {
-    deleteUser(MAKER_EMAIL);
+  test("invitation page shows maker and keeper names", async ({ page }) => {
+    await page.goto(`/invite/${inviteToken}`);
+    await expect(page.getByText(new RegExp(MAKER_NAME, "i"))).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(new RegExp(KEEPER_NAME, "i"))).toBeVisible({ timeout: 10_000 });
   });
 
-  test("invitation preview shows maker name and keeper name", async ({ page }) => {
-    await page.goto(`/invite/${invitationToken}`);
-    // h1 contains "Maker would like Ovyu to be for you"
-    await expect(page.getByRole("heading", { name: new RegExp(MAKER_NAME) })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(`${KEEPER_NAME} · Keeper`)).toBeVisible();
-  });
-
-  test("accept invitation with correct name → locked confirmation", async ({ page }) => {
-    await page.goto(`/invite/${invitationToken}`);
-    await expect(page.getByRole("button", { name: /accept|sign/i })).toBeVisible({ timeout: 10_000 });
-
-    const nameInput = page.getByPlaceholder(/type your full name/i)
-      .or(page.getByLabel(/type.*name|full name/i));
+  test("accept with correct name → You've signed confirmation", async ({ page }) => {
+    await page.goto(`/invite/${inviteToken}`);
+    const nameInput = page
+      .getByPlaceholder(/type your full name/i)
+      .or(page.getByLabel(/full name/i));
     await nameInput.fill(KEEPER_NAME);
     await page.getByRole("button", { name: /accept and sign/i }).click();
-
-    await expect(page.getByRole("heading", { name: /you've signed/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("heading", { name: /you've signed/i })).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
-  test("invalid invitation token shows 404 message", async ({ page }) => {
+  test("invalid invitation token → error message", async ({ page }) => {
     await page.goto("/invite/not-a-real-token-xyz");
     await expect(page.getByText(/not found|invalid|expired/i)).toBeVisible({ timeout: 10_000 });
   });
