@@ -97,6 +97,10 @@ class ContractService:
             raise HTTPException(status_code=410, detail="Invitation has expired")
 
         contract = await self._get_or_404(invitation.contract_id)
+
+        if not contract.maker_signed_at:
+            raise HTTPException(status_code=409, detail="Maker has not signed this contract yet.")
+
         is_keeper = invitation.invitee_role == InviteeRole.KEEPER
         canonical = contract.keeper_name if is_keeper else contract.tc_name
 
@@ -166,14 +170,15 @@ class ContractService:
         }
 
     async def list_my_contracts(self, user: User) -> list[tuple[Contract, str]]:
-        """Return all contracts where user is maker, keeper, or TC, with their role for each."""
+        """Return all active contracts where user is maker, keeper, or TC, with their role for each."""
         result = await self.db.execute(
             select(Contract).where(
                 or_(
                     Contract.maker_id == user.id,
                     Contract.keeper_id == user.id,
                     Contract.tc_id == user.id,
-                )
+                ),
+                Contract.status.not_in([ContractStatus.WITHDRAWN_BY_MAKER, ContractStatus.WITHDRAWN_BY_KEEPER]),
             ).order_by(Contract.created_at.desc())
         )
         contracts = result.scalars().all()

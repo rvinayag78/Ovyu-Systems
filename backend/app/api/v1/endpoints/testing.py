@@ -19,8 +19,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import create_email_verification_token
+from app.models.contract import Contract, ContractStatus
 from app.models.invitation_token import InvitationToken
 from app.models.magic_link_token import MAGIC_LINK_TTL_MINUTES, MagicLinkToken
+from app.models.user import User
 from app.schemas.auth import BeginRegistrationRequest
 
 router = APIRouter()
@@ -105,3 +107,49 @@ async def get_invite_token(
     if not row:
         raise HTTPException(status_code=404, detail=f"No pending invite for {email}")
     return InviteTokenResponse(token=row.token)
+
+
+# ── Maker duplicate cleanup ───────────────────────────────────────────────────
+
+class CleanupRequest(BaseModel):
+    maker_email: EmailStr
+
+
+class CleanupResponse(BaseModel):
+    withdrawn: int
+    kept_contract_id: str | None
+
+
+@router.post("/cleanup-maker-contracts", response_model=CleanupResponse)
+async def cleanup_maker_contracts(
+    body: CleanupRequest,
+    db: AsyncSession = Depends(get_db),
+) -> CleanupResponse:
+    """Withdraw all but the most recent active contract for a maker email. Test use only."""
+    _guard()
+    from sqlalchemy import select as sa_select
+
+    user_result = await db.execute(sa_select(User).where(User.email == str(body.maker_email).strip().lower()))
+    user = user_result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    result = await db.execute(
+        sa_select(Contract).where(
+            Contract.maker_id == user.id,
+            Contract.status.not_in([ContractStatus.WITHDRAWN_BY_MAKER, ContractStatus.WITHDRAWN_BY_KEEPER]),
+        ).order_by(Contract.created_at.desc())
+    )
+    active = result.scalars().all()
+
+    if not active:
+        return CleanupResponse(withdrawn=0, kept_contract_id=None)
+
+    keep = active[0]
+    withdrawn = 0
+    for c in active[1:]:
+        c.status = ContractStatus.WITHDRAWN_BY_MAKER
+        withdrawn += 1
+
+    await db.commit()
+    return CleanupResponse(withdrawn=withdrawn, kept_contract_id=str(keep.id))
