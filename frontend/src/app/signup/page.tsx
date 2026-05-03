@@ -28,6 +28,24 @@ const RELATIONSHIPS = [
   "Partner / spouse", "Child", "Parent", "Sibling", "Close friend", "Other",
 ];
 
+function LabeledInput({ label, placeholder, type = "text", value, onChange, width = 400 }: {
+  label: string; placeholder: string; type?: string;
+  value: string; onChange: (v: string) => void; width?: number;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: `${width}px` }}>
+      <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>{label}</label>
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        style={inputStyle}
+      />
+    </div>
+  );
+}
+
 export default function SignupPage() {
   const router = useRouter();
   const [privately, setPrivately] = useState(false);
@@ -76,24 +94,6 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function LabeledInput({ label, placeholder, type = "text", value, onChange, width = 400 }: {
-    label: string; placeholder: string; type?: string;
-    value: string; onChange: (v: string) => void; width?: number;
-  }) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: `${width}px` }}>
-        <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>{label}</label>
-        <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          style={inputStyle}
-        />
-      </div>
-    );
   }
 
   return (
