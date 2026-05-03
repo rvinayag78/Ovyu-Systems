@@ -124,6 +124,8 @@ a:hover { text-decoration: underline; }
 
 /* ── Page shell ───────────────────────────────────────────── */
 .ovyu-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--ovyu-cream); }
+/* Single-screen pages — no scroll, content locked to viewport */
+.ovyu-page--viewport { height: 100dvh; min-height: unset; overflow: hidden; }
 
 .ovyu-main {
   flex: 1;
@@ -136,6 +138,8 @@ a:hover { text-decoration: underline; }
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding-top: 32px;
+  padding-bottom: 32px;
 }
 
 /* ── Header ───────────────────────────────────────────────── */
@@ -450,10 +454,10 @@ a:hover { text-decoration: underline; }
 
 .ovyu-hero__sidebar {
   background: #fff; border: 1.5px solid #ddd;
-  padding: 40px 36px;
+  padding: 28px 36px;
   display: flex; flex-direction: column; gap: 0;
 }
-.ovyu-hero__step { padding: 24px 0; }
+.ovyu-hero__step { padding: 16px 0; }
 .ovyu-hero__step:first-child { padding-top: 0; }
 .ovyu-hero__step:last-child { padding-bottom: 0; }
 .ovyu-hero__step .num {

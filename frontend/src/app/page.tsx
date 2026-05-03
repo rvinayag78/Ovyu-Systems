@@ -10,7 +10,7 @@ const IMG_TRANSFER  = "https://www.figma.com/api/mcp/asset/61207fed-539c-4d3b-a4
 
 export default function LandingPage() {
   return (
-    <div className="ovyu-page">
+    <div className="ovyu-page ovyu-page--viewport">
       <Header />
       <main className="ovyu-main ovyu-main--center">
         <section className="ovyu-hero">
