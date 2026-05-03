@@ -32,7 +32,7 @@ export default function RegisterPage() {
       sessionStorage.setItem("ovyu_maker_name", result.full_name);
       sessionStorage.setItem("ovyu_contract_id", result.contract_id);
       sessionStorage.removeItem("ovyu_reg_token");
-      router.push("/paywall");
+      router.push("/plan");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed.");
     } finally {
