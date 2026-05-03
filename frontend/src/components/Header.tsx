@@ -18,9 +18,9 @@ export function Header({ variant = "loggedOut", initial }: HeaderProps) {
           {variant === "loggedOut" ? (
             <Link href="/login" className="ovyu-btn-login">Log In</Link>
           ) : (
-            <button className="ovyu-avatar" aria-label="Account">
+            <Link href="/account" className="ovyu-avatar" aria-label="Account">
               {(initial ?? "?").toUpperCase()}
-            </button>
+            </Link>
           )}
         </nav>
       </div>
