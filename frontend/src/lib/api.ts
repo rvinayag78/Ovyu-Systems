@@ -18,7 +18,7 @@ async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export type PendingReg = {
-  first_name: string; last_name: string; maker_email: string;
+  first_name: string; middle_name?: string; last_name: string; maker_email: string;
   keeper_name: string; keeper_email: string; relationship: string;
   path: "aware" | "private"; tc_name?: string | null; tc_email?: string | null;
 };

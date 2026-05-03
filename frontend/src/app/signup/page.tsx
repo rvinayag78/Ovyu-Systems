@@ -41,6 +41,7 @@ export default function SignupPage() {
     try {
       await api.beginRegistration({
         first_name: firstName.trim(),
+        middle_name: middleName.trim() || undefined,
         last_name: lastName.trim(),
         maker_email: email.trim(),
         keeper_name: keeperName.trim(),

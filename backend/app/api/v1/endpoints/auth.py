@@ -86,9 +86,13 @@ async def complete_registration(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
 
     email = str(payload["maker_email"]).strip().lower()
-    full_name = f"{payload['first_name']} {payload['last_name']}"
+    parts = [payload["first_name"]]
+    if payload.get("middle_name"):
+        parts.append(payload["middle_name"])
+    parts.append(payload["last_name"])
+    full_name = " ".join(p.strip() for p in parts if p.strip())
 
-    # Create user if not exists
+    # Create or update user — always sync full_name so signing validation matches
     result = await db.execute(_select(User).where(User.email == email))
     user = result.scalar_one_or_none()
     if not user:
@@ -101,6 +105,9 @@ async def complete_registration(
             email_verified=True,
         )
         db.add(user)
+        await db.flush()
+    else:
+        user.full_name = full_name
         await db.flush()
 
     # Create contract + invitation token via service (handles token generation)

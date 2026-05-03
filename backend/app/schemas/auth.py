@@ -7,6 +7,7 @@ from app.models.contract import ContractPath
 
 class BeginRegistrationRequest(BaseModel):
     first_name: str
+    middle_name: str | None = None
     last_name: str
     maker_email: EmailStr
     keeper_name: str
@@ -23,6 +24,7 @@ class BeginRegistrationResponse(BaseModel):
 
 class VerifyTokenResponse(BaseModel):
     first_name: str
+    middle_name: str | None = None
     last_name: str
     maker_email: str
     keeper_name: str
