@@ -11,15 +11,15 @@ const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
 const PLANS = [
   {
     name: "Free", price: "$0", priceNote: "Forever free", active: true,
-    features: ["1 Keeper", "Voice upload", "Messages", "Story prompts", "Data collection (up to X amount)", "Basic contract"],
+    features: ["1 Keeper", "Voice upload", "Messages", "Story prompts", "Basic contract"],
   },
   {
     name: "Standard", price: null, priceNote: "Coming soon", active: false,
-    features: ["Everything in Free", "3 Keepers", "Voice & video upload", "Messages and scheduled deliveries", "Extended contract options"],
+    features: ["Everything in Free", "3 Keepers", "Voice & video upload", "Extended contract options"],
   },
   {
     name: "Legacy", price: null, priceNote: "Coming soon", active: false,
-    features: ["Everything in Standard", "5 Keepers", "Priority Upload & Transfer support", "Dedicated Transfer Contact assist", "Lifetime storage"],
+    features: ["Everything in Standard", "5 Keepers", "Lifetime storage", "Priority support"],
   },
 ];
 

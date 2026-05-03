@@ -120,7 +120,7 @@ function SignInner() {
                 {isPrivate ? "Party B (Keeper)  Transfer Contact" : "Party B (Keeper)"}
               </p>
             </div>
-            <div style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#444", lineHeight: "1.7" }}>
+            <div style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#444", width: "890px", lineHeight: "1.5" }}>
               <p style={{ margin: "0 0 8px" }}>Maker: {makerName || "[Your name]"}</p>
               <p style={{ margin: "0 0 8px" }}>Keeper: {contract?.keeper_name ?? "[Keeper name]"} · Relationship: {contract?.relationship ?? "[Relationship]"}</p>
               {isPrivate && <p style={{ margin: "0 0 8px" }}>Transfer Contact: {contract?.tc_name ?? "[Transfer Contact name]"}</p>}
