@@ -98,19 +98,30 @@ export function InviteClient() {
     </div>
   );
 
-  // ── Keeper Signed confirmation ──────────────────────────────
+  // ── Keeper Signed confirmation (Figma 141:701) ─────────────
   if (accepted && isKeeper) return (
     <div className="ovyu-page">
       <Header />
       <main className="ovyu-main" style={{ display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
         <div className="ovyu-confirm">
           <div className="ovyu-confirm-circle">✓</div>
-          <h1>You&apos;ve signed.</h1>
+          <h1 style={{ fontStyle: "italic" }}>You&apos;ve signed.</h1>
           <p>The contract between you and {preview.maker_name} is now in place.</p>
           <div className="ovyu-confirm__divider" />
-          <a href="/" className="ovyu-btn ovyu-btn--primary">Done</a>
+          <div className="ovyu-tc-what-happens">
+            <p className="ovyu-tc-what-happens__title">What happens when the time comes</p>
+            <p className="ovyu-tc-what-happens__body">
+              When {preview.maker_name} passes, you will need to go to{" "}
+              <strong>ovyu.com/activate-transfer</strong>. Once the Transfer is activated, you will
+              be prompted to create an account and access what {preview.maker_name} left for you.
+              You will always be the one to decide when you are ready.
+            </p>
+          </div>
         </div>
       </main>
+      <p style={{ textAlign: "center", fontStyle: "italic", fontSize: 14, color: "var(--ovyu-muted)", padding: "0 24px 40px" }}>
+        You will always be the one to decide when you are ready to access this. Nothing happens without your confirmation.
+      </p>
       <Footer />
     </div>
   );
@@ -215,72 +226,95 @@ export function InviteClient() {
     </div>
   );
 
-  // ── Keeper Contract page ─────────────────────────────────────
+  // ── Keeper Contract page (Figma 141:649) ────────────────────
   return (
     <div className="ovyu-page">
       <Header />
       <main className="ovyu-main">
-        <div className="ovyu-page-header">
-          <h1 style={{ maxWidth: 900 }}>{preview.maker_name} would like Ovyu to be for you.</h1>
-          <span className="ovyu-sub">This is the agreement that will govern what Ovyu holds, who can access it, and when.</span>
+        <div style={{ maxWidth: 833, marginBottom: 32 }}>
+          <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontStyle: "italic", fontSize: "clamp(36px,4vw,64px)", margin: "0 0 12px" }}>
+            {preview.maker_name} has created something for you.
+          </h1>
+          <p style={{ fontSize: 22, color: "var(--ovyu-muted)", margin: 0 }}>
+            Review the agreement below. Take your time. Sign only if you&apos;re ready to accept.
+          </p>
         </div>
 
-        <form onSubmit={handleAccept} className="ovyu-contract-grid">
-          <article className="ovyu-contract-card">
-            <p className="party-line">The Ovyu Contract · v1.0</p>
-            <h3>Between</h3>
-            <dl>
-              <dt>Party A</dt><dd>{preview.maker_name} · Maker</dd>
-              <dt>Party B</dt><dd>{canonicalName} · Keeper</dd>
-              {preview.relationship && <><dt>Relationship</dt><dd>{preview.relationship}</dd></>}
-              <dt>Drafted</dt><dd>{today}</dd>
-            </dl>
-            <h3 style={{ fontSize: 22, marginTop: 16 }}>1. What Ovyu is</h3>
-            <p className="contract-body">
-              Ovyu is a private place where {preview.maker_name} (the Maker) has uploaded their voice,
-              photographs, written stories and personality for you (the Keeper) to access at one specific
-              moment: after the Maker passes.
-            </p>
-            <h3 style={{ fontSize: 22 }}>2. Consent</h3>
-            <p className="contract-body">
-              Both parties agree this is a private, non-commercial, two-person relationship. Ovyu does not
-              share, sell, or analyse any upload. You may access the upload, listen to it, read it for as
-              long as you choose. You may delete it at any time after the Transfer.
-            </p>
-            <p className="footnote">You may withdraw your acceptance at any time before the Transfer is activated.</p>
+        <form onSubmit={handleAccept} className="ovyu-contract-grid-v2">
+          {/* Contract text */}
+          <article className="ovyu-contract-card-v2">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 36 }}>
+              <p style={{ fontWeight: 700, fontSize: 22, color: "var(--ovyu-ink)", margin: 0 }}>Ovyu Agreement</p>
+              <p style={{ fontWeight: 700, fontSize: 22, color: "var(--ovyu-gold-dark)", margin: 0 }}>Party A (Maker)</p>
+              <p style={{ fontWeight: 700, fontSize: 22, color: "var(--ovyu-gold-dark)", margin: 0 }}>Party B (Keeper)</p>
+            </div>
+            <div style={{ fontSize: 18, color: "var(--ovyu-ink-soft)", lineHeight: 1.7 }}>
+              <p>Maker: {preview.maker_name}</p>
+              <br />
+              <p>Keeper: {preview.keeper_name}</p>
+              <br />
+              <p>Relationship: {preview.relationship}</p>
+              <br />
+              <p>By accepting, you agree to receive the Maker&apos;s upload upon the Transfer. You understand
+              that the upload is the personal creation of the Maker and may not be altered, shared, or transferred.</p>
+              <br />
+              <p>Access begins: Upon the Transfer.</p>
+              <p>Access duration: Lifetime unless specified.</p>
+              <br />
+              <p>You may withdraw your acceptance at any time before the Transfer is activated.</p>
+              <p>Ovyu stores all data securely and uses it solely to deliver this upload to you. No data is shared or sold.</p>
+            </div>
           </article>
 
-          <aside className="ovyu-contract-card">
-            <h3 style={{ fontSize: 22, marginBottom: 12 }}>Your decision</h3>
-            <p style={{ fontSize: 14, color: "var(--ovyu-ink-soft)", marginBottom: 24 }}>
-              {preview.maker_name} signed this contract. By signing below you confirm you understand and agree.
+          {/* Sign panel */}
+          <aside className="ovyu-contract-sign-panel">
+            <p className="ovyu-contract-sign-title">Sign as Keeper</p>
+            <p className="ovyu-contract-sign-desc">
+              By signing, you confirm you have read and agree to the terms on this page.
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div className="ovyu-field">
-                <label className="ovyu-field__label" htmlFor="sig">Full legal name</label>
-                <input id="sig" className={`ovyu-input${typedName && !nameMatch ? " is-error" : ""}`}
-                  value={typedName} onChange={e => setTypedName(e.target.value)}
-                  placeholder="Type your full name here" required />
-                {typedName && !nameMatch && (
-                  <span className="ovyu-field__helper is-error">
-                    Name doesn&apos;t match. Type: {canonicalName}
-                  </span>
-                )}
-              </div>
-              <div className="ovyu-field">
-                <label className="ovyu-field__label">Date</label>
-                <p style={{ fontSize: 15, color: "var(--ovyu-ink-soft)", paddingTop: 4 }}>{today}</p>
-              </div>
+
+            <div className="ovyu-field">
+              <label className="ovyu-field__label" style={{ fontSize: 20 }}>Full legal name</label>
+              <input
+                className={`ovyu-input${typedName && !nameMatch ? " is-error" : ""}`}
+                value={typedName}
+                onChange={e => setTypedName(e.target.value)}
+                placeholder="Type your full name"
+                style={{ fontSize: 18, height: 73 }}
+                required
+              />
+              {typedName && !nameMatch && (
+                <span className="ovyu-field__helper is-error">
+                  Name doesn&apos;t match. Type: {canonicalName}
+                </span>
+              )}
             </div>
+
+            <div className="ovyu-field">
+              <label className="ovyu-field__label" style={{ fontSize: 20 }}>Date</label>
+              <div style={{
+                background: "#fff", border: "1.29px solid var(--ovyu-muted)",
+                borderRadius: 10, height: 73, display: "flex", alignItems: "center", padding: "0 13px",
+                fontSize: 18, color: "var(--ovyu-muted)",
+              }}>{today}</div>
+            </div>
+
             {error && <p className="ovyu-error-text">{error}</p>}
-            <div style={{ marginTop: 24 }}>
-              <button type="submit" className="ovyu-btn ovyu-btn--primary ovyu-btn--wide"
-                disabled={!nameMatch || loading}>
-                {loading ? "Signing…" : "I accept and sign"}
-              </button>
-            </div>
+
+            <button
+              type="submit"
+              className="ovyu-btn ovyu-btn--primary ovyu-btn--wide"
+              disabled={!nameMatch || loading}
+              style={{ fontSize: 20, height: 62 }}
+            >
+              {loading ? "Signing…" : "Sign and continue →"}
+            </button>
           </aside>
         </form>
+
+        <p className="ovyu-contract-footnote">
+          Your digital signature carries the same intent as a handwritten signature within the Ovyu platform.
+        </p>
       </main>
       <Footer />
     </div>

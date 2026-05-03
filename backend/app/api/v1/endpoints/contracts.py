@@ -139,4 +139,14 @@ async def accept_invitation(
                 )
             except Exception as exc:
                 logger.error("send_tc_signed_confirmation failed for %s: %s", invitee_email, exc, exc_info=True)
+        if not is_tc and invitee_email:
+            try:
+                from app.core.config import settings as _settings
+                EmailService().send_keeper_signed_confirmation(
+                    keeper_email=invitee_email,
+                    maker_name=maker.full_name,
+                    login_url=f"{_settings.frontend_url}/login",
+                )
+            except Exception as exc:
+                logger.error("send_keeper_signed_confirmation failed for %s: %s", invitee_email, exc, exc_info=True)
     return ContractRead.model_validate(contract)

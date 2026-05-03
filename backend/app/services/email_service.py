@@ -81,23 +81,51 @@ class EmailService:
         </div>
             """
         else:
-            subject = f"{maker_name} has invited you to Ovyu"
+            subject = f"{maker_name} has created something for you"
             html = f"""
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-          <div style="background:#1A1A1A;padding:32px;text-align:center">
-            <span style="font-family:Georgia,serif;font-style:italic;font-size:48px;color:#F7F8F3">ovyu</span>
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f8f7f5">
+          <div style="background:#000;padding:40px;text-align:center">
+            <span style="font-family:Georgia,serif;font-weight:700;font-size:48px;color:#fff">ov<em>yu</em></span>
           </div>
-          <div style="padding:48px 40px;background:#fff;text-align:center">
-            <h1 style="font-family:Georgia,serif;font-size:32px;margin:0 0 16px">{subject}</h1>
-            <p style="font-size:16px;color:#555;margin:0 0 32px">Review the agreement and sign if you're ready to accept.</p>
-            <a href="{invite_url}" style="display:inline-block;background:#1A1A1A;color:#F5F0E8;font-size:16px;font-weight:700;padding:15px 48px;border-radius:8px;text-decoration:none">Review and sign the agreement</a>
+          <div style="padding:48px 40px;background:#f8f7f5;text-align:center">
+            <h1 style="font-family:Georgia,serif;font-size:36px;color:#1a1a1a;margin:0 0 12px">{maker_name} has created something for you.</h1>
+            <p style="font-size:20px;color:#888;margin:0 0 24px">They&apos;ve chosen you as their Keeper on Ovyu.</p>
+            <p style="font-size:16px;color:#444;margin:0 0 16px;max-width:420px;display:inline-block;text-align:center">Ovyu is a private platform where a person leaves a piece of themselves — their voice, stories, and memories — for one person they love. {maker_name} chose you.</p>
+            <p style="font-size:16px;color:#444;margin:0 0 28px;max-width:420px;display:inline-block;text-align:center">Before anything begins, you&apos;ll need to review and sign a short agreement. It explains what you&apos;re receiving, on what terms, and what it means to say yes.</p>
+            <p style="font-size:12px;color:#888;font-style:italic;margin:0 0 24px">By continuing you agree to Ovyu&apos;s Terms of Use and Privacy Policy.</p>
+            <a href="{invite_url}" style="display:inline-block;background:#c9a84c;color:#fff;font-size:16px;font-weight:700;padding:16px 40px;border-radius:11px;text-decoration:none">Review and sign the agreement</a>
+            <p style="font-size:12px;color:#888;font-style:italic;margin:24px 0 0">This button takes you back to ovyu.com to confirm your account and continue.</p>
           </div>
-          <div style="background:#ddd;padding:20px;text-align:center;font-size:13px;color:#888">
-            ovyu.com · This link expires in 7 days and is single-use.
+          <div style="background:#d9d9d9;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com &nbsp;·&nbsp; You received this because someone named you as their Keeper. If this is a mistake, you may decline.
           </div>
         </div>
             """
         self._send(invitee_email, subject, html)
+
+    def send_keeper_signed_confirmation(self, keeper_email: str, maker_name: str, login_url: str) -> None:
+        subject = "Thank you for signing — Ovyu"
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f8f7f5">
+          <div style="background:#000;padding:40px;text-align:center">
+            <span style="font-family:Georgia,serif;font-weight:700;font-size:48px;color:#fff">ov<em>yu</em></span>
+          </div>
+          <div style="padding:56px 40px;background:#f8f7f5;text-align:center">
+            <h1 style="font-family:Georgia,serif;font-style:italic;font-size:36px;color:#1a1a1a;margin:0 0 12px">Thank you for signing.</h1>
+            <p style="font-size:20px;color:#444;margin:0 0 36px">{maker_name} has been notified.</p>
+            <div style="text-align:left;max-width:480px;margin:0 auto">
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0 0 16px">What you signed is now in place. {maker_name} will begin putting together what they want to leave for you, in their own time.</p>
+              <p style="font-size:16px;color:#444;line-height:1.7;margin:0 0 36px">When {maker_name} passes, it will be on you to come back and activate the transfer. That&apos;s how you&apos;ll receive what they&apos;ve left. Nothing happens automatically.</p>
+            </div>
+            <a href="{login_url}" style="display:inline-block;background:#c9a84c;color:#fff;font-size:16px;font-weight:700;padding:16px 40px;border-radius:11px;text-decoration:none">Log in to view contract</a>
+            <p style="font-size:12px;color:#888;font-style:italic;margin:16px 0 0">By continuing you agree to Ovyu&apos;s Terms of Use and Privacy Policy.<br>You can return to your agreement at any time by logging in to ovyu.com.</p>
+          </div>
+          <div style="background:#d9d9d9;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com &nbsp;·&nbsp; This is a transactional email sent because you signed your agreement.
+          </div>
+        </div>
+        """
+        self._send(keeper_email, subject, html)
 
     def send_tc_signed_confirmation(self, tc_email: str, maker_name: str, keeper_name: str) -> None:
         subject = f"Thank you for signing — Ovyu"
