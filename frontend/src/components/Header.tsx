@@ -28,7 +28,7 @@ export function Header({ variant = "loggedOut", initial }: HeaderProps) {
       }}>
         <Link href="/" aria-label="ovyu home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/ovyu-wordmark.svg" alt="ovyu" width={113} style={{ height: "auto", display: "block" }} />
+          <img src="/ovyu-wordmark.svg" alt="ovyu" width={113} height={32} style={{ display: "block" }} />
         </Link>
         <div style={{ display: "flex", gap: "117px", alignItems: "center" }}>
           <Link href="/activate-transfer" style={{
