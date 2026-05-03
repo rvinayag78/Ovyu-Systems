@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 export default function AccountPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -25,86 +28,79 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main ovyu-main--contracts">
-        <h1 style={{
-          fontFamily: "var(--ovyu-font-serif)",
-          fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: 64,
-          color: "var(--ovyu-ink)",
-          margin: "0 0 50px",
-        }}>
-          Account.
-        </h1>
 
-        {/* EMAIL section */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 15, width: 591, marginBottom: 50 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 247 }}>
-            <p style={{ fontFamily: "var(--ovyu-font-sans)", fontWeight: 700, fontSize: 18, color: "var(--ovyu-gold)", margin: 0, textTransform: "uppercase" }}>
-              Email
-            </p>
-            <p style={{ fontFamily: "var(--ovyu-font-sans)", fontWeight: 400, fontSize: 18, color: "var(--ovyu-muted)", margin: 0 }}>
-              The email tied to your account.
-            </p>
-          </div>
-          <div style={{ display: "flex", flexDirection: "row", gap: 41, alignItems: "center" }}>
-            <input
-              readOnly
-              value={email}
-              placeholder="you@example.com"
-              style={{
-                width: 400,
-                height: 57,
-                background: "#fff",
-                border: "1px solid var(--ovyu-muted)",
-                borderRadius: "var(--ovyu-radius-input)",
-                padding: "0 10px",
-                fontFamily: "var(--ovyu-font-sans)",
-                fontSize: 14,
-                color: "var(--ovyu-muted)",
-                boxSizing: "border-box",
-              }}
-            />
-            <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 150 }}>
-              <span style={{ fontFamily: "var(--ovyu-font-sans)", fontStyle: "italic", fontSize: 18, color: "var(--ovyu-ink)" }}>
-                Change email
-              </span>
-              <div style={{ height: 1, background: "var(--ovyu-ink)", width: "100%" }} />
+      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+        {/* Content at left:110px, top:78px (181-103) */}
+        <div style={{
+          position: "absolute",
+          left: "110px",
+          top: "78px",
+          width: "1700px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "50px",
+        }}>
+          <h1 style={{
+            fontFamily: serif, fontStyle: "italic", fontWeight: 400,
+            fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+          }}>Account.</h1>
+
+          {/* EMAIL section */}
+          <div style={{ width: "591px", display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{ width: "247px", display: "flex", flexDirection: "column", gap: "12px" }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>EMAIL</p>
+              <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#888", margin: 0 }}>
+                The email tied to your account.
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "row", gap: "41px", alignItems: "center" }}>
+              <input
+                readOnly
+                value={email}
+                placeholder="you@example.com"
+                style={{
+                  width: "400px", height: "57px",
+                  background: "#fff", border: "1px solid #888", borderRadius: "10px",
+                  padding: "0 10px", fontFamily: sans, fontWeight: 400, fontSize: "14px", color: "#888",
+                  boxSizing: "border-box",
+                }}
+              />
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "150px" }}>
+                <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#000" }}>
+                  Change email
+                </span>
+                <div style={{ height: "1px", background: "#000", width: "100%" }} />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* PLAN section */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 293, marginBottom: 50 }}>
-          <p style={{ fontFamily: "var(--ovyu-font-sans)", fontWeight: 700, fontSize: 18, color: "var(--ovyu-gold)", margin: 0, textTransform: "uppercase" }}>
-            Plan
-          </p>
-          <div style={{ display: "flex", flexDirection: "row", gap: 19, whiteSpace: "nowrap" }}>
-            <span style={{ fontFamily: "var(--ovyu-font-sans)", fontWeight: 400, fontSize: 18, color: "var(--ovyu-ink)" }}>Free plan.</span>
-            <span style={{ fontFamily: "var(--ovyu-font-sans)", fontStyle: "italic", fontWeight: 400, fontSize: 18, color: "var(--ovyu-muted)" }}>Paid plans coming later.</span>
+          {/* PLAN section */}
+          <div style={{ width: "293px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>PLAN</p>
+            <div style={{ display: "flex", flexDirection: "row", gap: "19px", whiteSpace: "nowrap" }}>
+              <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#000" }}>Free plan.</span>
+              <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+                Paid plans coming later.
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          style={{
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            fontFamily: "var(--ovyu-font-sans)",
-            fontStyle: "italic",
-            fontSize: 18,
-            color: "var(--ovyu-ink)",
-            textDecoration: "underline",
-          }}
-        >
-          Log out
-        </button>
-      </main>
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            style={{
+              background: "none", border: "none", padding: 0, cursor: "pointer",
+              fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px",
+              color: "#000", textDecoration: "underline", textAlign: "left",
+            }}
+          >
+            Log out
+          </button>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );

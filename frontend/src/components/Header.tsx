@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 type HeaderProps = {
   variant?: "loggedOut" | "loggedIn";
   initial?: string;
@@ -7,22 +10,55 @@ type HeaderProps = {
 
 export function Header({ variant = "loggedOut", initial }: HeaderProps) {
   return (
-    <header className="ovyu-header">
-      <div className="ovyu-header__inner">
-        <Link href="/" className="ovyu-wordmark" aria-label="ovyu home">
+    <header style={{
+      width: "100%",
+      height: "103px",
+      background: "#fff",
+      borderBottom: "3px solid #e1e1e1",
+      overflow: "hidden",
+      flexShrink: 0,
+    }}>
+      <div style={{
+        maxWidth: "1800px",
+        margin: "0 auto",
+        height: "100%",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 60px",
+      }}>
+        <Link href="/" aria-label="ovyu home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/ovyu-wordmark.svg" alt="ovyu" width={113} style={{ height: "auto", display: "block" }} />
         </Link>
-        <nav className="ovyu-header__nav">
-          <Link href="/activate-transfer" className="ovyu-header__link">Activate Transfer</Link>
+        <div style={{ display: "flex", gap: "117px", alignItems: "center" }}>
+          <Link href="/activate-transfer" style={{
+            fontFamily: sans, fontSize: "16px", fontWeight: 400,
+            color: "#000", textDecoration: "none", width: "150px", textAlign: "center",
+          }}>
+            Activate Transfer
+          </Link>
           {variant === "loggedOut" ? (
-            <Link href="/login" className="ovyu-btn-login">Log In</Link>
+            <Link href="/login" style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: "136px", height: "52px", background: "#1a1a1a",
+              borderRadius: "8px", fontFamily: sans, fontWeight: 700,
+              fontSize: "16px", color: "#fff", textDecoration: "none",
+            }}>
+              Log In
+            </Link>
           ) : (
-            <Link href="/account" className="ovyu-avatar" aria-label="Account">
-              {(initial ?? "?").toUpperCase()}
+            <Link href="/account" style={{
+              width: "51px", height: "51px", background: "#4b3c5e",
+              borderRadius: "50%", display: "flex", alignItems: "center",
+              justifyContent: "center", textDecoration: "none",
+            }}>
+              <span style={{ fontFamily: serif, fontWeight: 400, fontSize: "32px", color: "#fff" }}>
+                {(initial ?? "?").toUpperCase()}
+              </span>
             </Link>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );

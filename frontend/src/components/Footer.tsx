@@ -1,22 +1,36 @@
+import Link from "next/link";
+
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 export function Footer() {
   return (
-    <footer className="ovyu-footer">
-      <div className="ovyu-footer__inner">
-        <nav className="ovyu-footer__nav">
-          <a href="/contact">CONTACT</a>
-          <a href="/about">ABOUT</a>
-        </nav>
-        <p className="ovyu-footer__notice">
-          OVYU DOES NOT SHARE, SELL, OR RETAIN PERSONAL DATA, INCLUDING UPLOAD, CONTRACT,
-          AND CONVERSATIONS, BEYOND WHAT IS REQUIRED TO OPERATE THIS SERVICE.
+    <footer style={{
+      width: "100%",
+      height: "103px",
+      background: "#000",
+      position: "relative",
+      flexShrink: 0,
+    }}>
+      <div style={{
+        position: "absolute",
+        left: "68px",
+        top: "44px",
+        display: "flex",
+        flexDirection: "row",
+        gap: "199px",
+        alignItems: "center",
+      }}>
+        <div style={{ display: "flex", gap: "27px", alignItems: "center" }}>
+          <Link href="/contact" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>CONTACT</Link>
+          <Link href="/about" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>ABOUT</Link>
+        </div>
+        <p style={{ fontFamily: sans, fontWeight: 300, fontStyle: "italic", fontSize: "11px", color: "#f5f0e8", width: "918px", margin: 0 }}>
+          ovyu stores your information securely and will never sell or share your personal data with third parties.
         </p>
-        <div className="ovyu-footer__legal">
-          <span>@ 2026 OVYU</span>
-          <a href="/cookies">MANAGE COOKIES</a>
-          <span className="ovyu-footer__sep" aria-hidden="true" />
-          <a href="/legal">LEGAL</a>
-          <span className="ovyu-footer__sep" aria-hidden="true" />
-          <a href="/privacy">PRIVACY</a>
+        <div style={{ display: "flex", gap: "27px", alignItems: "center" }}>
+          {["© 2026 OVYU", "MANAGE COOKIES", "LEGAL", "PRIVACY"].map((item) => (
+            <span key={item} style={{ fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8" }}>{item}</span>
+          ))}
         </div>
       </div>
     </footer>

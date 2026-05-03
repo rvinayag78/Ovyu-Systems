@@ -6,11 +6,15 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [initial, setInitial] = useState("?");
 
   useEffect(() => {
     const raw = sessionStorage.getItem("ovyu_pending");
@@ -19,6 +23,7 @@ export default function RegisterPage() {
       router.replace("/signup");
       return;
     }
+    try { setInitial(JSON.parse(raw).first_name?.[0] ?? "?"); } catch { /* ok */ }
     setReady(true);
   }, [router]);
 
@@ -42,44 +47,68 @@ export default function RegisterPage() {
 
   if (!ready) return null;
 
-  const initial = (() => {
-    const raw = sessionStorage.getItem("ovyu_pending");
-    if (!raw) return "?";
-    try { return JSON.parse(raw).first_name?.[0] ?? "?"; } catch { return "?"; }
-  })();
-
   return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main" style={{ display: "flex", justifyContent: "center" }}>
-        <div className="ovyu-verified">
-          <div className="ovyu-verified__badge">✓</div>
+      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+        {/* Content at left:575px, top:135px (238-103) */}
+        <div style={{
+          position: "absolute",
+          left: "575px",
+          top: "135px",
+          width: "770px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "47px",
+          alignItems: "center",
+        }}>
+          {/* Purple checkmark circle */}
+          <div style={{
+            width: "123px", height: "123px",
+            background: "#4b3c5e", borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#fff" }}>✓</span>
+          </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 42, alignItems: "center" }}>
-            <h1 className="ovyu-verified__heading">
-              Your email is verified.<br />
-              <em>Let&apos;s review your contract.</em>
-            </h1>
-            <p className="ovyu-verified__body">
-              You&apos;ll read through the terms you set, sign as the Maker, and then your Keeper
-              will be invited to review and sign. Your upload doesn&apos;t begin until both of you
-              have signed.
+          {/* Text block */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "42px", alignItems: "center", width: "100%" }}>
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: serif, fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+                Your email is verified.
+              </p>
+              <p style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+                Let&apos;s review your contract.
+              </p>
+            </div>
+
+            <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", textAlign: "center", margin: 0 }}>
+              Your account is set up. Read through your contract carefully, then sign to lock everything in place.
             </p>
-            {error && <p className="ovyu-error-text">{error}</p>}
+
+            {error && <p style={{ fontFamily: sans, fontSize: "14px", color: "#B4372C", margin: 0, textAlign: "center" }}>{error}</p>}
+
             <button
-              className="ovyu-btn ovyu-btn--primary"
               onClick={handleContinue}
               disabled={loading}
-              style={{ minWidth: 304 }}
+              style={{
+                width: "304px", height: "48px",
+                background: loading ? "#666" : "#000",
+                borderRadius: "8px", border: "none",
+                fontFamily: sans, fontWeight: 700, fontSize: "16px",
+                color: "#f5f0e8", cursor: loading ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
             >
               {loading ? "Setting up…" : "Review my contract →"}
             </button>
-            <p className="ovyu-verified__note">
-              You can log in any time at ovyu.com with a link sent to your email.
+
+            <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "16px", color: "#444", textAlign: "center", margin: 0 }}>
+              Once both you and your Keeper have signed, the contract is locked and you can begin your upload.
             </p>
           </div>
         </div>
-      </main>
+      </div>
       <Footer />
     </div>
   );

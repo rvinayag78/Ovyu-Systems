@@ -6,6 +6,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 type ContractRow = {
   id: string; path: string; status: string; my_role: string;
   maker_name?: string; keeper_name?: string; tc_name?: string;
@@ -25,48 +28,70 @@ function MakerRow({ c }: { c: ContractRow }) {
   const keeperName = c.keeper_name ?? "Keeper";
 
   return (
-    <div className="ovyu-contract-row">
-      <div className="ovyu-contract-row__inner">
-        <div className="ovyu-contract-row__left">
-          <div className="ovyu-contract-row__avatar" />
-          <div className="ovyu-contract-row__meta">
-            <p className="ovyu-contract-row__role">Maker</p>
-            <p className="ovyu-contract-row__name">For {keeperName}</p>
-          </div>
+    <div style={{
+      width: "1700px", height: "100px",
+      background: "#efeaf2",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      paddingLeft: "55px", paddingRight: "55px",
+      boxSizing: "border-box",
+    }}>
+      {/* Left — avatar + meta */}
+      <div style={{ width: "452px", display: "flex", flexDirection: "row", gap: "40px", alignItems: "center" }}>
+        <div style={{
+          width: "50px", height: "50px",
+          background: "#4b3c5e", borderRadius: "50%",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <span style={{ fontFamily: serif, fontWeight: 400, fontSize: "28px", color: "#fff" }}>M</span>
         </div>
-
-        {isLocked ? (
-          <>
-            <span className="ovyu-contract-row__status">Signed on {lockedDate}</span>
-            <Link
-              href={`/contract/sign?id=${c.id}`}
-              className="ovyu-contract-row__action"
-              style={{ color: "var(--ovyu-ink-soft)", textDecoration: "underline" }}
-            >
-              View Contract
-            </Link>
-            <Link
-              href="/upload/start"
-              className="ovyu-contract-row__action"
-              style={{ fontWeight: 700, letterSpacing: "0.05em", textDecoration: "none" }}
-            >
-              UPLOAD →
-            </Link>
-          </>
-        ) : makerSigned ? (
-          <>
-            <span className="ovyu-contract-row__status">Contract sent {sentDate}</span>
-            <span className="ovyu-contract-row__status">Pending</span>
-          </>
-        ) : (
-          <>
-            <span className="ovyu-contract-row__status">Pending Status</span>
-            <Link href={`/contract/sign?id=${c.id}`} className="ovyu-contract-row__action">
-              Sign Contract
-            </Link>
-          </>
-        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#6a4d7d", margin: 0 }}>MAKER</p>
+          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>For {keeperName}</p>
+        </div>
       </div>
+
+      {/* Middle / Right */}
+      {isLocked ? (
+        <>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Signed on {lockedDate}
+          </span>
+          <Link href={`/contract/sign?id=${c.id}`} style={{
+            fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
+            textDecoration: "underline",
+          }}>
+            View Contract
+          </Link>
+          <div style={{ display: "flex", flexDirection: "row", gap: "12px", alignItems: "center" }}>
+            <Link href="/upload/start" style={{
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
+            }}>
+              UPLOAD
+            </Link>
+            <span style={{ fontSize: "18px" }}>→</span>
+          </div>
+        </>
+      ) : makerSigned ? (
+        <>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Contract sent {sentDate}
+          </span>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Pending
+          </span>
+        </>
+      ) : (
+        <>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Pending Status
+          </span>
+          <Link href={`/contract/sign?id=${c.id}`} style={{
+            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
+          }}>
+            Sign Contract
+          </Link>
+        </>
+      )}
     </div>
   );
 }
@@ -77,33 +102,49 @@ function KeeperRow({ c }: { c: ContractRow }) {
   const signedDate = fmtDate(c.locked_at);
 
   return (
-    <div className="ovyu-keeper-row">
-      <div className="ovyu-keeper-row__inner">
-        <div className="ovyu-keeper-row__left">
-          <p className="ovyu-keeper-row__label">KEEPER</p>
-          <p className="ovyu-keeper-row__from">From {makerName}</p>
-        </div>
-
-        {isLocked ? (
-          <>
-            <span className="ovyu-keeper-row__status">Signed on {signedDate}</span>
-            <span className="ovyu-keeper-row__status">Held for you</span>
-            <div style={{ display: "flex", gap: 48, alignItems: "center" }}>
-              <Link href={`/keeper/contracts/view?id=${c.id}`} className="ovyu-keeper-row__action">
-                View
-              </Link>
-              <button onClick={() => window.print()} className="ovyu-keeper-row__action">
-                Download ⤓
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <span className="ovyu-keeper-row__status" style={{ fontStyle: "italic" }}>Pending signature</span>
-            <span className="ovyu-keeper-row__status">—</span>
-          </>
-        )}
+    <div style={{
+      width: "1700px", height: "100px",
+      background: "#eceee5",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      paddingLeft: "55px", paddingRight: "55px",
+      boxSizing: "border-box",
+    }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+        <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#4a6640", margin: 0 }}>KEEPER</p>
+        <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>From {makerName}</p>
       </div>
+
+      {isLocked ? (
+        <>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Signed on {signedDate}
+          </span>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Held for you
+          </span>
+          <div style={{ display: "flex", gap: "48px", alignItems: "center" }}>
+            <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+              textDecoration: "underline",
+            }}>
+              View
+            </Link>
+            <button onClick={() => window.print()} style={{
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+              background: "none", border: "none", cursor: "pointer", padding: 0,
+            }}>
+              Download ⤓
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+            Pending signature
+          </span>
+          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>—</span>
+        </>
+      )}
     </div>
   );
 }
@@ -113,18 +154,20 @@ function TcRow({ c }: { c: ContractRow }) {
   const signedDate = fmtDate(c.locked_at);
 
   return (
-    <div className="ovyu-contract-row" style={{ background: "#f5f0e8" }}>
-      <div className="ovyu-contract-row__inner">
-        <div className="ovyu-contract-row__left">
-          <div className="ovyu-contract-row__meta">
-            <p className="ovyu-contract-row__role" style={{ color: "var(--ovyu-gold-dark)" }}>TRANSFER CONTACT</p>
-            <p className="ovyu-contract-row__name">For {makerName}</p>
-          </div>
-        </div>
-        <span className="ovyu-contract-row__status">
-          {c.status === "LOCKED" ? `Active since ${signedDate}` : "Pending"}
-        </span>
+    <div style={{
+      width: "1700px", height: "100px",
+      background: "#f5f0e8",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      paddingLeft: "55px", paddingRight: "55px",
+      boxSizing: "border-box",
+    }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+        <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#c9a84c", margin: 0 }}>TRANSFER CONTACT</p>
+        <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>For {makerName}</p>
       </div>
+      <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
+        {c.status === "LOCKED" ? `Active since ${signedDate}` : "Pending"}
+      </span>
     </div>
   );
 }
@@ -150,52 +193,62 @@ export default function ContractsPage() {
   const tc = contracts.filter(c => c.my_role === "tc");
 
   return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <main className="ovyu-main ovyu-main--contracts">
-        <div style={{ width: "100%" }}>
-          <h1 style={{
-            fontFamily: "var(--ovyu-font-serif)", fontStyle: "italic",
-            fontSize: 64, color: "var(--ovyu-ink)", marginBottom: 50,
-          }}>
-            Your contracts
-          </h1>
 
-          {error && <p style={{ color: "var(--ovyu-error)", marginBottom: 24 }}>{error}</p>}
+      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+        {/* Content at left:110px, top:78px (181-103) */}
+        <div style={{
+          position: "absolute",
+          left: "110px",
+          top: "78px",
+          width: "1700px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "50px",
+        }}>
+          <h1 style={{
+            fontFamily: serif, fontStyle: "italic", fontWeight: 400,
+            fontSize: "64px", color: "#1a1a1a",
+            margin: 0, lineHeight: "normal",
+          }}>Your contracts</h1>
+
+          {error && <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", margin: 0 }}>{error}</p>}
 
           {/* Making section */}
-          <div className="ovyu-contracts-section" style={{ marginBottom: 48 }}>
-            <p className="ovyu-contracts-eyebrow">Making</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>MAKING</p>
             {loading ? (
-              <p style={{ color: "var(--ovyu-muted)", fontSize: 18 }}>Loading…</p>
+              <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
             ) : making.length === 0 ? (
               <div style={{
-                border: "1px solid var(--ovyu-muted)", borderRadius: 10,
-                padding: "28px 36px", display: "flex", alignItems: "center", gap: 20,
+                width: "1700px", height: "100px",
+                border: "1px solid #888", borderRadius: "10px",
+                display: "flex", alignItems: "center", gap: "20px",
+                paddingLeft: "55px", boxSizing: "border-box",
               }}>
-                <span style={{ fontSize: 22, color: "var(--ovyu-muted)" }}>+</span>
-                <Link
-                  href="/signup"
-                  style={{ fontWeight: 700, fontSize: 16, textTransform: "uppercase", color: "var(--ovyu-ink)", letterSpacing: "0.05em", textDecoration: "none" }}
-                >
+                <span style={{ fontFamily: sans, fontSize: "22px", color: "#888" }}>+</span>
+                <Link href="/signup" style={{
+                  fontFamily: sans, fontWeight: 700, fontSize: "16px",
+                  textTransform: "uppercase", color: "#1a1a1a",
+                  letterSpacing: "0.05em", textDecoration: "none",
+                }}>
                   Start a new contract
                 </Link>
               </div>
             ) : (
-              <>
-                {making.map(c => <MakerRow key={c.id} c={c} />)}
-              </>
+              making.map(c => <MakerRow key={c.id} c={c} />)
             )}
           </div>
 
           {/* Receiving section */}
           {(receiving.length > 0 || !loading) && (
-            <div className="ovyu-contracts-section" style={{ marginBottom: 48 }}>
-              <p className="ovyu-contracts-eyebrow">Receiving</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>RECEIVING</p>
               {loading ? (
-                <p style={{ color: "var(--ovyu-muted)", fontSize: 18 }}>Loading…</p>
+                <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
               ) : receiving.length === 0 ? (
-                <p style={{ color: "var(--ovyu-muted)", fontSize: 16, fontStyle: "italic" }}>
+                <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
                   No contracts received yet.
                 </p>
               ) : (
@@ -206,13 +259,14 @@ export default function ContractsPage() {
 
           {/* Transfer Contact section */}
           {tc.length > 0 && (
-            <div className="ovyu-contracts-section">
-              <p className="ovyu-contracts-eyebrow">Transfer Contact</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>TRANSFER CONTACT</p>
               {tc.map(c => <TcRow key={c.id} c={c} />)}
             </div>
           )}
         </div>
-      </main>
+      </div>
+
       <Footer />
     </div>
   );

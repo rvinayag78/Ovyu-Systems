@@ -1,65 +1,114 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 export default function LandingPage() {
   return (
-    <div className="ovyu-page ovyu-page--viewport">
-      <Header />
-      <main className="ovyu-main ovyu-main--home">
-        <section className="ovyu-hero">
-
-          {/* Column 1 — hero copy */}
-          <div className="ovyu-hero__copy">
-            <h1>A bit <em>of you.</em></h1>
-            <span className="ovyu-sub">Keep yourself for the one person who needs you most.</span>
-            <p>
-              Ovyu lets you upload your voice, stories, and personality for one named person to
-              access when you&apos;re gone. Private. Consensual. Yours.
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedOut" />
+      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+        <div style={{
+          position: "absolute",
+          left: "179px",
+          top: "45px",
+          width: "1500px",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}>
+          {/* Left side */}
+          <div style={{ width: "532px", display: "flex", flexDirection: "column", gap: "25px" }}>
+            <h1 style={{
+              fontFamily: serif,
+              fontSize: "88px",
+              color: "#1a1a1a",
+              whiteSpace: "nowrap",
+              margin: 0,
+              lineHeight: "normal",
+            }}>
+              <span style={{ fontWeight: 400 }}>A bit</span>
+              <em style={{ fontWeight: 400 }}> of you.</em>
+            </h1>
+            <p style={{
+              fontFamily: sans,
+              fontWeight: 400,
+              fontSize: "22px",
+              color: "#444",
+              margin: 0,
+            }}>
+              Keep yourself for the one person who needs you most.
             </p>
-            <Link href="/signup" className="ovyu-btn ovyu-btn--begin">Begin &nbsp;→</Link>
+            <p style={{
+              fontFamily: sans,
+              fontWeight: 300,
+              fontSize: "18px",
+              color: "#888",
+              width: "473px",
+              margin: 0,
+              lineHeight: "normal",
+            }}>
+              Ovyu lets you leave a piece of yourself — your voice, your stories, your presence — for the one person who will need it most when you are gone.
+            </p>
+            <Link href="/signup" style={{
+              width: "263px",
+              height: "63px",
+              background: "#c9a84c",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: sans,
+              fontWeight: 400,
+              fontSize: "22px",
+              color: "#fff",
+              textDecoration: "none",
+            }}>
+              Begin  →
+            </Link>
           </div>
 
-          {/* Column 2 — spacer (implicit in 3-col grid) */}
-
-          {/* Column 3 — 01/02/03 sidebar */}
-          <aside className="ovyu-hero__sidebar" aria-label="How it works">
-            <SidebarStep
-              src="/ovyu-01-contract.svg"
-              naturalW={302} naturalH={45.5}
-              caption="You and your Keeper agree on the terms before anything begins."
-            />
-            <hr className="ovyu-hero__divider" />
-            <SidebarStep
-              src="/ovyu-02-upload.svg"
-              naturalW={280.5} naturalH={45.5}
-              caption="You share your voice, memories, and stories at your own pace."
-            />
-            <hr className="ovyu-hero__divider" />
-            <SidebarStep
-              src="/ovyu-03-transfer.svg"
-              naturalW={301} naturalH={58.9}
-              caption="When the time comes, your Keeper receives what you left for them."
-            />
-          </aside>
-
-        </section>
-      </main>
+          {/* Sidebar */}
+          <div style={{
+            width: "378px",
+            height: "783px",
+            background: "#fff",
+            border: "1.666px solid #ddd",
+            padding: "41px 35px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "50px",
+            alignItems: "center",
+            boxSizing: "border-box",
+          }}>
+            <div style={{ height: "154px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
+              <Image src="/ovyu-01-contract.svg" alt="01 The Contract" width={302} height={46} />
+              <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "16px", color: "#888", width: "309px", textAlign: "center", margin: 0 }}>
+                You and your Keeper agree on the terms before anything begins.
+              </p>
+            </div>
+            <div style={{ width: "284px", height: "2.5px", background: "#d9d9d9" }} />
+            <div style={{ height: "153px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
+              <Image src="/ovyu-02-upload.svg" alt="02 The Upload" width={281} height={46} />
+              <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "16px", color: "#888", width: "286px", textAlign: "center", margin: 0 }}>
+                You share your voice, memories, and stories at your own pace.
+              </p>
+            </div>
+            <div style={{ width: "284px", height: "2.5px", background: "#d9d9d9" }} />
+            <div style={{ height: "153px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
+              <Image src="/ovyu-03-transfer.svg" alt="03 The Transfer" width={301} height={59} />
+              <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "16px", color: "#888", width: "286px", textAlign: "center", margin: 0 }}>
+                When the time comes, your Keeper receives what you left for them.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
       <Footer />
-    </div>
-  );
-}
-
-function SidebarStep({ src, naturalW, naturalH, caption }: {
-  src: string; naturalW: number; naturalH: number; caption: string;
-}) {
-  return (
-    <div className="ovyu-hero__step">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" width={naturalW} height={naturalH} style={{ display: "block", marginBottom: 12, maxWidth: "100%" }} />
-      <p style={{ fontStyle: "italic", fontWeight: 400, fontSize: 16, color: "var(--ovyu-muted)", margin: 0, lineHeight: "normal" }}>
-        {caption}
-      </p>
     </div>
   );
 }

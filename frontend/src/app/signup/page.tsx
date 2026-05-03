@@ -6,6 +6,24 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
+const inputStyle: React.CSSProperties = {
+  height: "57px",
+  background: "#fff",
+  border: "1px solid #888",
+  borderRadius: "10px",
+  padding: "0 10px",
+  fontFamily: sans,
+  fontWeight: 400,
+  fontSize: "14px",
+  color: "#1a1a1a",
+  boxSizing: "border-box",
+  width: "100%",
+  outline: "none",
+};
+
 const RELATIONSHIPS = [
   "Partner / spouse", "Child", "Parent", "Sibling", "Close friend", "Other",
 ];
@@ -60,142 +78,192 @@ export default function SignupPage() {
     }
   }
 
+  function LabeledInput({ label, placeholder, type = "text", value, onChange, width = 400 }: {
+    label: string; placeholder: string; type?: string;
+    value: string; onChange: (v: string) => void; width?: number;
+  }) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: `${width}px` }}>
+        <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>{label}</label>
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="ovyu-page">
-      <Header />
-      <main className="ovyu-main ovyu-main--signup">
-        <div className="ovyu-page-header">
-          <h1><em>Let&apos;s </em>get started.</h1>
-          <span className="ovyu-sub">A little about you and who this is for.</span>
-        </div>
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedOut" />
+      <form onSubmit={handleSubmit} style={{ position: "relative", flex: 1, minHeight: "977px" }}>
+        {/* Content box at left:60px, top:138px (241-103 header offset) */}
+        <div style={{ position: "absolute", left: "60px", top: "138px", width: "1800px" }}>
 
-        <form onSubmit={handleSubmit} className="ovyu-begin-form">
-          {/* Row 1 — About You */}
-          <p className="ovyu-section-label">About You</p>
-          <div className="ovyu-begin-row">
-            <Field label="First name" placeholder="First name"
-              value={firstName} onChange={setFirstName} required />
-            <Field
-              label={<>Middle name <span style={{ fontWeight: 400, color: "var(--ovyu-muted)" }}>(if applicable)</span></>}
-              placeholder="Middle name(s) or N/A"
-              value={middleName} onChange={setMiddleName} />
-            <Field label="Last name" placeholder="Last name"
-              value={lastName} onChange={setLastName} required />
-            <Field label="Your email" placeholder="you@example.com" type="email"
-              value={email} onChange={setEmail} required />
+          {/* H1 */}
+          <div style={{ position: "absolute", top: "9px" }}>
+            <h1 style={{ fontFamily: serif, fontSize: "64px", color: "#1a1a1a", whiteSpace: "nowrap", margin: 0, lineHeight: "normal" }}>
+              <em style={{ fontWeight: 400 }}>Let&apos;s </em>
+              <span style={{ fontStyle: "normal", fontWeight: 400 }}>get started.</span>
+            </h1>
           </div>
 
-          <div className="ovyu-begin-divider" />
+          {/* Subtitle */}
+          <div style={{ position: "absolute", top: "80px" }}>
+            <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", margin: 0 }}>
+              A little about you and who this is for.
+            </p>
+          </div>
 
-          {/* Row 2 — Keeper */}
-          <div className="ovyu-begin-keeper-grid">
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <Field label="Keeper's full name" placeholder="First, middle, and last name"
-                value={keeperName} onChange={setKeeperName} required />
-              <Field label="Keeper's email" placeholder="email@example.com" type="email"
-                value={keeperEmail} onChange={setKeeperEmail} required />
+          {/* Section label */}
+          <div style={{ position: "absolute", top: "150px" }}>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>About You</p>
+          </div>
+
+          {/* Row 1 — 4 inputs */}
+          <div style={{ position: "absolute", top: "185px" }}>
+            <div style={{ position: "absolute", left: "0px" }}>
+              <LabeledInput label="First name" placeholder="First name" value={firstName} onChange={setFirstName} />
             </div>
-
-            <div>
-              <div className="ovyu-field">
-                <label className="ovyu-field__label">Your relationship to them</label>
-                <div className="ovyu-select">
-                  <select
-                    className={`ovyu-select__native${!keeperRel ? " is-empty" : ""}`}
-                    value={keeperRel}
-                    onChange={e => setKeeperRel(e.target.value)}
-                    required
-                  >
-                    <option value="" disabled>Select Relationship</option>
-                    {RELATIONSHIPS.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                  <span className="ovyu-select__chev" aria-hidden="true">⌄</span>
-                </div>
-              </div>
+            <div style={{ position: "absolute", left: "414px" }}>
+              <LabeledInput label="Middle name (if applicable)" placeholder="Middle name(s) or N/A" value={middleName} onChange={setMiddleName} />
             </div>
+            <div style={{ position: "absolute", left: "828px" }}>
+              <LabeledInput label="Last name" placeholder="Last name" value={lastName} onChange={setLastName} />
+            </div>
+            <div style={{ position: "absolute", left: "1242px" }}>
+              <LabeledInput label="Your email" placeholder="you@example.com" type="email" value={email} onChange={setEmail} />
+            </div>
+          </div>
 
-            <div className="ovyu-begin-awareness">
-              <p className="ovyu-begin-awareness-label">Does the Keeper know about this?</p>
-              <label className="ovyu-begin-checkbox-row">
-                <button type="button"
-                  className={`ovyu-begin-checkbox${!privately ? " is-checked" : ""}`}
-                  onClick={() => setPrivately(false)}
-                  aria-pressed={!privately}
-                >
-                  {!privately && "✓"}
-                </button>
+          {/* Divider */}
+          <div style={{ position: "absolute", top: "317px", width: "1800px", height: "3px", background: "#e1e1e1" }} />
+
+          {/* Keeper name */}
+          <div style={{ position: "absolute", top: "351px", left: "0px" }}>
+            <LabeledInput label="Keeper's full name" placeholder="First, middle, and last name" value={keeperName} onChange={setKeeperName} />
+          </div>
+          {/* Keeper email */}
+          <div style={{ position: "absolute", top: "453px", left: "0px" }}>
+            <LabeledInput label="Keeper's email" placeholder="email@example.com" type="email" value={keeperEmail} onChange={setKeeperEmail} />
+          </div>
+
+          {/* Relationship */}
+          <div style={{ position: "absolute", top: "351px", left: "414px", display: "flex", flexDirection: "column", gap: "8px", width: "247px" }}>
+            <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Your relationship to them</label>
+            <div style={{ position: "relative", height: "57px" }}>
+              <select
+                value={keeperRel}
+                onChange={e => setKeeperRel(e.target.value)}
+                required
+                style={{
+                  ...inputStyle,
+                  height: "57px",
+                  appearance: "none",
+                  paddingRight: "32px",
+                  color: keeperRel ? "#1a1a1a" : "#888",
+                  borderRadius: "8px",
+                }}
+              >
+                <option value="" disabled>Select Relationship</option>
+                {RELATIONSHIPS.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <span style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#888", fontSize: "14px" }}>⌄</span>
+            </div>
+          </div>
+
+          {/* Awareness checkboxes */}
+          <div style={{ position: "absolute", top: "351px", left: "696px" }}>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444", margin: "0 0 12px 0" }}>
+              Does the Keeper know about this?
+            </p>
+            <div
+              style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", marginBottom: "12px", cursor: "pointer" }}
+              onClick={() => setPrivately(false)}
+            >
+              <div style={{
+                width: "24px", height: "24px",
+                background: !privately ? "#444" : "#fff",
+                border: privately ? "1px solid #888" : "none",
+                borderRadius: "4px", flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: sans, fontSize: "14px", color: "#f5f0e8",
+              }}>{!privately ? "✓" : ""}</div>
+              <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "14px", color: "#444" }}>
                 Yes, they know and we&apos;re doing this together.
-              </label>
-              <label className="ovyu-begin-checkbox-row">
-                <button type="button"
-                  className={`ovyu-begin-checkbox${privately ? " is-checked" : ""}`}
-                  onClick={() => setPrivately(true)}
-                  aria-pressed={privately}
-                >
-                  {privately && "✓"}
-                </button>
+              </span>
+            </div>
+            <div
+              style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", cursor: "pointer" }}
+              onClick={() => setPrivately(true)}
+            >
+              <div style={{
+                width: "24px", height: "24px",
+                background: privately ? "#444" : "#fff",
+                border: !privately ? "1px solid #888" : "none",
+                borderRadius: "4px", flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: sans, fontSize: "14px", color: "#f5f0e8",
+              }}>{privately ? "✓" : ""}</div>
+              <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "14px", color: "#444" }}>
                 No, this is something I&apos;m doing privately.
-              </label>
+              </span>
             </div>
           </div>
 
-          {/* TC callout — private path only */}
+          {/* TC Callout — private path only */}
           {privately && (
-            <div className="ovyu-tc-callout">
-              <div className="ovyu-tc-callout__header">
-                <p className="ovyu-tc-callout__title">Transfer Contact</p>
-                <p className="ovyu-tc-callout__desc">
-                  Because your Keeper isn&apos;t aware, we need someone you trust to confirm the
-                  Transfer when the time comes. They will have no access to your upload.
-                </p>
-              </div>
-              <div className="ovyu-tc-callout__fields">
-                <div style={{ flex: 1 }}>
-                  <Field label="Their name" placeholder="Full name"
-                    value={tcName} onChange={setTcName} required />
+            <div style={{
+              position: "absolute", left: "696px", top: "460px",
+              width: "762px", background: "#f5edd6",
+              border: "1.667px solid #c9a84c", borderRadius: "13px",
+              padding: "20px 30px", display: "flex", flexDirection: "column",
+              gap: "14px", boxSizing: "border-box",
+            }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#444", margin: 0 }}>Transfer Contact</p>
+              <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "14px", color: "#000", margin: 0 }}>
+                The person who will let Ovyu know when you pass. They do not need to know about Ovyu now.
+              </p>
+              <div style={{ display: "flex", flexDirection: "row", gap: "45px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "297px" }}>
+                  <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Their name</label>
+                  <input placeholder="Full name" value={tcName} onChange={e => setTcName(e.target.value)} style={inputStyle} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <Field label="Their email" placeholder="you@example.com" type="email"
-                    value={tcEmail} onChange={setTcEmail} required />
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "297px" }}>
+                  <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Their email</label>
+                  <input type="email" placeholder="you@example.com" value={tcEmail} onChange={e => setTcEmail(e.target.value)} style={inputStyle} />
                 </div>
               </div>
             </div>
           )}
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 48, alignItems: "center", gap: 24 }}>
-            {error && <p className="ovyu-error-text">{error}</p>}
+          {/* Error + Continue button */}
+          <div style={{ position: "absolute", left: "1496px", top: "618px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+            {error && <p style={{ fontFamily: sans, fontSize: "14px", color: "#B4372C", margin: 0 }}>{error}</p>}
             <button
               type="submit"
-              className="ovyu-btn ovyu-btn--primary"
               disabled={loading || !canSubmit}
+              style={{
+                width: "304px", height: "48px",
+                background: loading || !canSubmit ? "#666" : "#000",
+                borderRadius: "8px", border: "none",
+                fontFamily: sans, fontWeight: 700, fontSize: "16px",
+                color: "#f5f0e8", cursor: loading || !canSubmit ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
             >
               {loading ? "Sending…" : "Continue to verify email →"}
             </button>
           </div>
-        </form>
-      </main>
-      <Footer />
-    </div>
-  );
-}
+        </div>
 
-function Field({
-  label, placeholder, type = "text", value, onChange, required,
-}: {
-  label: React.ReactNode; placeholder: string; type?: string;
-  value: string; onChange: (v: string) => void; required?: boolean;
-}) {
-  return (
-    <div className="ovyu-field">
-      <label className="ovyu-field__label">{label}</label>
-      <input
-        className="ovyu-input"
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        required={required}
-      />
+        {/* Extra space at bottom for TC callout overflow */}
+        <div style={{ height: "756px" }} />
+      </form>
+      <Footer />
     </div>
   );
 }
