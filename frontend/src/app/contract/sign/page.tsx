@@ -45,7 +45,7 @@ function SignInner() {
     setError(""); setLoading(true);
     try {
       await api.signContract(contractId, typedName);
-      router.push(`/maker-contracts?id=${contractId}`);
+      router.push("/contracts");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign failed.");
     } finally {

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.contract import Contract, ContractPath, ContractStatus
@@ -164,6 +164,29 @@ class ContractService:
             "relationship": contract.relationship,
             "contract_id": invitation.contract_id,
         }
+
+    async def list_my_contracts(self, user: User) -> list[tuple[Contract, str]]:
+        """Return all contracts where user is maker, keeper, or TC, with their role for each."""
+        result = await self.db.execute(
+            select(Contract).where(
+                or_(
+                    Contract.maker_id == user.id,
+                    Contract.keeper_id == user.id,
+                    Contract.tc_id == user.id,
+                )
+            ).order_by(Contract.created_at.desc())
+        )
+        contracts = result.scalars().all()
+        out = []
+        for c in contracts:
+            if c.maker_id == user.id:
+                role = "maker"
+            elif c.keeper_id == user.id:
+                role = "keeper"
+            else:
+                role = "tc"
+            out.append((c, role))
+        return out
 
     async def get_contract(self, contract_id: UUID, requesting_user: User) -> Contract:
         contract = await self._get_or_404(contract_id)

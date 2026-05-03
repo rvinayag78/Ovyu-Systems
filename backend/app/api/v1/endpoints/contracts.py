@@ -57,6 +57,33 @@ async def create_contract(
     return ContractRead.model_validate(contract)
 
 
+@router.get("", response_model=list[ContractRead])
+async def list_my_contracts(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[ContractRead]:
+    from sqlalchemy import select as sa_select
+    svc = ContractService(db)
+    pairs = await svc.list_my_contracts(current_user)
+
+    # Batch-load all unique maker User records
+    maker_ids = list({c.maker_id for c, _ in pairs})
+    makers: dict = {}
+    if maker_ids:
+        result = await db.execute(sa_select(User).where(User.id.in_(maker_ids)))
+        for u in result.scalars().all():
+            makers[u.id] = u.full_name
+
+    out = []
+    for contract, role in pairs:
+        data = ContractRead.model_validate(contract)
+        out.append(data.model_copy(update={
+            "my_role": role,
+            "maker_name": makers.get(contract.maker_id),
+        }))
+    return out
+
+
 @router.get("/{contract_id}", response_model=ContractRead)
 async def get_contract(
     contract_id: UUID,
