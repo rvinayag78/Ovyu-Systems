@@ -127,7 +127,7 @@ async def accept_invitation(
     if maker:
         signer_name = body.typed_name.strip()
         try:
-            EmailService().send_contract_locked(maker.email, signer_name)
+            EmailService().send_contract_locked(maker.email, signer_name, is_tc=is_tc)
         except Exception as exc:
             logger.error("send_contract_locked failed for %s: %s", maker.email, exc, exc_info=True)
         if is_tc and invitee_email:

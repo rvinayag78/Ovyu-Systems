@@ -178,20 +178,21 @@ class EmailService:
         """
         self._send(email, subject, html)
 
-    def send_contract_locked(self, maker_email: str, signer_name: str) -> None:
+    def send_contract_locked(self, maker_email: str, signer_name: str, is_tc: bool = False) -> None:
+        role_label = "Transfer Contact" if is_tc else "Keeper"
         html = f"""
-        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-          <div style="background:#1A1A1A;padding:32px;text-align:center">
-            <span style="font-family:Georgia,serif;font-style:italic;font-size:48px;color:#F7F8F3">ovyu</span>
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#f8f7f5">
+          <div style="background:#000;padding:40px;text-align:center">
+            <span style="font-family:Georgia,serif;font-weight:700;font-size:48px;color:#fff">ov<em>yu</em></span>
           </div>
-          <div style="padding:48px 40px;background:#fff;text-align:center">
-            <h1 style="font-family:Georgia,serif;font-size:32px;margin:0 0 16px">Your contract is locked.</h1>
-            <p style="font-size:16px;color:#555;margin:0 0 8px">{signer_name} has signed. You're ready to begin.</p>
-            <p style="font-size:16px;color:#555;margin:0 0 32px">When you're ready, start with a welcome message — a short video or voice recording that will be the first thing they receive.</p>
-            <a href="{settings.frontend_url}/plan" style="display:inline-block;background:#1A1A1A;color:#F5F0E8;font-size:16px;font-weight:700;padding:15px 48px;border-radius:8px;text-decoration:none">Begin my upload</a>
+          <div style="padding:56px 40px;background:#f8f7f5;text-align:center">
+            <h1 style="font-family:Georgia,serif;font-style:italic;font-size:36px;color:#1a1a1a;margin:0 0 12px">Your contract is locked.</h1>
+            <p style="font-size:20px;color:#444;margin:0 0 8px">{signer_name} has signed. You&apos;re ready to begin.</p>
+            <p style="font-size:16px;color:#888;margin:0 0 40px">Everything is in place. When you&apos;re ready, start with a welcome message — a short video or voice recording that will be the first thing they receive.</p>
+            <a href="{settings.frontend_url}/login" style="display:inline-block;background:#c9a84c;color:#fff;font-size:16px;font-weight:700;padding:16px 40px;border-radius:11px;text-decoration:none">Begin my upload</a>
           </div>
-          <div style="background:#ddd;padding:20px;text-align:center;font-size:13px;color:#888">
-            ovyu.com · You can return at any time by logging in.
+          <div style="background:#d9d9d9;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com &nbsp;·&nbsp; You received this because your {role_label} completed the contract.
           </div>
         </div>
         """

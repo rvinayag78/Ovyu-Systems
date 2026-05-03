@@ -10,8 +10,8 @@ const STAGE_ROUTES: Record<string, (contractId: string | null) => string> = {
   no_contract: () => "/signup",
   unsigned: (id) => id ? `/contract/sign?id=${id}` : "/signup",
   awaiting_other: (id) => id ? `/maker-contracts?id=${id}` : "/signup",
-  ready_to_upload: () => "/upload/start",
-  active: () => "/maker-contracts",
+  ready_to_upload: (id) => id ? `/maker-contracts?id=${id}` : "/maker-contracts",
+  active: (id) => id ? `/maker-contracts?id=${id}` : "/maker-contracts",
 };
 
 export function VerifyClient() {

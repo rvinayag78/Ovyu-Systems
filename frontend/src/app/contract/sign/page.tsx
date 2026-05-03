@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -15,6 +16,7 @@ function SignInner() {
 
   const [contract, setContract] = useState<{
     id: string; path: string; status: string;
+    maker_signed_at?: string; locked_at?: string;
     keeper_name?: string; tc_name?: string; relationship?: string;
   } | null>(null);
   const [makerName, setMakerName] = useState("");
@@ -32,6 +34,8 @@ function SignInner() {
   }, [contractId]);
 
   const isPrivate = contract?.path === "private";
+  const alreadySigned = !!contract?.maker_signed_at;
+  const isLocked = contract?.status === "LOCKED";
   const nameMatch = makerName ? normalize(typedName) === normalize(makerName) : false;
   const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
@@ -108,52 +112,94 @@ function SignInner() {
 
           {/* Sign panel */}
           <aside className="ovyu-contract-sign-panel">
-            <p className="ovyu-contract-sign-title">Sign as Maker</p>
-            <p className="ovyu-contract-sign-desc">
-              By signing, you confirm you have read and agree to the terms on this page.
-            </p>
+            {alreadySigned ? (
+              <>
+                <p className="ovyu-contract-sign-title">
+                  {isLocked ? "Contract locked" : "You've signed"}
+                </p>
+                <p className="ovyu-contract-sign-desc">
+                  {isLocked
+                    ? "All parties have signed. This contract is active."
+                    : `Signed on ${new Date(contract!.maker_signed_at!).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. Waiting for the other party.`}
+                </p>
+                <div className="ovyu-field">
+                  <label className="ovyu-field__label" style={{ fontSize: 20 }}>Signed by</label>
+                  <div style={{
+                    background: "#fff", border: "1.29px solid var(--ovyu-muted)",
+                    borderRadius: 10, height: 73, display: "flex", alignItems: "center", padding: "0 13px",
+                    fontSize: 18, color: "var(--ovyu-ink-soft)",
+                  }}>{makerName}</div>
+                </div>
+                <div className="ovyu-field">
+                  <label className="ovyu-field__label" style={{ fontSize: 20 }}>Date signed</label>
+                  <div style={{
+                    background: "#fff", border: "1.29px solid var(--ovyu-muted)",
+                    borderRadius: 10, height: 73, display: "flex", alignItems: "center", padding: "0 13px",
+                    fontSize: 18, color: "var(--ovyu-muted)",
+                  }}>
+                    {new Date(contract!.maker_signed_at!).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </div>
+                </div>
+                {isLocked && (
+                  <Link
+                    href="/upload/start"
+                    className="ovyu-btn ovyu-btn--primary ovyu-btn--wide"
+                    style={{ fontSize: 20, height: 62, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}
+                  >
+                    Begin my upload →
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="ovyu-contract-sign-title">Sign as Maker</p>
+                <p className="ovyu-contract-sign-desc">
+                  By signing, you confirm you have read and agree to the terms on this page.
+                </p>
 
-            <div className="ovyu-field">
-              <label className="ovyu-field__label" style={{ fontSize: 20 }}>Full legal name</label>
-              <input
-                className={`ovyu-input${typedName && !nameMatch ? " is-error" : ""}`}
-                value={typedName}
-                onChange={e => setTypedName(e.target.value)}
-                placeholder="Type your full name"
-                style={{ fontSize: 18, height: 73 }}
-                required
-              />
-              {typedName && !nameMatch && (
-                <span className="ovyu-field__helper is-error">
-                  Name doesn&apos;t match. Type: {makerName}
-                </span>
-              )}
-            </div>
+                <div className="ovyu-field">
+                  <label className="ovyu-field__label" style={{ fontSize: 20 }}>Full legal name</label>
+                  <input
+                    className={`ovyu-input${typedName && !nameMatch ? " is-error" : ""}`}
+                    value={typedName}
+                    onChange={e => setTypedName(e.target.value)}
+                    placeholder="Type your full name"
+                    style={{ fontSize: 18, height: 73 }}
+                    required
+                  />
+                  {typedName && !nameMatch && (
+                    <span className="ovyu-field__helper is-error">
+                      Name doesn&apos;t match. Type: {makerName}
+                    </span>
+                  )}
+                </div>
 
-            <div className="ovyu-field">
-              <label className="ovyu-field__label" style={{ fontSize: 20 }}>Date</label>
-              <div style={{
-                background: "#fff", border: "1.29px solid var(--ovyu-muted)",
-                borderRadius: 10, height: 73, display: "flex", alignItems: "center", padding: "0 13px",
-                fontSize: 18, color: "var(--ovyu-muted)",
-              }}>{today}</div>
-            </div>
+                <div className="ovyu-field">
+                  <label className="ovyu-field__label" style={{ fontSize: 20 }}>Date</label>
+                  <div style={{
+                    background: "#fff", border: "1.29px solid var(--ovyu-muted)",
+                    borderRadius: 10, height: 73, display: "flex", alignItems: "center", padding: "0 13px",
+                    fontSize: 18, color: "var(--ovyu-muted)",
+                  }}>{today}</div>
+                </div>
 
-            {error && <p className="ovyu-error-text">{error}</p>}
+                {error && <p className="ovyu-error-text">{error}</p>}
 
-            <button
-              type="submit"
-              className="ovyu-btn ovyu-btn--primary ovyu-btn--wide"
-              disabled={!nameMatch || loading}
-              style={{ fontSize: 20, height: 62 }}
-            >
-              {loading ? "Signing…" : "Sign and continue →"}
-            </button>
+                <button
+                  type="submit"
+                  className="ovyu-btn ovyu-btn--primary ovyu-btn--wide"
+                  disabled={!nameMatch || loading}
+                  style={{ fontSize: 20, height: 62 }}
+                >
+                  {loading ? "Signing…" : "Sign and continue →"}
+                </button>
 
-            {isPrivate && (
-              <div className="ovyu-gold-callout">
-                Your Transfer Contact will also receive this contract to sign.
-              </div>
+                {isPrivate && (
+                  <div className="ovyu-gold-callout">
+                    Your Transfer Contact will also receive this contract to sign.
+                  </div>
+                )}
+              </>
             )}
           </aside>
         </form>

@@ -9,7 +9,8 @@ import { api } from "@/lib/api";
 
 type Contract = {
   id: string; path: string; status: string;
-  maker_signed_at?: string; keeper_name?: string; tc_name?: string;
+  maker_signed_at?: string; locked_at?: string;
+  keeper_name?: string; tc_name?: string;
 };
 
 function MakerContractsInner() {
@@ -43,11 +44,17 @@ function MakerContractsInner() {
   );
 
   const makerSigned = !!contract?.maker_signed_at;
+  const isLocked = contract?.status === "LOCKED";
   const keeperName = contract?.keeper_name ?? "your Keeper";
+  const otherParty = contract?.path === "private" ? "your Transfer Contact" : "your Keeper";
 
   const sentDate = contract?.maker_signed_at
     ? new Date(contract.maker_signed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
     : null;
+
+  const lockedDate = contract?.locked_at
+    ? new Date(contract.locked_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+    : sentDate;
 
   return (
     <div className="ovyu-page">
@@ -77,7 +84,29 @@ function MakerContractsInner() {
                     </div>
                   </div>
 
-                  {makerSigned ? (
+                  {/* State 3 — LOCKED */}
+                  {isLocked ? (
+                    <>
+                      <span className="ovyu-contract-row__status">
+                        Signed on {lockedDate}
+                      </span>
+                      <Link
+                        href={`/contract/sign?id=${contractId}`}
+                        className="ovyu-contract-row__action"
+                        style={{ color: "var(--ovyu-ink-soft)", background: "transparent", border: "1px solid var(--ovyu-muted)" }}
+                      >
+                        View Contract
+                      </Link>
+                      <Link
+                        href="/upload/start"
+                        className="ovyu-contract-row__action"
+                        style={{ fontWeight: 700, letterSpacing: "0.05em" }}
+                      >
+                        UPLOAD →
+                      </Link>
+                    </>
+                  ) : makerSigned ? (
+                    /* State 2 — Maker signed, awaiting other party */
                     <>
                       <span className="ovyu-contract-row__status">
                         Contract sent {sentDate}
@@ -85,6 +114,7 @@ function MakerContractsInner() {
                       <span className="ovyu-contract-row__status">Pending</span>
                     </>
                   ) : (
+                    /* State 1 — Maker hasn't signed yet */
                     <>
                       <span className="ovyu-contract-row__status">Pending Status</span>
                       <Link
@@ -100,10 +130,9 @@ function MakerContractsInner() {
             )}
           </div>
 
-          {makerSigned && (
+          {makerSigned && !isLocked && (
             <p style={{ marginTop: 32, fontSize: 14, color: "var(--ovyu-muted)", maxWidth: 640 }}>
-              We&apos;ll email you when{" "}
-              {contract?.path === "private" ? "your Transfer Contact" : "your Keeper"} responds.
+              We&apos;ll email you when {otherParty} responds.
               You don&apos;t need to do anything in the meantime.
             </p>
           )}
