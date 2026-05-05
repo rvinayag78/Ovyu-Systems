@@ -99,9 +99,8 @@ export default function SignupPage() {
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedOut" />
-      <form onSubmit={handleSubmit} style={{ position: "relative", flex: 1, minHeight: "977px" }}>
-        {/* Content box at left:60px, top:138px (241-103 header offset) */}
-        <div style={{ position: "absolute", left: "60px", top: "138px", width: "1800px" }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1 }}>
+        <div style={{ position: "relative", margin: "138px auto 100px", width: "1800px", minHeight: "756px" }}>
 
           {/* H1 */}
           <div style={{ position: "absolute", top: "9px" }}>
@@ -214,11 +213,11 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* TC Callout — private path only */}
+          {/* TC Callout — starts right below checkboxes, extends to right edge (1800px) */}
           {privately && (
             <div style={{
-              position: "absolute", left: "696px", top: "460px",
-              width: "762px", background: "#f5edd6",
+              position: "absolute", left: "696px", top: "451px",
+              width: "1104px", background: "#f5edd6",
               border: "1.667px solid #c9a84c", borderRadius: "13px",
               padding: "20px 30px", display: "flex", flexDirection: "column",
               gap: "14px", boxSizing: "border-box",
@@ -228,11 +227,11 @@ export default function SignupPage() {
                 The person who will let Ovyu know when you pass. They do not need to know about Ovyu now.
               </p>
               <div style={{ display: "flex", flexDirection: "row", gap: "45px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "297px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
                   <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Their name</label>
                   <input placeholder="Full name" value={tcName} onChange={e => setTcName(e.target.value)} style={inputStyle} />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "297px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1 }}>
                   <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Their email</label>
                   <input type="email" placeholder="you@example.com" value={tcEmail} onChange={e => setTcEmail(e.target.value)} style={inputStyle} />
                 </div>
@@ -240,8 +239,8 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* Error + Continue button */}
-          <div style={{ position: "absolute", left: "1496px", top: "618px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+          {/* Error + Continue button — bottom of page, right-aligned */}
+          <div style={{ position: "absolute", left: "1496px", top: "710px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
             {error && <p style={{ fontFamily: sans, fontSize: "14px", color: "#B4372C", margin: 0 }}>{error}</p>}
             <button
               type="submit"
@@ -260,8 +259,6 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* Extra space at bottom for TC callout overflow */}
-        <div style={{ height: "756px" }} />
       </form>
       <Footer />
     </div>
