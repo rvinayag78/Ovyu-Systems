@@ -109,6 +109,35 @@ async def get_invite_token(
     return InviteTokenResponse(token=row.token)
 
 
+# ── Contract state dump ──────────────────────────────────────────────────────
+
+@router.get("/contracts-dump")
+async def contracts_dump(db: AsyncSession = Depends(get_db)) -> list[dict]:
+    """Return all contracts with status, dates, and invitation token state."""
+    _guard()
+    from sqlalchemy import select as sa_select
+    from app.models.invitation_token import InvitationToken as IT
+
+    result = await db.execute(sa_select(Contract).order_by(Contract.created_at.desc()))
+    contracts = result.scalars().all()
+    out = []
+    for c in contracts:
+        inv = await db.execute(sa_select(IT).where(IT.contract_id == c.id).order_by(IT.created_at.desc()).limit(1))
+        inv_row = inv.scalar_one_or_none()
+        out.append({
+            "id": str(c.id),
+            "status": c.status.value,
+            "path": c.path.value,
+            "maker_signed_at": c.maker_signed_at.isoformat() if c.maker_signed_at else None,
+            "locked_at": c.locked_at.isoformat() if c.locked_at else None,
+            "keeper_name": c.keeper_name,
+            "tc_name": c.tc_name,
+            "invite_used": inv_row.used if inv_row else None,
+            "invite_role": inv_row.invitee_role.value if inv_row else None,
+        })
+    return out
+
+
 # ── Maker duplicate cleanup ───────────────────────────────────────────────────
 
 class CleanupRequest(BaseModel):
