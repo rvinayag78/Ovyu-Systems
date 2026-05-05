@@ -3,9 +3,10 @@ Test-only endpoints — active ONLY when TESTING=true env var is set.
 Never mount this router in production.
 
 Endpoints:
-  POST /test/email-verify-token  → create email-verification JWT (no email sent)
-  POST /test/magic-token         → create magic-link token in DB, return raw token
-  GET  /test/invite-token        → return latest invite token for an invitee email
+  POST /test/email-verify-token          → create Maker email-verification JWT (no email sent)
+  POST /test/keeper-email-verify-token   → create Keeper email-verification JWT (no email sent)
+  POST /test/magic-token                 → create magic-link token in DB, return raw token
+  GET  /test/invite-token                → return latest invite token for an invitee email
 """
 import hashlib
 import secrets
@@ -47,6 +48,30 @@ async def get_email_verify_token(body: BeginRegistrationRequest) -> EmailVerifyT
     """Return the JWT that /auth/begin-registration would email, without sending it."""
     _guard()
     token = create_email_verification_token(body.model_dump(mode="json"))
+    return EmailVerifyTokenResponse(token=token)
+
+
+class KeeperEmailVerifyTokenRequest(BaseModel):
+    invite_token: str
+    first_name: str
+    middle_name: str | None = None
+    last_name: str
+    email: EmailStr
+
+
+@router.post("/keeper-email-verify-token", response_model=EmailVerifyTokenResponse)
+async def get_keeper_email_verify_token(body: KeeperEmailVerifyTokenRequest) -> EmailVerifyTokenResponse:
+    """Return the keeper verification JWT that /auth/keeper-begin would email, without sending it."""
+    _guard()
+    payload = {
+        "first_name": body.first_name,
+        "last_name": body.last_name,
+        "middle_name": body.middle_name,
+        "keeper_email": str(body.email),
+        "invite_token": body.invite_token,
+        "role": "keeper",
+    }
+    token = create_email_verification_token(payload)
     return EmailVerifyTokenResponse(token=token)
 
 

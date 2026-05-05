@@ -5,7 +5,7 @@
  */
 import { test, expect } from "@playwright/test";
 import * as crypto from "crypto";
-import { registerMaker } from "./helpers/auth";
+import { registerMaker, registerKeeper } from "./helpers/auth";
 import { getInviteToken } from "./helpers/tokens";
 import type { RegistrationData } from "./helpers/tokens";
 
@@ -65,14 +65,14 @@ test.describe("Maker registration + signing (aware path)", () => {
     await page.waitForURL(/\/contracts/, { timeout: 15_000 });
 
     const inviteToken = await getInviteToken(keeperEmail);
-    await page.goto(`/invite/${inviteToken}`);
-    const nameInput = page
-      .getByPlaceholder(/type your full name/i)
-      .or(page.getByLabel(/full name/i));
-    await nameInput.fill("E2E Keeper");
-    await page.getByRole("button", { name: /accept and sign/i }).click();
-    await expect(page.getByRole("heading", { name: /you've signed/i })).toBeVisible({
-      timeout: 10_000,
+    // Keeper now goes through the full account-setup onboarding flow
+    await registerKeeper(page, {
+      inviteToken,
+      firstName: "E2E",
+      lastName: "Keeper",
+      email: keeperEmail,
+      keeperFullName: "E2E Keeper",
     });
+    await expect(page.getByText(/you've signed/i)).toBeVisible({ timeout: 10_000 });
   });
 });

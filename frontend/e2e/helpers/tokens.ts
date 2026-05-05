@@ -61,3 +61,42 @@ export async function getInviteToken(inviteeEmail: string): Promise<string> {
   );
   return r.token;
 }
+
+export type KeeperBeginData = {
+  invite_token: string;
+  first_name: string;
+  middle_name?: string;
+  last_name: string;
+  email: string;
+};
+
+/** Return the keeper email-verification JWT without actually sending the email. */
+export async function getKeeperEmailVerifyToken(data: KeeperBeginData): Promise<string> {
+  const r = await post<{ token: string }>("/test/keeper-email-verify-token", data);
+  return r.token;
+}
+
+/** Direct API call helpers for programmatic test setup (no browser). */
+export async function apiPost<T>(
+  path: string,
+  body: object,
+  authToken?: string
+): Promise<T> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  const res = await fetch(`${API}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`POST ${path} → ${res.status}: ${await res.text()}`);
+  return res.json() as Promise<T>;
+}
+
+export async function apiGet<T>(path: string, authToken?: string): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  const res = await fetch(`${API}${path}`, { headers });
+  if (!res.ok) throw new Error(`GET ${path} → ${res.status}: ${await res.text()}`);
+  return res.json() as Promise<T>;
+}
