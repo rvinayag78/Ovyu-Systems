@@ -83,7 +83,7 @@ export default function RegisterPage() {
             </div>
 
             <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", textAlign: "center", margin: 0 }}>
-              Your account is set up. Read through your contract carefully, then sign to lock everything in place.
+              You&apos;ll read through the terms you set, sign as the Maker, and then your Keeper will be invited to review and sign. Your upload doesn&apos;t begin until both of you have signed.
             </p>
 
             {error && <p style={{ fontFamily: sans, fontSize: "14px", color: "#B4372C", margin: 0, textAlign: "center" }}>{error}</p>}
@@ -104,7 +104,7 @@ export default function RegisterPage() {
             </button>
 
             <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "16px", color: "#444", textAlign: "center", margin: 0 }}>
-              Once both you and your Keeper have signed, the contract is locked and you can begin your upload.
+              You can log in any time at ovyu.com with a link sent to your email.
             </p>
           </div>
         </div>
