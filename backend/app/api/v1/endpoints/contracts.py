@@ -63,6 +63,8 @@ async def list_my_contracts(
     db: AsyncSession = Depends(get_db),
 ) -> list[ContractRead]:
     from sqlalchemy import select as sa_select
+    from app.models.invitation_token import InvitationToken
+    from app.models.contract import ContractStatus as CS
     svc = ContractService(db)
     pairs = await svc.list_my_contracts(current_user)
 
@@ -74,13 +76,26 @@ async def list_my_contracts(
         for u in result.scalars().all():
             makers[u.id] = u.full_name
 
+    # Load invite tokens for PENDING_KEEPER contracts where user is the keeper
+    pending_contract_ids = [c.id for c, role in pairs if role == "keeper" and c.status == CS.PENDING_KEEPER]
+    invite_tokens: dict = {}
+    if pending_contract_ids:
+        inv_result = await db.execute(
+            sa_select(InvitationToken).where(
+                InvitationToken.contract_id.in_(pending_contract_ids),
+                InvitationToken.used == False,  # noqa: E712
+            )
+        )
+        for inv in inv_result.scalars().all():
+            invite_tokens[inv.contract_id] = inv.token
+
     out = []
     for contract, role in pairs:
         data = ContractRead.model_validate(contract)
-        out.append(data.model_copy(update={
-            "my_role": role,
-            "maker_name": makers.get(contract.maker_id),
-        }))
+        updates: dict = {"my_role": role, "maker_name": makers.get(contract.maker_id)}
+        if contract.id in invite_tokens:
+            updates["invite_token"] = invite_tokens[contract.id]
+        out.append(data.model_copy(update=updates))
     return out
 
 

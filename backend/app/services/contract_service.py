@@ -173,22 +173,35 @@ class ContractService:
 
     async def list_my_contracts(self, user: User) -> list[tuple[Contract, str]]:
         """Return all active contracts where user is maker, keeper, or TC, with their role for each."""
+        from sqlalchemy import and_
         result = await self.db.execute(
             select(Contract).where(
                 or_(
                     Contract.maker_id == user.id,
                     Contract.keeper_id == user.id,
                     Contract.tc_id == user.id,
+                    and_(
+                        Contract.keeper_email == user.email,
+                        Contract.status == ContractStatus.PENDING_KEEPER,
+                    ),
                 ),
                 Contract.status.not_in([ContractStatus.WITHDRAWN_BY_MAKER, ContractStatus.WITHDRAWN_BY_KEEPER]),
             ).order_by(Contract.created_at.desc())
         )
         contracts = result.scalars().all()
+        seen = set()
         out = []
         for c in contracts:
+            if c.id in seen:
+                continue
+            seen.add(c.id)
             if c.maker_id == user.id:
                 role = "maker"
             elif c.keeper_id == user.id:
+                role = "keeper"
+            elif c.tc_id == user.id:
+                role = "tc"
+            elif c.keeper_email == user.email:
                 role = "keeper"
             else:
                 role = "tc"

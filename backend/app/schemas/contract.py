@@ -26,6 +26,7 @@ class ContractRead(BaseModel):
     relationship: str | None = None
     maker_name: str | None = None
     my_role: str | None = None
+    invite_token: str | None = None
 
     model_config = {"from_attributes": True}
 
