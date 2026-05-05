@@ -163,6 +163,134 @@ async def complete_registration(
     )
 
 
+# ── Keeper account creation + email verification ─────────────────────────────
+
+class KeeperBeginBody(BaseModel):
+    invite_token: str
+    first_name: str
+    middle_name: str | None = None
+    last_name: str
+    email: EmailStr
+
+
+class KeeperBeginResponse(BaseModel):
+    ok: bool
+    email: str
+
+
+class KeeperVerifyResponse(BaseModel):
+    session_token: str
+    contract_id: str
+    keeper_name: str
+    maker_name: str
+
+
+@router.post("/keeper-begin", response_model=KeeperBeginResponse)
+async def keeper_begin(
+    body: KeeperBeginBody,
+    db: AsyncSession = Depends(get_db),
+) -> KeeperBeginResponse:
+    from sqlalchemy import select as _select
+    from app.models.invitation_token import InvitationToken, InviteeRole
+
+    result = await db.execute(
+        _select(InvitationToken).where(
+            InvitationToken.token == body.invite_token,
+            InvitationToken.invitee_role == InviteeRole.KEEPER,
+        )
+    )
+    invitation = result.scalar_one_or_none()
+    if not invitation:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invitation not found")
+
+    payload = {
+        "first_name": body.first_name,
+        "last_name": body.last_name,
+        "middle_name": body.middle_name,
+        "keeper_email": str(body.email),
+        "invite_token": body.invite_token,
+        "role": "keeper",
+    }
+    jwt_token = create_email_verification_token(payload)
+    verify_url = f"{settings.frontend_url}/keeper/verify?token={jwt_token}"
+    try:
+        EmailService().send_keeper_verification(str(body.email), verify_url)
+    except Exception as exc:
+        logger.error("keeper_begin email send failed for %s: %s", body.email, exc, exc_info=True)
+    return KeeperBeginResponse(ok=True, email=str(body.email))
+
+
+@router.get("/keeper-verify", response_model=KeeperVerifyResponse)
+async def keeper_verify(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+) -> KeeperVerifyResponse:
+    import uuid as _uuid
+    from sqlalchemy import select as _select
+    from app.core.security import create_session_token
+    from app.models.invitation_token import InvitationToken
+    from app.models.contract import Contract
+    from app.models.user import User
+
+    payload = decode_email_verification_token(token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+
+    first_name = payload.get("first_name", "")
+    last_name = payload.get("last_name", "")
+    middle_name = payload.get("middle_name")
+    keeper_email = str(payload.get("keeper_email", "")).strip().lower()
+    invite_token = payload.get("invite_token", "")
+
+    parts = [p.strip() for p in [first_name, middle_name, last_name] if p and p.strip()]
+    full_name = " ".join(parts)
+
+    inv_result = await db.execute(
+        _select(InvitationToken).where(InvitationToken.token == invite_token)
+    )
+    invitation = inv_result.scalar_one_or_none()
+    if not invitation:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invitation not found")
+
+    user_result = await db.execute(_select(User).where(User.email == keeper_email))
+    user = user_result.scalar_one_or_none()
+    if not user:
+        uid = _uuid.uuid4()
+        user = User(
+            id=uid,
+            cognito_sub=f"email-{uid}",
+            email=keeper_email,
+            full_name=full_name,
+            email_verified=True,
+        )
+        db.add(user)
+    else:
+        user.full_name = full_name
+        user.email_verified = True
+    await db.flush()
+
+    contract_result = await db.execute(
+        _select(Contract).where(Contract.id == invitation.contract_id)
+    )
+    contract = contract_result.scalar_one_or_none()
+    if not contract:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contract not found")
+
+    maker_result = await db.execute(_select(User).where(User.id == contract.maker_id))
+    maker = maker_result.scalar_one_or_none()
+    maker_name = maker.full_name if maker else "the Maker"
+
+    await db.commit()
+
+    session_jwt = create_session_token(str(user.id), user.email, "login")
+    return KeeperVerifyResponse(
+        session_token=session_jwt,
+        contract_id=str(invitation.contract_id),
+        keeper_name=full_name,
+        maker_name=maker_name,
+    )
+
+
 # ── Magic-link (passwordless login) ─────────────────────────────────────────
 
 class RequestMagicLinkBody(BaseModel):

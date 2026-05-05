@@ -51,6 +51,26 @@ class EmailService:
         """
         self._send(maker_email, "Confirm your email — Ovyu", html)
 
+    def send_keeper_verification(self, keeper_email: str, verify_url: str) -> None:
+        html = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+          <div style="background:#1A1A1A;padding:32px;text-align:center">
+            <span style="font-family:Georgia,serif;font-style:italic;font-size:48px;color:#F7F8F3">ovyu</span>
+          </div>
+          <div style="padding:48px 40px;background:#fff;text-align:center">
+            <h1 style="font-family:Georgia,serif;font-size:32px;margin:0 0 16px">You're almost there.</h1>
+            <p style="font-size:16px;color:#555;margin:0 0 32px">
+              Click below to verify your email and review your agreement. This link expires in 24 hours.
+            </p>
+            <a href="{verify_url}" style="display:inline-block;background:#1A1A1A;color:#F5F0E8;font-size:16px;font-weight:700;padding:15px 48px;border-radius:8px;text-decoration:none">Verify my email →</a>
+          </div>
+          <div style="background:#ddd;padding:20px;text-align:center;font-size:13px;color:#888">
+            ovyu.com · This is a transactional email sent because you were named as a Keeper.
+          </div>
+        </div>
+        """
+        self._send(keeper_email, "Verify your email — Ovyu", html)
+
     def send_invitation(self, invitee_email: str, invitee_name: str, maker_name: str, invite_url: str, role: str) -> None:
         if role == "tc":
             subject = f"{maker_name} has chosen you as their Transfer Contact"
