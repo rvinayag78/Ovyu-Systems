@@ -262,16 +262,16 @@ export function InviteClient() {
             <div style={{
               fontFamily: sans, fontWeight: 400, fontSize: "18px",
               color: "#444", width: "1011px", lineHeight: "1.5",
+              whiteSpace: "pre-wrap",
             }}>
-              <p style={{ margin: 0 }}>{preview.maker_name} and {preview.keeper_name} have entered into this Agreement on Ovyu, a private digital legacy platform.</p>
-              <br />
-              <p style={{ margin: 0 }}>{preview.maker_name} is leaving personal media — voice recordings, video messages, written notes, and other content — for {preview.keeper_name} to receive following {preview.maker_name}&apos;s death.</p>
-              <br />
-              <p style={{ margin: 0 }}>{preview.keeper_name} agrees to receive this content and to honour the terms of this Agreement.</p>
-              <br />
-              <p style={{ margin: 0 }}>Access Duration: Indefinite, beginning at the time of Transfer. This Agreement is non-transferable.</p>
-              <br />
-              <p style={{ margin: 0 }}>All content is encrypted and stored privately. Only {preview.keeper_name} will have access after Transfer is activated.</p>
+              <p style={{ margin: "0 0 16px" }}>Maker: {preview.maker_name}</p>
+              <p style={{ margin: "0 0 16px" }}>Keeper: {preview.keeper_name}</p>
+              <p style={{ margin: "0 0 16px" }}>Relationship: {preview.relationship}</p>
+              <p style={{ margin: "0 0 16px" }}>By accepting, you agree to receive the Maker&apos;s upload upon the Transfer. You understand that the upload is the personal creation of the Maker and may not be altered, shared, or transferred.</p>
+              <p style={{ margin: "0 0 4px" }}>Access begins: Upon the Transfer.</p>
+              <p style={{ margin: "0 0 16px" }}>Access duration: Lifetime unless specified.</p>
+              <p style={{ margin: "0 0 4px" }}>You may withdraw your acceptance at any time before the Transfer is activated.</p>
+              <p style={{ margin: 0 }}>Ovyu stores all data securely and uses it solely to deliver this upload to you. No data is shared or sold.</p>
             </div>
           </div>
 
