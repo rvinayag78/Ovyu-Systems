@@ -34,7 +34,10 @@ async function loginMaker(page: import("@playwright/test").Page): Promise<void> 
     path: "aware",
   };
   const verifyJwt = await getEmailVerifyToken(data);
-  await apiPost("/auth/complete-registration", { token: verifyJwt });
+  const reg = await apiPost<{ session_token: string; contract_id: string }>(
+    "/auth/complete-registration", { token: verifyJwt }
+  );
+  await apiPost(`/contracts/${reg.contract_id}/sign`, { typed_name: "Header Maker" }, reg.session_token);
 
   const magicToken = await getMagicToken(makerEmail, "login");
   await page.goto(`/magic-link/verify?token=${magicToken}`);
@@ -52,14 +55,16 @@ test.describe("Header — logged out", () => {
     // Navigate away first
     await page.goto("/login");
     await page.getByRole("link", { name: "ovyu home" }).click();
-    await expect(page).toHaveURL(/^\/?$/);
-    await expect(page.getByText(/a bit of you/i)).toBeVisible({ timeout: 8_000 });
+    // Home page URL ends with "/" (root)
+    await expect(page).toHaveURL(/\/$/, { timeout: 8_000 });
+    await expect(page.getByRole("heading", { name: /a bit/i })).toBeVisible({ timeout: 8_000 });
   });
 
   test("Activate Transfer link goes to /activate-transfer", async ({ page }) => {
     await page.getByRole("link", { name: /activate transfer/i }).click();
     await expect(page).toHaveURL(/\/activate-transfer/);
-    await expect(page.getByText(/activate transfer/i)).toBeVisible({ timeout: 8_000 });
+    // Use heading role to avoid matching the header nav link (strict mode)
+    await expect(page.getByRole("heading", { name: /activate transfer/i })).toBeVisible({ timeout: 8_000 });
   });
 
   test("Log In button goes to /login", async ({ page }) => {
@@ -81,8 +86,9 @@ test.describe("Header — logged in (avatar + dropdown)", () => {
     // Navigate away from home
     await expect(page).toHaveURL(/\/contracts/);
     await page.getByRole("link", { name: "ovyu home" }).click();
-    await expect(page).toHaveURL(/^\/?$/);
-    await expect(page.getByText(/a bit of you/i)).toBeVisible({ timeout: 8_000 });
+    // Home page URL ends with "/" (root)
+    await expect(page).toHaveURL(/\/$/, { timeout: 8_000 });
+    await expect(page.getByRole("heading", { name: /a bit/i })).toBeVisible({ timeout: 8_000 });
   });
 
   test("Activate Transfer still works when logged in", async ({ page }) => {

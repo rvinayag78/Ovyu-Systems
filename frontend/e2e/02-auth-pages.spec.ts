@@ -32,9 +32,8 @@ test.describe("Login page (/login)", () => {
 
   test("submit with empty email does not navigate away", async ({ page }) => {
     await page.goto("/login");
-    await page.getByRole("button", { name: /send/i }).click();
-    // Still on login page
-    await expect(page).toHaveURL(/\/login/);
+    // Button is disabled when email is empty — can't submit
+    await expect(page.getByRole("button", { name: /send/i })).toBeDisabled();
   });
 });
 
@@ -43,7 +42,8 @@ test.describe("Login page (/login)", () => {
 test.describe("Activate Transfer page (/activate-transfer)", () => {
   test("shows 'Activate Transfer' heading and email input", async ({ page }) => {
     await page.goto("/activate-transfer");
-    await expect(page.getByText(/activate transfer/i)).toBeVisible({ timeout: 8_000 });
+    // Use heading role to avoid matching the header nav link (strict mode)
+    await expect(page.getByRole("heading", { name: /activate transfer/i })).toBeVisible({ timeout: 8_000 });
     await expect(page.getByRole("textbox")).toBeVisible();
   });
 
@@ -57,8 +57,8 @@ test.describe("Activate Transfer page (/activate-transfer)", () => {
 
   test("submit with empty email does not navigate away", async ({ page }) => {
     await page.goto("/activate-transfer");
-    await page.getByRole("button", { name: /send/i }).click();
-    await expect(page).toHaveURL(/\/activate-transfer/);
+    // Button is disabled when email is empty — can't submit
+    await expect(page.getByRole("button", { name: /send/i })).toBeDisabled();
   });
 });
 
