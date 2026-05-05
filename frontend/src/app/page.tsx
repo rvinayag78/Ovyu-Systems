@@ -10,11 +10,9 @@ export default function LandingPage() {
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedOut" />
-      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+      <div style={{ flex: 1, minHeight: "874px", display: "flex", alignItems: "flex-start" }}>
         <div style={{
-          position: "absolute",
-          left: "179px",
-          top: "45px",
+          margin: "45px auto 0",
           width: "1500px",
           display: "flex",
           flexDirection: "row",
