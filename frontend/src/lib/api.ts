@@ -44,7 +44,7 @@ export const api = {
     ),
 
   listMyContracts: () =>
-    req<Array<{ id: string; path: string; status: string; my_role: string; maker_name?: string; keeper_name?: string; tc_name?: string; relationship?: string; maker_signed_at?: string; locked_at?: string }>>("/contracts"),
+    req<Array<{ id: string; path: string; status: string; my_role: string; maker_name?: string; keeper_name?: string; tc_name?: string; relationship?: string; maker_signed_at?: string; locked_at?: string; invite_token?: string }>>("/contracts"),
 
   getContract: (id: string) =>
     req<{ id: string; path: string; status: string; maker_signed_at?: string; locked_at?: string; keeper_name?: string; tc_name?: string; relationship?: string; maker_name?: string; my_role?: string }>(`/contracts/${id}`),
@@ -64,5 +64,13 @@ export const api = {
   verifyMagicLink: (token: string) =>
     req<{ session_token: string; role: string; maker_stage: string | null; contract_id: string | null; full_name: string }>(
       `/auth/magic-link/verify?token=${encodeURIComponent(token)}`
+    ),
+
+  keeperBegin: (p: { invite_token: string; first_name: string; middle_name?: string; last_name: string; email: string }) =>
+    req<{ ok: boolean; email: string }>("/auth/keeper-begin", { method: "POST", body: JSON.stringify(p) }),
+
+  keeperVerify: (token: string) =>
+    req<{ session_token: string; contract_id: string; keeper_name: string; maker_name: string }>(
+      `/auth/keeper-verify?token=${encodeURIComponent(token)}`
     ),
 };

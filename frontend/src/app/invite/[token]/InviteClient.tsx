@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -35,6 +35,7 @@ const inputStyle: React.CSSProperties = {
 };
 
 export function InviteClient() {
+  const router = useRouter();
   const paramsToken = useParams<{ token: string }>()?.token;
   const token =
     typeof window !== "undefined"
@@ -47,16 +48,28 @@ export function InviteClient() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [accepted, setAccepted] = useState(false);
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
     if (!token || token === "_") return;
     api
       .getInvitePreview(token)
-      .then((d) => setPreview(d as Preview))
+      .then((d) => {
+        const preview = d as Preview;
+        // Keeper with no existing session → redirect to account setup
+        if (preview.invitee_role === "keeper" && !sessionStorage.getItem("ovyu_session")) {
+          if (redirectedRef.current) return;
+          redirectedRef.current = true;
+          sessionStorage.setItem("ovyu_keeper_invite_token", token);
+          router.replace(`/keeper/begin/${token}`);
+          return;
+        }
+        setPreview(preview);
+      })
       .catch((err) =>
         setFetchError(err instanceof Error ? err.message : "Invalid or expired invitation.")
       );
-  }, [token]);
+  }, [token, router]);
 
   // ── Error / loading states ────────────────────────────────────────────────
   if (fetchError) return (
@@ -154,6 +167,17 @@ export function InviteClient() {
             }}>
               The contract between you and {preview.maker_name} is now in place.
             </p>
+            {isKeeper && (
+              <a href="/keeper/contracts" style={{
+                marginTop: "12px",
+                fontFamily: sans, fontWeight: 700, fontSize: "16px",
+                color: "#fff", background: "#000", borderRadius: "8px",
+                padding: "12px 24px", textDecoration: "none", display: "inline-block",
+                width: "fit-content",
+              }}>
+                View your contracts →
+              </a>
+            )}
           </div>
 
           {/* Divider */}
