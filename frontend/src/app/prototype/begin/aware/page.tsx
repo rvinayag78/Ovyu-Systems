@@ -1,7 +1,7 @@
 import Link from "next/link";
-import ProtoHeader from "../_components/ProtoHeader";
-import ProtoFooter from "../_components/ProtoFooter";
-import ProtoNav from "../_components/ProtoNav";
+import ProtoHeader from "../../_components/ProtoHeader";
+import ProtoFooter from "../../_components/ProtoFooter";
+import ProtoNav from "../../_components/ProtoNav";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
@@ -31,7 +31,7 @@ function InputField({ label, placeholder, width = 400 }: { label: string; placeh
   );
 }
 
-export default function PrototypeBegin() {
+export default function PrototypeBeginAware() {
   return (
     <div style={{
       width: "1920px",
@@ -42,7 +42,6 @@ export default function PrototypeBegin() {
     }}>
       <ProtoHeader variant="loggedout" />
 
-      {/* Content box */}
       <div style={{
         position: "absolute",
         left: "60px",
@@ -50,7 +49,6 @@ export default function PrototypeBegin() {
         width: "1800px",
         height: "666px",
       }}>
-        {/* H1 */}
         <div style={{ position: "absolute", top: "9px" }}>
           <h1 style={{
             fontFamily: serif,
@@ -65,14 +63,12 @@ export default function PrototypeBegin() {
           </h1>
         </div>
 
-        {/* Subtitle */}
         <div style={{ position: "absolute", top: "80px" }}>
           <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", margin: 0 }}>
             A little about you and who this is for.
           </p>
         </div>
 
-        {/* Section label */}
         <div style={{ position: "absolute", top: "150px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>
             About You
@@ -104,16 +100,13 @@ export default function PrototypeBegin() {
 
         {/* Row 2 */}
         <div style={{ position: "absolute", top: "351px" }}>
-          {/* Keeper name */}
           <div style={{ position: "absolute", left: "0px" }}>
             <InputField label="Keeper's full name" placeholder="First, middle, and last name" />
           </div>
-          {/* Keeper email */}
           <div style={{ position: "absolute", left: "0px", top: "102px" }}>
             <InputField label="Keeper's email" placeholder="email@example.com" />
           </div>
 
-          {/* Relationship */}
           <div style={{ position: "absolute", left: "414px", display: "flex", flexDirection: "column", gap: "8px", width: "247px" }}>
             <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Your relationship to them</label>
             <div style={{
@@ -132,29 +125,15 @@ export default function PrototypeBegin() {
               Select Relationship
             </div>
           </div>
-
         </div>
 
-        {/* Awareness — positioned directly in content box, not inside Row 2 */}
+        {/* Awareness — "Yes" selected */}
         <div style={{ position: "absolute", left: "696px", top: "351px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444", margin: "0 0 12px 0" }}>
             Does the Keeper know about this?
           </p>
-          {/* Yes — unchecked */}
+          {/* Yes — checked */}
           <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center", marginBottom: "12px" }}>
-            <div style={{
-              width: "24px", height: "24px",
-              background: "#fff",
-              border: "1px solid #888",
-              borderRadius: "4px",
-              flexShrink: 0,
-            }} />
-            <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "14px", color: "#444" }}>
-              Yes, they know and we&apos;re doing this together.
-            </span>
-          </div>
-          {/* No — pre-selected (private path) */}
-          <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
             <div style={{
               width: "24px", height: "24px",
               background: "#444",
@@ -169,78 +148,26 @@ export default function PrototypeBegin() {
               color: "#f5f0e8",
             }}>✓</div>
             <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "14px", color: "#444" }}>
+              Yes, they know and we&apos;re doing this together.
+            </span>
+          </div>
+          {/* No — unchecked */}
+          <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
+            <div style={{
+              width: "24px", height: "24px",
+              background: "#fff",
+              border: "1px solid #888",
+              borderRadius: "4px",
+              flexShrink: 0,
+            }} />
+            <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "14px", color: "#444" }}>
               No, this is something I&apos;m doing privately.
             </span>
           </div>
         </div>
 
-        {/* TC Callout */}
-        <div style={{
-          position: "absolute",
-          left: "696px",
-          top: "460px",
-          width: "762px",
-          background: "#f5edd6",
-          border: "1.667px solid #c9a84c",
-          borderRadius: "13px",
-          padding: "20px 30px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "14px",
-          boxSizing: "border-box",
-        }}>
-          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#444", margin: 0 }}>
-            Transfer Contact
-          </p>
-          <p style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "14px", color: "#000", margin: 0 }}>
-            The person who will let Ovyu know when you pass. They do not need to know about Ovyu now.
-          </p>
-          <div style={{ display: "flex", flexDirection: "row", gap: "45px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "297px" }}>
-              <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Their name</label>
-              <input
-                placeholder="Full name"
-                readOnly
-                style={{
-                  height: "57px",
-                  background: "#fff",
-                  border: "1px solid #888",
-                  borderRadius: "10px",
-                  padding: "10px",
-                  fontFamily: sans,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  color: "#888",
-                  boxSizing: "border-box",
-                  width: "100%",
-                }}
-              />
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "297px" }}>
-              <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#444" }}>Their email</label>
-              <input
-                placeholder="you@example.com"
-                readOnly
-                style={{
-                  height: "57px",
-                  background: "#fff",
-                  border: "1px solid #888",
-                  borderRadius: "10px",
-                  padding: "10px",
-                  fontFamily: sans,
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  color: "#888",
-                  boxSizing: "border-box",
-                  width: "100%",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Continue button */}
-        <Link href="/prototype/email-verified/tc" style={{
+        {/* Continue button — links to email-verified (aware path) */}
+        <Link href="/prototype/email-verified" style={{
           position: "absolute",
           left: "1496px",
           top: "618px",

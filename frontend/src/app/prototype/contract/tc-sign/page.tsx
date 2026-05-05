@@ -27,13 +27,14 @@ export default function PrototypeContractTCSign() {
         columnGap: "49px",
         rowGap: "42px",
       }}>
+        {/* H1 + subtitle — 50px per Figma frame 141:577 */}
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <h1 style={{
             fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-            fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
-          }}>Your agreement.</h1>
+            fontSize: "50px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+          }}>Leila Ashtari has named you as their Transfer Contact.</h1>
           <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#888", margin: 0 }}>
-            Read through carefully. This describes your role as Transfer Contact.
+            Read through the contract below. By signing, you accept the responsibility of initiating the Transfer when the time comes.
           </p>
         </div>
 
@@ -46,35 +47,38 @@ export default function PrototypeContractTCSign() {
           padding: "60px", display: "flex", flexDirection: "column", justifyContent: "space-between",
           boxSizing: "border-box",
         }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "354px" }}>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#000", margin: 0 }}>Ovyu Agreement</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#000", margin: 0 }}>Ovyu Transfer Contact Agreement</p>
             <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party A (Maker): Leila Ashtari</p>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party C (Transfer Contact): You</p>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party B (Keeper): James Harlow</p>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Transfer Contact: Marcus Chen</p>
           </div>
-          <div style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#444", width: "890px", lineHeight: "1.5", whiteSpace: "pre-wrap" }}>
-{`As Transfer Contact, you agree to one responsibility: when Leila passes, you will notify Ovyu.
-
-You will go to ovyu.com/activate-transfer and submit evidence of their passing. You will confirm the Keeper's name and email. After that, Ovyu takes over.
-
-You will not see or access any of Leila's content. You will not know what the Keeper receives. Your role begins and ends with that single notification.
-
-There is no deadline. You can notify Ovyu whenever you are ready and able.
-
-A copy of this agreement will be sent to your email for your records.`}
+          <div style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#444", width: "1011px", lineHeight: "1.5" }}>
+            <p style={{ margin: "0 0 12px 0" }}>As Transfer Contact, you are agreeing to the following responsibilities:</p>
+            <ul style={{ margin: 0, paddingLeft: "24px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <li>When Leila Ashtari passes, go to <strong>ovyu.com/activate-transfer</strong> to begin the process.</li>
+              <li>Submit evidence of their passing so Ovyu can verify the Transfer.</li>
+              <li>Confirm the Keeper&apos;s name and contact details at that time.</li>
+              <li>Once submitted, Ovyu will notify James Harlow and handle everything from there.</li>
+            </ul>
+            <br />
+            <p style={{ margin: 0, fontStyle: "italic", fontWeight: 700 }}>
+              If you decline, Leila Ashtari will need to nominate a new Transfer Contact.
+            </p>
           </div>
         </div>
 
         {/* Signing panel */}
         <div style={{
-          width: "613px", height: "580px",
+          width: "613px",
           background: "#fff", border: "2px solid #e1e1e1", borderRadius: "15px",
           padding: "50px 44px 31px 52px",
           display: "flex", flexDirection: "column", gap: "20px",
           boxSizing: "border-box",
         }}>
-          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "28px", color: "#000", margin: 0 }}>Sign as Transfer Contact</p>
+          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "28px", color: "#000", margin: 0 }}>Accept and sign</p>
           <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "20px", color: "#888", margin: 0 }}>
-            By signing, you confirm you understand your role as described on this page.
+            By signing, you confirm you have read and accept this responsibility.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#444" }}>Full legal name</label>
@@ -85,7 +89,7 @@ A copy of this agreement will be sent to your email for your records.`}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#444" }}>Date</label>
-            <input readOnly defaultValue="2026-05-03" style={{
+            <input readOnly defaultValue="May 4, 2026" style={{
               height: "74px", background: "#fff", border: "1px solid #888", borderRadius: "10px",
               padding: "14px", fontFamily: sans, fontSize: "16px", color: "#888", boxSizing: "border-box", width: "100%",
             }} />
@@ -95,8 +99,21 @@ A copy of this agreement will be sent to your email for your records.`}
             display: "flex", alignItems: "center", justifyContent: "center",
             fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#f5f0e8",
           }}>
-            Sign and continue →
+            I accept and sign →
           </Link>
+
+          {/* Gold callout — Figma frame 141:577 */}
+          <div style={{
+            background: "#fef3e2",
+            border: "2px solid #c9a84c",
+            borderRadius: "12px",
+            padding: "20px 24px",
+            boxSizing: "border-box",
+          }}>
+            <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "16px", color: "#8a6e30", margin: 0, lineHeight: "1.5" }}>
+              The Maker will be notified when you accept and sign.
+            </p>
+          </div>
         </div>
 
         <p style={{

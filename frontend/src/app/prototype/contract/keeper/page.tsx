@@ -27,13 +27,14 @@ export default function PrototypeContractKeeper() {
         columnGap: "49px",
         rowGap: "42px",
       }}>
+        {/* H1 + subtitle — Figma frame 141:649 */}
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <h1 style={{
             fontFamily: serif, fontStyle: "italic", fontWeight: 400,
             fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
-          }}>Your contract.</h1>
+          }}>Leila Ashtari has created something for you.</h1>
           <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#888", margin: 0 }}>
-            Read through carefully. This is between you and the Maker.
+            Review the agreement below. Take your time. Sign only if you&apos;re ready to accept.
           </p>
         </div>
 
@@ -46,22 +47,21 @@ export default function PrototypeContractKeeper() {
           padding: "60px", display: "flex", flexDirection: "column", justifyContent: "space-between",
           boxSizing: "border-box",
         }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "354px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#000", margin: 0 }}>Ovyu Agreement</p>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party A (Maker)</p>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party B (Keeper)</p>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party A (Maker): Leila Ashtari</p>
+            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#8a6e30", margin: 0 }}>Party B (Keeper): James Harlow</p>
           </div>
-          <div style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#444", width: "890px", lineHeight: "1.5", whiteSpace: "pre-wrap" }}>
-{`[Maker: Leila Ashtari] and [Keeper: James Harlow] have entered into this Agreement on Ovyu, a private digital legacy platform.
-
-[Maker] is leaving personal media — voice recordings, video messages, written notes, and other content — for [Keeper] to receive following [Maker]'s death.
-
-[Keeper] agrees to receive this content and to honour the terms of this Agreement.
-
-Access Duration: Indefinite, beginning at the time of Transfer.
-Transferable: No. This Agreement is non-transferable.
-
-All content is encrypted and stored privately. Only [Keeper] will have access after Transfer is activated.`}
+          <div style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: "#444", width: "1011px", lineHeight: "1.5" }}>
+            <p style={{ margin: 0 }}>Leila Ashtari and James Harlow have entered into this Agreement on Ovyu, a private digital legacy platform.</p>
+            <br />
+            <p style={{ margin: 0 }}>Leila Ashtari is leaving personal media — voice recordings, video messages, written notes, and other content — for James Harlow to receive following Leila Ashtari&apos;s death.</p>
+            <br />
+            <p style={{ margin: 0 }}>James Harlow agrees to receive this content and to honour the terms of this Agreement.</p>
+            <br />
+            <p style={{ margin: 0 }}>Access Duration: Indefinite, beginning at the time of Transfer. This Agreement is non-transferable.</p>
+            <br />
+            <p style={{ margin: 0 }}>All content is encrypted and stored privately. Only James Harlow will have access after Transfer is activated.</p>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ All content is encrypted and stored privately. Only [Keeper] will have access af
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#444" }}>Date</label>
-            <input readOnly defaultValue="2026-05-03" style={{
+            <input readOnly defaultValue="May 4, 2026" style={{
               height: "74px", background: "#fff", border: "1px solid #888", borderRadius: "10px",
               padding: "14px", fontFamily: sans, fontSize: "16px", color: "#888", boxSizing: "border-box", width: "100%",
             }} />

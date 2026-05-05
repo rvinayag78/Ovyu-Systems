@@ -180,7 +180,7 @@ All content is encrypted and stored privately. Only [Keeper] will have access af
           title="Sign as Maker"
           description="By signing, you confirm you have read and agree to the terms on this page."
           signLabel="Sign and continue →"
-          signLink="/prototype/contracts"
+          signLink="/prototype/contracts/pending-keeper"
         />
 
         {/* Row 3: Legal note */}
