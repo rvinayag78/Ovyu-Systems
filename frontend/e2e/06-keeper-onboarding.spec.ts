@@ -141,8 +141,8 @@ test.describe("Keeper aware-path onboarding", () => {
     await page.waitForURL("**/keeper/register", { timeout: 10_000 });
     await page.getByRole("button", { name: /review my contract/i }).click();
     await page.waitForURL("**/keeper/contract", { timeout: 10_000 });
-    await expect(page.getByText(new RegExp(MAKER_NAME, "i"))).toBeVisible({ timeout: 8_000 });
-    await expect(page.getByText(new RegExp(KEEPER_NAME, "i"))).toBeVisible();
+    await expect(page.getByText(new RegExp(MAKER_NAME, "i")).first()).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(new RegExp(KEEPER_NAME, "i")).first()).toBeVisible();
   });
 
   test("wrong keeper name → Sign and continue button disabled", async ({ page }) => {
