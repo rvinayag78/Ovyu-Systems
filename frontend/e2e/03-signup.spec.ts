@@ -31,7 +31,7 @@ test.describe("Signup form — aware path", () => {
 
     await page.goto("/signup");
     await page.getByPlaceholder("First name").fill("E2E");
-    await page.getByPlaceholder("Last name").fill("Maker");
+    await page.getByPlaceholder("Last name", { exact: true }).fill("Maker");
     await page.getByPlaceholder("you@example.com").fill(makerEmail);
     await page.getByPlaceholder("First, middle, and last name").fill("E2E Keeper");
     await page.getByPlaceholder("email@example.com").fill(`keeper-${uid}@example.com`);
@@ -53,7 +53,7 @@ test.describe("Signup form — aware path", () => {
     await page.goto("/signup");
     // Fill only maker fields, leave keeper blank
     await page.getByPlaceholder("First name").fill("E2E");
-    await page.getByPlaceholder("Last name").fill("Maker");
+    await page.getByPlaceholder("Last name", { exact: true }).fill("Maker");
     await page.getByPlaceholder("you@example.com").fill(`e2e-signup-${uid}@example.com`);
     // Keeper fields empty — button should stay disabled
     await expect(page.getByRole("button", { name: /continue/i })).toBeDisabled();
@@ -74,7 +74,7 @@ test.describe("Signup form — private path", () => {
     await page.getByText(/no, this is something i'm doing privately/i).click();
 
     await page.getByPlaceholder("First name").fill("E2E");
-    await page.getByPlaceholder("Last name").fill("Maker");
+    await page.getByPlaceholder("Last name", { exact: true }).fill("Maker");
     await page.getByPlaceholder("you@example.com").first().fill(`e2e-signup-priv-${uid}@example.com`);
     await page.getByPlaceholder("First, middle, and last name").fill("E2E Keeper");
     await page.getByPlaceholder("email@example.com").fill(`keeper-priv-${uid}@example.com`);
@@ -91,7 +91,7 @@ test.describe("Signup form — private path", () => {
     await page.getByText(/no, this is something i'm doing privately/i).click();
 
     await page.getByPlaceholder("First name").fill("E2E");
-    await page.getByPlaceholder("Last name").fill("Maker");
+    await page.getByPlaceholder("Last name", { exact: true }).fill("Maker");
     await page.getByPlaceholder("you@example.com").first().fill(makerEmail);
     await page.getByPlaceholder("First, middle, and last name").fill("E2E Keeper");
     await page.getByPlaceholder("email@example.com").fill(`keeper-priv-${uid}@example.com`);

@@ -103,8 +103,8 @@ test.describe("Keeper dashboard — LOCKED contract", () => {
     await page.getByRole("button", { name: /^view$/i }).click();
     await page.waitForURL(/\/keeper\/contracts\/view/, { timeout: 10_000 });
     await expect(page.getByText(/ovyu agreement/i)).toBeVisible({ timeout: 8_000 });
-    await expect(page.getByText(new RegExp(MAKER_NAME, "i"))).toBeVisible();
-    await expect(page.getByText(new RegExp(KEEPER_NAME, "i"))).toBeVisible();
+    await expect(page.getByText(new RegExp(MAKER_NAME, "i")).first()).toBeVisible();
+    await expect(page.getByText(new RegExp(KEEPER_NAME, "i")).first()).toBeVisible();
   });
 
   test("Download button on dashboard is visible", async ({ page }) => {

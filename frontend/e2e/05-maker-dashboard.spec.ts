@@ -58,7 +58,7 @@ test.describe("Maker dashboard — State 2: pending keeper signature", () => {
 
   test("shows 'Pending' status when keeper has not signed", async ({ page }) => {
     await loginAsMaker(page, makerEmail);
-    await expect(page.getByText(/pending/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText("Pending", { exact: true })).toBeVisible({ timeout: 8_000 });
   });
 
   test("header shows maker initial after login", async ({ page }) => {

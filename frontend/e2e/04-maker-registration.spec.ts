@@ -75,7 +75,7 @@ test.describe("Maker contract signing", () => {
     };
     await registerMaker(page, data);
     // Now at /contract/sign
-    await expect(page.getByText(/sign/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page).toHaveURL(/\/contract\/sign/, { timeout: 8_000 });
     await expect(page.locator("#sig")).toBeVisible({ timeout: 8_000 });
   });
 

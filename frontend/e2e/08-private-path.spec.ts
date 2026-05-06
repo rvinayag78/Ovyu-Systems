@@ -55,7 +55,7 @@ test.describe("Private path — TC invitation", () => {
 
   test("TC invite page shows TC contract heading", async ({ page }) => {
     await page.goto(`/invite/${sharedTCToken}`);
-    await expect(page.getByText(/transfer contact/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/transfer contact/i).first()).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/Private Maker/i)).toBeVisible();
   });
 
@@ -178,6 +178,6 @@ test.describe("Private path — Maker registration via browser", () => {
 
     // Navigate to TC invite and verify it's a TC page
     await page.goto(`/invite/${tcToken}`);
-    await expect(page.getByText(/transfer contact/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/transfer contact/i).first()).toBeVisible({ timeout: 10_000 });
   });
 });

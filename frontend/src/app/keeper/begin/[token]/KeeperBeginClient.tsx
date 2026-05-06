@@ -34,7 +34,13 @@ const labelStyle: React.CSSProperties = {
 
 export function KeeperBeginClient() {
   const router = useRouter();
-  const { token } = useParams<{ token: string }>();
+  const paramsToken = useParams<{ token: string }>()?.token;
+  // In Amplify static export, useParams returns the placeholder "_" not the real token.
+  // Read from the actual URL like InviteClient does.
+  const token =
+    typeof window !== "undefined"
+      ? window.location.pathname.split("/keeper/begin/")[1]?.split("/")[0] ?? paramsToken
+      : paramsToken;
 
   const [makerName, setMakerName] = useState("");
   const [firstName, setFirstName] = useState("");
