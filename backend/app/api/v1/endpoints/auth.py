@@ -258,7 +258,7 @@ async def keeper_verify(
         uid = _uuid.uuid4()
         user = User(
             id=uid,
-            cognito_sub=f"email-{uid}",
+            cognito_sub=f"keeper:{uid}",
             email=keeper_email,
             full_name=full_name,
             email_verified=True,

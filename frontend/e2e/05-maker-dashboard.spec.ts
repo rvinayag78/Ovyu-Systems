@@ -168,7 +168,7 @@ test.describe("Account page (/account)", () => {
     await page.getByLabel("Account menu").click();
     await page.getByRole("menuitem", { name: /account/i }).click();
     await expect(page).toHaveURL(/\/account/);
-    await expect(page.getByText(/account\./i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByRole("heading", { name: /account/i })).toBeVisible({ timeout: 8_000 });
   });
 
   test("Log out button on account page → /logged-out", async ({ page }) => {

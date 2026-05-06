@@ -187,6 +187,7 @@ function SignInner() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#444" }}>Full legal name</label>
                   <input
+                    id="sig"
                     value={typedName}
                     onChange={e => setTypedName(e.target.value)}
                     placeholder="Type your full name"
