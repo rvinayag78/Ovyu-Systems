@@ -11,7 +11,7 @@
  * - Contract page shows maker name, keeper name
  * - Wrong name → Sign button disabled
  * - Correct name → Sign and continue → "You've signed" confirmation
- * - "View your contracts →" → /keeper/contracts dashboard
+ * - "View your contracts →" → /contracts dashboard
  * - Invalid invite token → error message
  * - Invalid verify token → error message
  */
@@ -206,7 +206,7 @@ test.describe("Keeper aware-path onboarding", () => {
     await expect(page.getByText(/happy maker/i).first()).toBeVisible();
   });
 
-  test("after signing → 'View your contracts' link → /keeper/contracts shows LOCKED", async ({ page }) => {
+  test("after signing → 'View your contracts' link → /contracts shows LOCKED", async ({ page }) => {
     const id = uid();
     const keeperEmail = `e2e-kpost-${id}@example.com`;
     const freshData: RegistrationData = {
@@ -230,7 +230,7 @@ test.describe("Keeper aware-path onboarding", () => {
     });
 
     await page.getByRole("link", { name: /view your contracts/i }).click();
-    await page.waitForURL("**/keeper/contracts", { timeout: 10_000 });
+    await page.waitForURL("**/contracts", { timeout: 10_000 });
     await expect(page.getByText(/receiving/i)).toBeVisible();
     await expect(page.getByText(/Post Maker/i)).toBeVisible();
     await expect(page.getByText(/signed on/i)).toBeVisible();

@@ -102,10 +102,10 @@ export async function loginAsMaker(page: Page, email: string): Promise<void> {
 
 /**
  * Log in as an existing Keeper via magic link (no email sent).
- * After this function returns, the page is at /keeper/contracts.
+ * After this function returns, the page is at /contracts.
  */
 export async function loginAsKeeper(page: Page, email: string): Promise<void> {
   const token = await getMagicToken(email, "login");
   await page.goto(`/magic-link/verify?token=${token}`);
-  await page.waitForURL(/\/keeper\/contracts/, { timeout: 15_000 });
+  await page.waitForURL(/\/contracts/, { timeout: 15_000 });
 }

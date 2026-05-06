@@ -1,8 +1,8 @@
 /**
- * Keeper dashboard (/keeper/contracts) — login + all states.
+ * Keeper dashboard (/contracts) — login + all states.
  *
  * Covers:
- * - Signed keeper: magic-link login → /keeper/contracts
+ * - Signed keeper: magic-link login → /contracts
  * - Dashboard shows correct state: "Held for you", "Signed on", View + Download
  * - View button → /keeper/contracts/view (contract view page)
  * - Contract view shows both parties + print button
@@ -65,9 +65,9 @@ test.describe("Keeper dashboard — LOCKED contract", () => {
     );
   });
 
-  test("magic-link login → /keeper/contracts", async ({ page }) => {
+  test("magic-link login → /contracts", async ({ page }) => {
     await loginAsKeeper(page, keeperEmail);
-    await expect(page).toHaveURL(/\/keeper\/contracts/);
+    await expect(page).toHaveURL(/\/contracts/);
   });
 
   test("back button after login does NOT expose /magic-link/verify", async ({ page }) => {
@@ -168,9 +168,9 @@ test.describe("Keeper dashboard — unsigned contract", () => {
     );
   });
 
-  test("unsigned keeper login → /keeper/contracts", async ({ page }) => {
+  test("unsigned keeper login → /contracts", async ({ page }) => {
     await loginAsKeeper(page, keeperEmail);
-    await expect(page).toHaveURL(/\/keeper\/contracts/);
+    await expect(page).toHaveURL(/\/contracts/);
   });
 
   test("unsigned contract shows 'Pending signature'", async ({ page }) => {

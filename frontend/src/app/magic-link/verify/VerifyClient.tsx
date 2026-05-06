@@ -39,7 +39,7 @@ export function VerifyClient() {
       }
       if (result.role === "keeper") {
         if (result.full_name) sessionStorage.setItem("ovyu_keeper_name", result.full_name);
-        router.replace("/keeper/contracts");
+        router.replace("/contracts");
         return;
       }
 

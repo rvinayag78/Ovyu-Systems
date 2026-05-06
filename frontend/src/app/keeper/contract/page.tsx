@@ -46,7 +46,7 @@ export default function KeeperContractPage() {
     const storedInviteToken = sessionStorage.getItem("ovyu_keeper_invite_token") ?? "";
 
     if (!storedKeeperName || !storedContractId || !storedInviteToken) {
-      router.replace("/keeper/contracts");
+      router.replace("/contracts");
       return;
     }
 
@@ -129,7 +129,7 @@ export default function KeeperContractPage() {
               The contract between you and {makerName} is now in place.
             </p>
             <a
-              href="/keeper/contracts"
+              href="/contracts"
               style={{
                 marginTop: "12px",
                 fontFamily: sans, fontWeight: 700, fontSize: "16px",

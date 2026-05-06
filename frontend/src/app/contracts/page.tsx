@@ -179,7 +179,7 @@ export default function ContractsPage() {
   const [initial, setInitial] = useState("?");
 
   useEffect(() => {
-    const name = sessionStorage.getItem("ovyu_maker_name") ?? "";
+    const name = sessionStorage.getItem("ovyu_maker_name") ?? sessionStorage.getItem("ovyu_keeper_name") ?? "";
     setInitial(name[0]?.toUpperCase() ?? "?");
 
     api.listMyContracts()
