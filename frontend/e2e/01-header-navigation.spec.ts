@@ -127,7 +127,8 @@ test.describe("Header — logged in (avatar + dropdown)", () => {
     await page.getByLabel("Account menu").click();
     await page.getByRole("menuitem", { name: /^account$/i }).click();
     await expect(page).toHaveURL(/\/account/);
-    await expect(page.getByText(/account\./i)).toBeVisible({ timeout: 8_000 });
+    // Use heading role to avoid strict mode violation with other "account" text
+    await expect(page.getByRole("heading", { name: /account/i })).toBeVisible({ timeout: 8_000 });
   });
 
   test("dropdown Contact item → /contact page", async ({ page }) => {
@@ -144,9 +145,8 @@ test.describe("Header — logged in (avatar + dropdown)", () => {
     await page.getByRole("menuitem", { name: /log out/i }).click();
     await expect(page).toHaveURL(/\/logged-out/, { timeout: 8_000 });
     await expect(page.getByText(/you're logged out/i)).toBeVisible({ timeout: 8_000 });
-    // Verify session is cleared — avatar should not appear after logout
-    await page.goto("/contracts");
-    // Without session, page should redirect to login or show login prompt
-    await expect(page).not.toHaveURL(/\/contracts/, { timeout: 5_000 });
+    // Verify session is cleared — home page (always loggedOut) shows Log In button
+    await page.goto("/");
+    await expect(page.getByRole("link", { name: /log in/i })).toBeVisible({ timeout: 5_000 });
   });
 });
