@@ -54,14 +54,12 @@ export default function KeeperContractPage() {
     setMakerName(storedMakerName);
     setInviteToken(storedInviteToken);
     setInitial(storedKeeperName[0]?.toUpperCase() ?? "?");
+    setReady(true);
 
-    // Load relationship from contract
+    // Load relationship in background without blocking render
     api.getContract(storedContractId)
-      .then(c => {
-        if (c.relationship) setRelationship(c.relationship);
-        setReady(true);
-      })
-      .catch(() => setReady(true));
+      .then(c => { if (c.relationship) setRelationship(c.relationship); })
+      .catch(() => {});
   }, [router]);
 
   const nameMatch = keeperName ? normalize(typedName) === normalize(keeperName) : false;

@@ -56,7 +56,7 @@ test.describe("Private path — TC invitation", () => {
   test("TC invite page shows TC contract heading", async ({ page }) => {
     await page.goto(`/invite/${sharedTCToken}`);
     await expect(page.getByText(/transfer contact/i).first()).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(/Private Maker/i)).toBeVisible();
+    await expect(page.getByText(/Private Maker/i).first()).toBeVisible();
   });
 
   test("TC invite page shows 'Accept and sign' button (not 'keeper begin' redirect)", async ({ page }) => {
