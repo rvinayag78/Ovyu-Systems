@@ -39,7 +39,7 @@ test.describe("Signup form — aware path", () => {
 
     await page.getByRole("button", { name: /continue/i }).click();
 
-    await expect(page.getByText(/check your inbox/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/check your email/i)).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(makerEmail)).toBeVisible();
   });
 
@@ -102,7 +102,7 @@ test.describe("Signup form — private path", () => {
     await page.getByPlaceholder("you@example.com").last().fill(`tc-${uid}@example.com`);
 
     await page.getByRole("button", { name: /continue/i }).click();
-    await expect(page.getByText(/check your inbox/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/check your email/i)).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(makerEmail)).toBeVisible();
   });
 });

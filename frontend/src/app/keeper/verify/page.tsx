@@ -26,6 +26,7 @@ function KeeperVerifyInner() {
         sessionStorage.setItem("ovyu_contract_id", data.contract_id);
         sessionStorage.setItem("ovyu_keeper_name", data.keeper_name);
         sessionStorage.setItem("ovyu_maker_name_for_keeper", data.maker_name);
+        sessionStorage.setItem("ovyu_keeper_invite_token", data.invite_token);
         router.replace("/keeper/register");
       })
       .catch(err => setError(err instanceof Error ? err.message : "Link invalid or expired."));

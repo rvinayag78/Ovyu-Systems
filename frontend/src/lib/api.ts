@@ -70,7 +70,7 @@ export const api = {
     req<{ ok: boolean; email: string }>("/auth/keeper-begin", { method: "POST", body: JSON.stringify(p) }),
 
   keeperVerify: (token: string) =>
-    req<{ session_token: string; contract_id: string; keeper_name: string; maker_name: string }>(
+    req<{ session_token: string; contract_id: string; keeper_name: string; maker_name: string; invite_token: string }>(
       `/auth/keeper-verify?token=${encodeURIComponent(token)}`
     ),
 };

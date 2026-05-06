@@ -183,6 +183,7 @@ class KeeperVerifyResponse(BaseModel):
     contract_id: str
     keeper_name: str
     maker_name: str
+    invite_token: str
 
 
 @router.post("/keeper-begin", response_model=KeeperBeginResponse)
@@ -288,6 +289,7 @@ async def keeper_verify(
         contract_id=str(invitation.contract_id),
         keeper_name=full_name,
         maker_name=maker_name,
+        invite_token=invite_token,
     )
 
 

@@ -205,7 +205,7 @@ test.describe("Keeper aware-path onboarding", () => {
     });
 
     await expect(page.getByText(/you've signed/i)).toBeVisible({ timeout: 8_000 });
-    await expect(page.getByText(/happy maker/i)).toBeVisible();
+    await expect(page.getByText(/happy maker/i).first()).toBeVisible();
   });
 
   test("after signing → 'View your contracts' link → /keeper/contracts shows LOCKED", async ({ page }) => {
