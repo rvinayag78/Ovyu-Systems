@@ -184,7 +184,7 @@ async def wipe_all_data(db: AsyncSession = Depends(get_db)) -> WipeResponse:
     _guard()
     from sqlalchemy import text
     counts: dict[str, int] = {}
-    for table in ["signatures", "invitation_tokens", "magic_link_tokens", "auth_attempt_unknown", "contracts", "users"]:
+    for table in ["signatures", "invitation_tokens", "magic_link_tokens", "auth_attempts_unknown", "contracts", "users"]:
         result = await db.execute(text(f"DELETE FROM {table}"))
         counts[table] = result.rowcount
     await db.commit()
