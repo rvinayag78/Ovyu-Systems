@@ -36,15 +36,17 @@ const KEEPER_LAST = "Keeper";
 const KEEPER_NAME = `${KEEPER_FIRST} ${KEEPER_LAST}`;
 
 let sharedInviteToken: string;
+let sharedKeeperEmail: string;
 
 test.describe("Keeper aware-path onboarding", () => {
   test.beforeAll(async () => {
     const id = uid();
+    sharedKeeperEmail = `e2e-kk-shared-${id}@example.com`;
     const data: RegistrationData = {
       first_name: MAKER_FIRST, last_name: MAKER_LAST,
       maker_email: `e2e-km-shared-${id}@example.com`,
       keeper_name: KEEPER_NAME,
-      keeper_email: `e2e-kk-shared-${id}@example.com`,
+      keeper_email: sharedKeeperEmail,
       relationship: "Partner / spouse", path: "aware",
     };
     const jwt = await getEmailVerifyToken(data);
@@ -52,9 +54,7 @@ test.describe("Keeper aware-path onboarding", () => {
       "/auth/complete-registration", { token: jwt }
     );
     await apiPost(`/contracts/${reg.contract_id}/sign`, { typed_name: MAKER_NAME }, reg.session_token);
-    sharedInviteToken = await getInviteToken(`e2e-kk-shared-${id}@example.com`);
-    // Store email for later tests
-    (global as Record<string, string>).__sharedKeeperEmail = `e2e-kk-shared-${id}@example.com`;
+    sharedInviteToken = await getInviteToken(sharedKeeperEmail);
   });
 
   // ── Invite redirect ─────────────────────────────────────────────────────────
@@ -83,16 +83,14 @@ test.describe("Keeper aware-path onboarding", () => {
   });
 
   test("filling all required fields and submitting → /keeper/email-sent", async ({ page }) => {
-    const id = uid();
-    const email = `e2e-kes-${id}@example.com`;
     await page.goto(`/keeper/begin/${sharedInviteToken}`);
     await page.getByPlaceholder("First name").fill(KEEPER_FIRST);
     await page.getByPlaceholder("Last name").fill(KEEPER_LAST);
-    await page.getByPlaceholder("you@example.com").fill(email);
+    await page.getByPlaceholder("you@example.com").fill(sharedKeeperEmail);
     await page.getByRole("button", { name: /continue to verify email/i }).click();
     await page.waitForURL("**/keeper/email-sent", { timeout: 10_000 });
     await expect(page.getByText(/check your email/i)).toBeVisible();
-    await expect(page.getByText(email)).toBeVisible();
+    await expect(page.getByText(sharedKeeperEmail)).toBeVisible();
     await expect(page.getByText(/expires in 24 hours/i)).toBeVisible();
   });
 

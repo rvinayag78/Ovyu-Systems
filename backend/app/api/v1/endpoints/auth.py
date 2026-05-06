@@ -204,6 +204,9 @@ async def keeper_begin(
     if not invitation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invitation not found")
 
+    if str(body.email).strip().lower() != invitation.invitee_email.strip().lower():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email does not match the invitation")
+
     payload = {
         "first_name": body.first_name,
         "last_name": body.last_name,
@@ -287,7 +290,7 @@ async def keeper_verify(
     return KeeperVerifyResponse(
         session_token=session_jwt,
         contract_id=str(invitation.contract_id),
-        keeper_name=full_name,
+        keeper_name=contract.keeper_name,  # canonical name from Maker — must match signature
         maker_name=maker_name,
         invite_token=invite_token,
     )
