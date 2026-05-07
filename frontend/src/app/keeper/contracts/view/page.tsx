@@ -34,6 +34,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function ContractViewInner() {
   const params = useSearchParams();
   const contractId = params.get("id") ?? sessionStorage.getItem("ovyu_contract_id") ?? "";
+  const autoPrint = params.get("print") === "1";
 
   const [contract, setContract] = useState<Contract | null>(null);
   const [error, setError] = useState("");
@@ -48,6 +49,10 @@ function ContractViewInner() {
       .then(d => setContract(d as Contract))
       .catch(() => setError("Contract not found."));
   }, [contractId]);
+
+  useEffect(() => {
+    if (autoPrint && contract) window.print();
+  }, [autoPrint, contract]);
 
   if (error) return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
