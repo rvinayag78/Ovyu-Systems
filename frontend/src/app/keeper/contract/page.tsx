@@ -93,11 +93,8 @@ export default function KeeperContractPage() {
   if (accepted) return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <div style={{ position: "relative", flex: 1, minHeight: "920px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "67px", paddingBottom: "60px", gap: "40px" }}>
         <div style={{
-          position: "absolute",
-          left: "395px",
-          top: "67px",
           width: "1130px",
           height: "687px",
           background: "#fff",
@@ -166,9 +163,8 @@ export default function KeeperContractPage() {
         </div>
 
         <p style={{
-          position: "absolute", left: "68px", top: "814px",
           fontFamily: sans, fontStyle: "italic", fontWeight: 400,
-          fontSize: "16px", color: "#888", whiteSpace: "nowrap", margin: 0,
+          fontSize: "16px", color: "#888", margin: 0, textAlign: "center",
         }}>
           You will always be the one to decide when you are ready to access this. Nothing happens without your confirmation.
         </p>
@@ -181,11 +177,9 @@ export default function KeeperContractPage() {
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <form onSubmit={handleSign} style={{ position: "relative", flex: 1, minHeight: "800px" }}>
+      <form onSubmit={handleSign} style={{ flex: 1 }}>
         <div style={{
-          position: "absolute",
-          left: "58px",
-          top: "40px",
+          margin: "40px auto 40px",
           width: "1804px",
           display: "grid",
           gridTemplateColumns: "1130px 613px",

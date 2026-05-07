@@ -76,14 +76,11 @@ function SignInner() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
-        {/* Content grid at left:58px, top:40px (143-103) */}
+      <div style={{ flex: 1 }}>
         <form
           onSubmit={handleSign}
           style={{
-            position: "absolute",
-            left: "58px",
-            top: "40px",
+            margin: "40px auto 40px",
             width: "1804px",
             display: "grid",
             gridTemplateColumns: "1130px 613px",

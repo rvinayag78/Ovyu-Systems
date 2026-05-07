@@ -82,8 +82,8 @@ function StatusInner() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
-        <div style={{ position: "absolute", left: "58px", top: "40px", width: "1804px", display: "flex", flexDirection: "column", gap: "32px" }}>
+      <div style={{ flex: 1, paddingTop: "40px", paddingBottom: "40px" }}>
+        <div style={{ margin: "0 auto", width: "1804px", display: "flex", flexDirection: "column", gap: "32px" }}>
           {/* Title */}
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0 }}>

@@ -30,11 +30,9 @@ export default function KeeperRegisterPage() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+      <div style={{ flex: 1 }}>
         <div style={{
-          position: "absolute",
-          left: "575px",
-          top: "135px",
+          margin: "135px auto 60px",
           width: "770px",
           display: "flex",
           flexDirection: "column",

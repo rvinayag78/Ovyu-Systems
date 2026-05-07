@@ -98,14 +98,11 @@ export function KeeperBeginClient() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedOut" />
 
-      <div style={{ flex: 1, position: "relative", minHeight: "874px" }}>
-        {/* Centered content at left:528px, top:239px, width:865px */}
+      <div style={{ flex: 1 }}>
         <form
           onSubmit={handleSubmit}
           style={{
-            position: "absolute",
-            left: "528px",
-            top: "239px",
+            margin: "239px auto 60px",
             width: "865px",
             display: "flex",
             flexDirection: "column",
