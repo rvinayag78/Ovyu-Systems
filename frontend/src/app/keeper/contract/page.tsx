@@ -125,18 +125,6 @@ export default function KeeperContractPage() {
             <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#888", margin: 0, whiteSpace: "nowrap" }}>
               The contract between you and {makerName} is now in place.
             </p>
-            <a
-              href="/contracts"
-              style={{
-                marginTop: "12px",
-                fontFamily: sans, fontWeight: 700, fontSize: "16px",
-                color: "#fff", background: "#000", borderRadius: "8px",
-                padding: "12px 24px", textDecoration: "none", display: "inline-block",
-                width: "fit-content",
-              }}
-            >
-              View your contracts →
-            </a>
           </div>
 
           <div style={{ width: "500px", height: "5px", background: "#d9d9d9", flexShrink: 0 }} />

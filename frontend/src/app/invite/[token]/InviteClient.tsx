@@ -163,17 +163,6 @@ export function InviteClient() {
             }}>
               The contract between you and {preview.maker_name} is now in place.
             </p>
-            {isKeeper && (
-              <a href="/contracts" style={{
-                marginTop: "12px",
-                fontFamily: sans, fontWeight: 700, fontSize: "16px",
-                color: "#fff", background: "#000", borderRadius: "8px",
-                padding: "12px 24px", textDecoration: "none", display: "inline-block",
-                width: "fit-content",
-              }}>
-                View your contracts →
-              </a>
-            )}
           </div>
 
           {/* Divider */}
