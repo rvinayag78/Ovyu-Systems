@@ -129,12 +129,12 @@ function KeeperRow({ c }: { c: ContractRow }) {
             }}>
               View
             </Link>
-            <Link href={`/keeper/contracts/view?id=${c.id}&print=1`} style={{
-              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
-              textDecoration: "none",
-            }}>
+            <button
+              onClick={() => window.open(`/keeper/contracts/view?id=${c.id}&print=1`, "_blank")}
+              style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            >
               Download ⤓
-            </Link>
+            </button>
           </div>
         </>
       ) : (
