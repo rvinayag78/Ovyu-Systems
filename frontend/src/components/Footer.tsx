@@ -12,24 +12,22 @@ export function Footer() {
       flexShrink: 0,
     }}>
       <div style={{
+        maxWidth: "1800px",
         margin: "0 auto",
-        paddingLeft: "68px",
-        paddingRight: "68px",
         height: "100%",
         display: "flex",
         flexDirection: "row",
-        gap: "199px",
+        justifyContent: "space-between",
         alignItems: "center",
-        boxSizing: "border-box",
       }}>
-        <div style={{ display: "flex", gap: "27px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "27px", alignItems: "center", flexShrink: 0 }}>
           <Link href="/contact" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>CONTACT</Link>
           <Link href="/about" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>ABOUT</Link>
         </div>
-        <p style={{ fontFamily: sans, fontWeight: 300, fontStyle: "italic", fontSize: "11px", color: "#f5f0e8", width: "918px", margin: 0 }}>
+        <p style={{ fontFamily: sans, fontWeight: 300, fontStyle: "italic", fontSize: "11px", color: "#f5f0e8", margin: 0, textAlign: "center", flex: 1, padding: "0 40px" }}>
           ovyu stores your information securely and will never sell or share your personal data with third parties.
         </p>
-        <div style={{ display: "flex", gap: "27px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "27px", alignItems: "center", flexShrink: 0 }}>
           {["© 2026 OVYU", "MANAGE COOKIES", "LEGAL", "PRIVACY"].map((item) => (
             <span key={item} style={{ fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8" }}>{item}</span>
           ))}
