@@ -75,11 +75,9 @@ export function InviteClient() {
   if (fetchError) return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedOut" />
-      <div style={{ position: "relative", flex: 1, minHeight: "877px" }}>
-        <div style={{ position: "absolute", left: "395px", top: "250px", textAlign: "center" }}>
-          <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", marginBottom: "12px" }}>{fetchError}</p>
-          <a href="/" style={{ fontFamily: sans, fontSize: "14px", color: "#000", textDecoration: "underline" }}>Return home</a>
-        </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", margin: 0 }}>{fetchError}</p>
+        <a href="/" style={{ fontFamily: sans, fontSize: "14px", color: "#000", textDecoration: "underline" }}>Return home</a>
       </div>
       <Footer />
     </div>
@@ -88,10 +86,8 @@ export function InviteClient() {
   if (!preview) return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedOut" />
-      <div style={{ position: "relative", flex: 1, minHeight: "877px" }}>
-        <p style={{ position: "absolute", left: "395px", top: "250px", fontFamily: sans, fontSize: "18px", color: "#888" }}>
-          Loading invitation…
-        </p>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading invitation…</p>
       </div>
       <Footer />
     </div>
@@ -121,7 +117,7 @@ export function InviteClient() {
   // ── Signed confirmation (Keeper or TC) ───────────────────────────────────
   if (accepted) return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header variant="loggedOut" />
+      <Header variant={isKeeper ? "loggedIn" : "loggedOut"} initial={isKeeper ? keeperInitial : undefined} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "67px", paddingBottom: "60px", gap: "40px" }}>
 
         <div style={{
