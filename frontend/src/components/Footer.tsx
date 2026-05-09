@@ -12,13 +12,15 @@ export function Footer() {
       flexShrink: 0,
     }}>
       <div style={{
-        position: "absolute",
-        left: "68px",
-        top: "44px",
+        margin: "0 auto",
+        paddingLeft: "68px",
+        paddingRight: "68px",
+        height: "100%",
         display: "flex",
         flexDirection: "row",
         gap: "199px",
         alignItems: "center",
+        boxSizing: "border-box",
       }}>
         <div style={{ display: "flex", gap: "27px", alignItems: "center" }}>
           <Link href="/contact" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>CONTACT</Link>

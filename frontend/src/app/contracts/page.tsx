@@ -56,7 +56,7 @@ function MakerRow({ c }: { c: ContractRow }) {
           <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
             Signed on {lockedDate}
           </span>
-          <Link href={`/contract/sign?id=${c.id}`} style={{
+          <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
             fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
             textDecoration: "underline",
           }}>

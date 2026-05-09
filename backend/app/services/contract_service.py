@@ -1,7 +1,7 @@
 import secrets
 import unicodedata
 from datetime import datetime, timedelta, timezone
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
@@ -115,7 +115,7 @@ class ContractService:
             invitee_user = existing.scalar_one_or_none()
             if invitee_user is None:
                 invitee_user = User(
-                    cognito_sub=f"{role_label}:{invitation.invitee_email}",
+                    cognito_sub=f"{role_label}:{uuid4()}",
                     email=invitation.invitee_email,
                     full_name=full_name,
                     email_verified=True,
