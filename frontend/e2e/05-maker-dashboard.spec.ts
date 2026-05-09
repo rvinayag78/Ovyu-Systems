@@ -1,7 +1,7 @@
 /**
  * Maker dashboard (/contracts) — all 3 states.
  *
- * State 1 (unsigned): maker hasn't signed yet — "Sign Contract" visible
+ * State 1 (unsigned): maker hasn't signed yet — "Pending Status" + "Sign Contract" link visible
  * State 2 (pending): maker signed, waiting for keeper/TC — "Pending" visible
  * State 3 (locked): both signed — "Signed on", "View Contract", "UPLOAD" visible
  *
@@ -20,6 +20,61 @@ import {
 } from "./helpers/tokens";
 
 function uid() { return crypto.randomBytes(4).toString("hex"); }
+
+// ── State 1: Maker has NOT signed yet ────────────────────────────────────────
+
+test.describe("Maker dashboard — State 1: maker has not signed", () => {
+  let makerEmail: string;
+
+  test.beforeAll(async () => {
+    const id = uid();
+    makerEmail = `e2e-ms1-${id}@example.com`;
+    const data: RegistrationData = {
+      first_name: "Unsigned",
+      last_name: "Maker",
+      maker_email: makerEmail,
+      keeper_name: "Unsigned Keeper",
+      keeper_email: `e2e-ks1-${id}@example.com`,
+      relationship: "Friend",
+      path: "aware",
+    };
+    const jwt = await getEmailVerifyToken(data);
+    // complete-registration creates the contract but maker has NOT signed
+    await apiPost<{ session_token: string; contract_id: string }>(
+      "/auth/complete-registration", { token: jwt }
+    );
+  });
+
+  test("magic-link login → redirects to /contract/sign (unsigned stage)", async ({ page }) => {
+    await loginAsMaker(page, makerEmail);
+    await expect(page).toHaveURL(/\/contract\/sign/);
+  });
+
+  test("navigating to /contracts shows MAKING section", async ({ page }) => {
+    await loginAsMaker(page, makerEmail);
+    await page.goto("/contracts");
+    await expect(page.getByText(/making/i)).toBeVisible({ timeout: 8_000 });
+  });
+
+  test("shows 'Pending Status' on /contracts when maker has not signed", async ({ page }) => {
+    await loginAsMaker(page, makerEmail);
+    await page.goto("/contracts");
+    await expect(page.getByText(/pending status/i)).toBeVisible({ timeout: 8_000 });
+  });
+
+  test("shows 'Sign Contract' link on /contracts when maker has not signed", async ({ page }) => {
+    await loginAsMaker(page, makerEmail);
+    await page.goto("/contracts");
+    await expect(page.getByRole("link", { name: /sign contract/i })).toBeVisible({ timeout: 8_000 });
+  });
+
+  test("Sign Contract link → /contract/sign", async ({ page }) => {
+    await loginAsMaker(page, makerEmail);
+    await page.goto("/contracts");
+    await page.getByRole("link", { name: /sign contract/i }).click();
+    await expect(page).toHaveURL(/\/contract\/sign/, { timeout: 8_000 });
+  });
+});
 
 // ── State 2: Maker signed, keeper pending ─────────────────────────────────────
 
@@ -130,12 +185,12 @@ test.describe("Maker dashboard — State 3: contract locked", () => {
     await expect(page).toHaveURL(/\/upload\/start/, { timeout: 8_000 });
   });
 
-  test("View Contract opens contract view page", async ({ page }) => {
+  test("View Contract opens read-only contract view page", async ({ page }) => {
     await loginAsMaker(page, makerEmail);
     await page.getByRole("link", { name: /view contract/i }).click();
-    await expect(page).toHaveURL(/\/contract\/sign/, { timeout: 8_000 });
-    // Contract content should be visible
-    await expect(page.getByText(/locked maker/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page).toHaveURL(/\/keeper\/contracts\/view/, { timeout: 8_000 });
+    await expect(page.getByText(/ovyu agreement/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/locked maker/i).first()).toBeVisible({ timeout: 8_000 });
   });
 });
 

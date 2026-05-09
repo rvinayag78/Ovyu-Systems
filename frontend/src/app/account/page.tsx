@@ -31,12 +31,9 @@ export default function AccountPage() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
-        {/* Content at left:110px, top:78px (181-103) */}
+      <div style={{ flex: 1, paddingTop: "78px", paddingBottom: "60px" }}>
         <div style={{
-          position: "absolute",
-          left: "110px",
-          top: "78px",
+          margin: "0 auto",
           width: "1700px",
           display: "flex",
           flexDirection: "column",

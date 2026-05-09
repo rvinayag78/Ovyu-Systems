@@ -92,19 +92,26 @@ test.describe("Keeper dashboard — LOCKED contract", () => {
     await expect(page.getByText(/held for you/i)).toBeVisible({ timeout: 8_000 });
   });
 
-  test("View button navigates to /keeper/contracts/view", async ({ page }) => {
+  test("View link navigates to /keeper/contracts/view", async ({ page }) => {
     await loginAsKeeper(page, keeperEmail);
-    await page.getByRole("button", { name: /^view$/i }).click();
+    await page.getByRole("link", { name: /^view$/i }).click();
     await expect(page).toHaveURL(/\/keeper\/contracts\/view/, { timeout: 10_000 });
   });
 
   test("contract view page shows both parties and agreement text", async ({ page }) => {
     await loginAsKeeper(page, keeperEmail);
-    await page.getByRole("button", { name: /^view$/i }).click();
+    await page.getByRole("link", { name: /^view$/i }).click();
     await page.waitForURL(/\/keeper\/contracts\/view/, { timeout: 10_000 });
     await expect(page.getByText(/ovyu agreement/i)).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText(new RegExp(MAKER_NAME, "i")).first()).toBeVisible();
     await expect(page.getByText(new RegExp(KEEPER_NAME, "i")).first()).toBeVisible();
+  });
+
+  test("contract view page has Download button", async ({ page }) => {
+    await loginAsKeeper(page, keeperEmail);
+    await page.getByRole("link", { name: /^view$/i }).click();
+    await page.waitForURL(/\/keeper\/contracts\/view/, { timeout: 10_000 });
+    await expect(page.getByRole("button", { name: /download/i })).toBeVisible({ timeout: 8_000 });
   });
 
   test("Download button on dashboard is visible", async ({ page }) => {
@@ -178,15 +185,8 @@ test.describe("Keeper dashboard — unsigned contract", () => {
     await expect(page.getByText(/pending signature/i)).toBeVisible({ timeout: 8_000 });
   });
 
-  test("unsigned contract shows 'Sign Contract' button", async ({ page }) => {
+  test("unsigned contract shows 'Pending signature' status", async ({ page }) => {
     await loginAsKeeper(page, keeperEmail);
-    await expect(page.getByRole("button", { name: /sign contract/i })).toBeVisible({ timeout: 8_000 });
-  });
-
-  test("Sign Contract button → /keeper/contract", async ({ page }) => {
-    await loginAsKeeper(page, keeperEmail);
-    await page.getByRole("button", { name: /sign contract/i }).click();
-    await page.waitForURL(/\/keeper\/contract/, { timeout: 10_000 });
-    await expect(page.getByText(new RegExp(MAKER_NAME, "i"))).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/pending signature/i)).toBeVisible({ timeout: 8_000 });
   });
 });

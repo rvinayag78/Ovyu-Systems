@@ -14,7 +14,7 @@
  */
 import { test, expect } from "@playwright/test";
 import * as crypto from "crypto";
-import { registerMaker } from "./helpers/auth";
+import { registerMaker, loginAsMaker } from "./helpers/auth";
 import { getEmailVerifyToken, getInviteToken, getMagicToken, apiPost, type RegistrationData } from "./helpers/tokens";
 
 function uid() { return crypto.randomBytes(4).toString("hex"); }
@@ -179,5 +179,71 @@ test.describe("Private path — Maker registration via browser", () => {
     // Navigate to TC invite and verify it's a TC page
     await page.goto(`/invite/${tcToken}`);
     await expect(page.getByText(/transfer contact/i).first()).toBeVisible({ timeout: 10_000 });
+  });
+});
+
+// ── Full private path: TC signs → Maker sees LOCKED ──────────────────────────
+
+test.describe("Private path — full flow: TC signs → contract LOCKED", () => {
+  let makerEmail: string;
+
+  test.beforeAll(async () => {
+    const id = uid();
+    makerEmail = `e2e-pmlocked-${id}@example.com`;
+    const tcEmail = `e2e-tclocked-${id}@example.com`;
+    const data: RegistrationData = {
+      first_name: "PrivLocked", last_name: "Maker",
+      maker_email: makerEmail,
+      keeper_name: "PrivLocked Keeper",
+      keeper_email: `e2e-pklocked-${id}@example.com`,
+      relationship: "Partner / spouse",
+      path: "private",
+      tc_name: TC_NAME,
+      tc_email: tcEmail,
+    };
+    const jwt = await getEmailVerifyToken(data);
+    const reg = await apiPost<{ session_token: string; contract_id: string }>(
+      "/auth/complete-registration", { token: jwt }
+    );
+    await apiPost(`/contracts/${reg.contract_id}/sign`, { typed_name: "PrivLocked Maker" }, reg.session_token);
+    const tcToken = await getInviteToken(tcEmail);
+    // TC accepts via API — uses the invite token flow (no session needed for TC accept)
+    const tcAccept = await apiPost<{ session_token: string }>(`/contracts/invite/${tcToken}/accept`, { typed_name: TC_NAME });
+    void tcAccept;
+  });
+
+  test("maker dashboard shows LOCKED state after TC signs", async ({ page }) => {
+    await loginAsMaker(page, makerEmail);
+    await expect(page).toHaveURL(/\/contracts/);
+    await expect(page.getByText(/signed on/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByRole("link", { name: /view contract/i })).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/upload/i)).toBeVisible();
+  });
+
+  test("TC confirmation shows 'You've signed' with maker name", async ({ page }) => {
+    const id = uid();
+    const tcEmail = `e2e-tcconf-${id}@example.com`;
+    const data: RegistrationData = {
+      first_name: "ConfPriv", last_name: "Maker",
+      maker_email: `e2e-cpm-${id}@example.com`,
+      keeper_name: "ConfPriv Keeper",
+      keeper_email: `e2e-cpk-${id}@example.com`,
+      relationship: "Sibling",
+      path: "private",
+      tc_name: TC_NAME,
+      tc_email: tcEmail,
+    };
+    const jwt = await getEmailVerifyToken(data);
+    const reg = await apiPost<{ session_token: string; contract_id: string }>(
+      "/auth/complete-registration", { token: jwt }
+    );
+    await apiPost(`/contracts/${reg.contract_id}/sign`, { typed_name: "ConfPriv Maker" }, reg.session_token);
+    const tcToken = await getInviteToken(tcEmail);
+
+    await page.goto(`/invite/${tcToken}`);
+    await page.getByPlaceholder(/your full legal name/i).fill(TC_NAME);
+    await page.getByRole("button", { name: /accept and sign|i accept/i }).click();
+    await expect(page.getByText(/you've signed/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/ConfPriv Maker/i).first()).toBeVisible();
   });
 });

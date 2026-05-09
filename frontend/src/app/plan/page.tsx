@@ -40,12 +40,11 @@ export default function PaywallPage() {
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <div style={{ position: "relative", flex: 1, minHeight: "874px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "62px", paddingBottom: "60px", gap: "100px" }}>
 
-        {/* Title block — centered, top:62px (165-103) */}
+        {/* Title block */}
         <div style={{
-          position: "absolute", left: "50%", top: "62px",
-          transform: "translateX(-50%)", width: "491px",
+          width: "491px",
           display: "flex", flexDirection: "column", gap: "7px", alignItems: "center",
         }}>
           <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, textAlign: "center", lineHeight: "normal" }}>
@@ -56,8 +55,8 @@ export default function PaywallPage() {
           </p>
         </div>
 
-        {/* Plan cards — left:165px, top:222px (325-103) */}
-        <div style={{ position: "absolute", left: "165px", top: "222px", display: "flex", flexDirection: "row", gap: "45px" }}>
+        {/* Plan cards */}
+        <div style={{ display: "flex", flexDirection: "row", gap: "45px" }}>
           {PLANS.map(plan => (
             <div key={plan.name} style={{
               width: "500px", height: "600px",

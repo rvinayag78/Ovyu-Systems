@@ -24,7 +24,7 @@ import {
   apiPost,
   type RegistrationData,
 } from "./helpers/tokens";
-import { registerKeeper } from "./helpers/auth";
+import { registerKeeper, loginAsKeeper } from "./helpers/auth";
 
 function uid() { return crypto.randomBytes(4).toString("hex"); }
 
@@ -206,7 +206,7 @@ test.describe("Keeper aware-path onboarding", () => {
     await expect(page.getByText(/happy maker/i).first()).toBeVisible();
   });
 
-  test("after signing → 'View your contracts' link → /contracts shows LOCKED", async ({ page }) => {
+  test("after signing → confirmation screen shows maker name + instructions", async ({ page }) => {
     const id = uid();
     const keeperEmail = `e2e-kpost-${id}@example.com`;
     const freshData: RegistrationData = {
@@ -229,10 +229,41 @@ test.describe("Keeper aware-path onboarding", () => {
       email: keeperEmail, keeperFullName: KEEPER_NAME,
     });
 
-    await page.getByRole("link", { name: /view your contracts/i }).click();
-    await page.waitForURL("**/contracts", { timeout: 10_000 });
-    await expect(page.getByText(/receiving/i)).toBeVisible();
-    await expect(page.getByText(/Post Maker/i)).toBeVisible();
+    // Confirmation screen: no nav button, just info
+    await expect(page.getByText(/you've signed/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/Post Maker/i).first()).toBeVisible();
+    await expect(page.getByText(/activate-transfer/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /view your contracts/i })).toHaveCount(0);
+  });
+
+  test("keeper logs in after signing → /contracts shows LOCKED contract", async ({ page }) => {
+    const id = uid();
+    const keeperEmail = `e2e-klocked-${id}@example.com`;
+    const freshData: RegistrationData = {
+      first_name: "Locked", last_name: "Maker",
+      maker_email: `e2e-mlocked-${id}@example.com`,
+      keeper_name: KEEPER_NAME,
+      keeper_email: keeperEmail,
+      relationship: "Child", path: "aware",
+    };
+    const mJwt = await getEmailVerifyToken(freshData);
+    const reg = await apiPost<{ session_token: string; contract_id: string }>(
+      "/auth/complete-registration", { token: mJwt }
+    );
+    await apiPost(`/contracts/${reg.contract_id}/sign`, { typed_name: "Locked Maker" }, reg.session_token);
+    const freshToken = await getInviteToken(keeperEmail);
+
+    await registerKeeper(page, {
+      inviteToken: freshToken,
+      firstName: KEEPER_FIRST, lastName: KEEPER_LAST,
+      email: keeperEmail, keeperFullName: KEEPER_NAME,
+    });
+
+    // Log in fresh as keeper and verify dashboard shows LOCKED state
+    await loginAsKeeper(page, keeperEmail);
+    await expect(page).toHaveURL(/\/contracts/);
+    await expect(page.getByText(/receiving/i)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/Locked Maker/i)).toBeVisible();
     await expect(page.getByText(/signed on/i)).toBeVisible();
     await expect(page.getByText(/held for you/i)).toBeVisible();
   });
