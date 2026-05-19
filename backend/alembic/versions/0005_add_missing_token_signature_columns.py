@@ -16,19 +16,35 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+def _add_if_missing(table: str, column: str, ddl: str) -> None:
+    op.execute(f"""
+        DO $$ BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema='public' AND table_name='{table}' AND column_name='{column}'
+            ) THEN {ddl}; END IF;
+        END$$;
+    """)
+
+
 def upgrade() -> None:
-    op.add_column("invitation_tokens", sa.Column("token_hash", sa.String(length=128), nullable=True))
-    op.add_column("invitation_tokens", sa.Column("consumed_at", sa.DateTime(timezone=True), nullable=True))
+    _add_if_missing("invitation_tokens", "token_hash", "ALTER TABLE invitation_tokens ADD COLUMN token_hash VARCHAR(128)")
+    _add_if_missing("invitation_tokens", "consumed_at", "ALTER TABLE invitation_tokens ADD COLUMN consumed_at TIMESTAMPTZ")
+    _add_if_missing("signatures", "typed_name", "ALTER TABLE signatures ADD COLUMN typed_name VARCHAR(256)")
+    _add_if_missing("signatures", "matched_against", "ALTER TABLE signatures ADD COLUMN matched_against VARCHAR(256)")
+    _add_if_missing("signatures", "user_agent", "ALTER TABLE signatures ADD COLUMN user_agent VARCHAR(512)")
 
-    op.add_column("signatures", sa.Column("typed_name", sa.String(length=256), nullable=True))
-    op.add_column("signatures", sa.Column("matched_against", sa.String(length=256), nullable=True))
-    op.add_column("signatures", sa.Column("user_agent", sa.String(length=512), nullable=True))
-
-    # Backfill token_hash from token (same value since no hashing was done on existing rows)
     op.execute("UPDATE invitation_tokens SET token_hash = encode(sha256(token::bytea), 'hex') WHERE token_hash IS NULL")
 
-    # Add unique constraint on token_hash after backfill
-    op.create_unique_constraint("uq_invitation_tokens_token_hash", "invitation_tokens", ["token_hash"])
+    op.execute("""
+        DO $$ BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM pg_constraint WHERE conname='uq_invitation_tokens_token_hash'
+            ) THEN
+                ALTER TABLE invitation_tokens ADD CONSTRAINT uq_invitation_tokens_token_hash UNIQUE (token_hash);
+            END IF;
+        END$$;
+    """)
 
 
 def downgrade() -> None:

@@ -17,10 +17,18 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "users",
-        sa.Column("email_verified", sa.Boolean(), nullable=False, server_default=sa.text("true")),
-    )
+    # Column already exists in the 0001 initial schema on fresh installs — skip if present
+    op.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name='users' AND column_name='email_verified'
+            ) THEN
+                ALTER TABLE users ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT true;
+            END IF;
+        END$$;
+    """)
 
 
 def downgrade() -> None:

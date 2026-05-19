@@ -1,0 +1,116 @@
+name: Deploy — Staging
+
+on:
+  push:
+    branches: [staging]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy-backend:
+    name: Deploy backend → ovyu-api-staging
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy to staging Lambda
+        run: bash deploy.sh staging
+
+  trigger-amplify-staging:
+    name: Trigger Amplify staging build
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Start Amplify build for staging branch
+        run: |
+          JOB_ID=$(aws amplify start-job \
+            --app-id d21q10npjg05eb \
+            --branch-name staging \
+            --job-type RELEASE \
+            --query 'jobSummary.jobId' --output text)
+          echo "Amplify job: $JOB_ID"
+          echo "AMPLIFY_JOB_ID=$JOB_ID" >> $GITHUB_ENV
+
+      - name: Wait for Amplify build to complete
+        run: |
+          echo "Waiting for Amplify staging build..."
+          for i in $(seq 1 30); do
+            STATUS=$(aws amplify get-job \
+              --app-id d21q10npjg05eb \
+              --branch-name staging \
+              --job-id "$AMPLIFY_JOB_ID" \
+              --query 'job.summary.status' --output text)
+            echo "  [$i/30] status: $STATUS"
+            if [ "$STATUS" = "SUCCEED" ]; then
+              echo "Amplify build succeeded."
+              exit 0
+            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
+              echo "Amplify build $STATUS."
+              exit 1
+            fi
+            sleep 20
+          done
+          echo "Timed out waiting for Amplify build."
+          exit 1
+
+  e2e-tests:
+    name: Playwright E2E — staging
+    runs-on: ubuntu-latest
+    needs: trigger-amplify-staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests against staging
+        working-directory: frontend
+        run: npx playwright test --reporter=github
+        env:
+          BASE_URL: https://staging.d21q10npjg05eb.amplifyapp.com
+          API_URL: https://2ernd7cxbe.execute-api.us-west-2.amazonaws.com/api/v1
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-staging
+          path: frontend/playwright-report/
+          retention-days: 14
