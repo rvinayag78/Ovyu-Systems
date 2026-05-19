@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+ENV="${1:-production}"   # usage: ./deploy.sh [staging|production]
+
 AWS_PROFILE="ovyu"
 AWS_ACCOUNT_ID="860350045111"
 AWS_REGION="us-west-2"
-LAMBDA_FUNCTION="ovyu-api-production"
 S3_BUCKET="ovyu-deployments-${AWS_ACCOUNT_ID}"
-S3_KEY="ovyu-api-latest.zip"
 PKG_DIR="/tmp/ovyu-lambda-pkg"
-ZIP_FILE="/tmp/ovyu-lambda.zip"
 
 export AWS_PROFILE
+
+if [ "$ENV" = "staging" ]; then
+  LAMBDA_FUNCTION="ovyu-api-staging"
+  S3_KEY="ovyu-api-staging-latest.zip"
+else
+  LAMBDA_FUNCTION="ovyu-api-production"
+  S3_KEY="ovyu-api-latest.zip"
+fi
+
+ZIP_FILE="/tmp/ovyu-lambda-${ENV}.zip"
+
+echo "→ Deploying to: $ENV ($LAMBDA_FUNCTION)"
 
 echo "→ Installing dependencies for linux/x86_64..."
 rm -rf "$PKG_DIR" "$ZIP_FILE"
@@ -30,7 +42,7 @@ cd "$PKG_DIR" && zip -r "$ZIP_FILE" . -q && cd -
 echo "→ Uploading to S3..."
 aws s3 cp "$ZIP_FILE" "s3://${S3_BUCKET}/${S3_KEY}" --region "$AWS_REGION"
 
-echo "→ Updating Lambda..."
+echo "→ Updating Lambda ($LAMBDA_FUNCTION)..."
 aws lambda update-function-code \
   --function-name "$LAMBDA_FUNCTION" \
   --s3-bucket "$S3_BUCKET" \
@@ -38,4 +50,4 @@ aws lambda update-function-code \
   --region "$AWS_REGION"
 aws lambda wait function-updated --function-name "$LAMBDA_FUNCTION" --region "$AWS_REGION"
 
-echo "✓ Deploy complete"
+echo "✓ Deploy complete → $ENV"

@@ -16,12 +16,23 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+def _add_if_missing(table: str, column: str, ddl: str) -> None:
+    op.execute(f"""
+        DO $$ BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema='public' AND table_name='{table}' AND column_name='{column}'
+            ) THEN {ddl}; END IF;
+        END$$;
+    """)
+
+
 def upgrade() -> None:
-    op.add_column("contracts", sa.Column("keeper_name", sa.String(length=256), nullable=True))
-    op.add_column("contracts", sa.Column("relationship", sa.String(length=100), nullable=True))
-    op.add_column("contracts", sa.Column("tc_name", sa.String(length=256), nullable=True))
-    op.add_column("contracts", sa.Column("maker_signed_at", sa.DateTime(timezone=True), nullable=True))
-    op.add_column("contracts", sa.Column("pending_expires_at", sa.DateTime(timezone=True), nullable=True))
+    _add_if_missing("contracts", "keeper_name", "ALTER TABLE contracts ADD COLUMN keeper_name VARCHAR(256)")
+    _add_if_missing("contracts", "relationship", "ALTER TABLE contracts ADD COLUMN relationship VARCHAR(100)")
+    _add_if_missing("contracts", "tc_name", "ALTER TABLE contracts ADD COLUMN tc_name VARCHAR(256)")
+    _add_if_missing("contracts", "maker_signed_at", "ALTER TABLE contracts ADD COLUMN maker_signed_at TIMESTAMPTZ")
+    _add_if_missing("contracts", "pending_expires_at", "ALTER TABLE contracts ADD COLUMN pending_expires_at TIMESTAMPTZ")
 
 
 def downgrade() -> None:
