@@ -1,5 +1,12 @@
 # Ovyu — Codebase Reference
 
+## Project Isolation — STRICT
+
+> **AWS account `860350045111`, AWS CLI profile `ovyu`, and GitHub repo `rvinayag78/Ovyu-Systems` are exclusively for OVYU.**
+> No other project may deploy resources into this account or push code to this repo.
+> If asked to work on another project, use that project's own AWS profile and GitHub repo.
+> Flag and refuse any action that would deploy non-OVYU resources into account `860350045111`.
+
 ## Product Context
 
 Ovyu is a **private digital legacy platform**. A living person (the **Maker**) uploads their voice, memories, and personality so that one named person (the **Keeper**) can access them after the Maker dies.
