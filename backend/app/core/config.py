@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     ses_from_name: str = "ovyu"
 
     sqs_queue_url: str = ""
+    media_bucket: str = ""
 
     email_verification_secret: str = "dev-secret-change-in-production"
 

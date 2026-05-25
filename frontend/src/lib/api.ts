@@ -73,4 +73,73 @@ export const api = {
     req<{ session_token: string; contract_id: string; keeper_name: string; maker_name: string; invite_token: string }>(
       `/auth/keeper-verify?token=${encodeURIComponent(token)}`
     ),
+
+  // ── Phase 2: Upload ──────────────────────────────────────────────────────
+  getUpload: (contractId: string) =>
+    req<{ id: string; voice_status: string }>(`/contracts/${contractId}/upload`),
+
+  getUploadProgress: (contractId: string) =>
+    req<{ voice_done: boolean; you_pct: number; your_life_pct: number; for_keeper_pct: number }>(`/contracts/${contractId}/upload/progress`),
+
+  getVoiceStatus: (contractId: string) =>
+    req<{ name: string; profile: string }>(`/contracts/${contractId}/upload/voice/status`),
+
+  getVoicePresigned: (contractId: string, voiceType: "name" | "profile") =>
+    req<{ upload_id: string; presigned_url: string; s3_key: string }>(
+      `/contracts/${contractId}/upload/voice/presigned?voice_type=${voiceType}`, { method: "POST" }
+    ),
+
+  completeVoice: (contractId: string, p: { upload_id: string; type: string; s3_key: string; duration_s?: number }) =>
+    req(`/contracts/${contractId}/upload/voice/complete`, { method: "POST", body: JSON.stringify(p) }),
+
+  getDimension: (contractId: string, slug: string) =>
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; body: string; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
+
+  addDimensionEntry: (contractId: string, slug: string, body: string) =>
+    req<{ id: string; body: string; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify({ body }) }),
+
+  deleteDimensionEntry: (contractId: string, slug: string, entryId: string) =>
+    req(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "DELETE" }),
+
+  listPeople: (contractId: string) =>
+    req<Array<{ id: string; name: string; role?: string; notes?: string }>>(`/contracts/${contractId}/upload/people`),
+
+  addPerson: (contractId: string, p: { name: string; role?: string; notes?: string }) =>
+    req<{ id: string; name: string; role?: string; notes?: string }>(`/contracts/${contractId}/upload/people`, { method: "POST", body: JSON.stringify(p) }),
+
+  deletePerson: (contractId: string, personId: string) =>
+    req(`/contracts/${contractId}/upload/people/${personId}`, { method: "DELETE" }),
+
+  listYears: (contractId: string) =>
+    req<Array<{ id: string; year?: number; title: string; body?: string }>>(`/contracts/${contractId}/upload/years`),
+
+  addYear: (contractId: string, p: { year?: number; title: string; body?: string }) =>
+    req<{ id: string; year?: number; title: string; body?: string }>(`/contracts/${contractId}/upload/years`, { method: "POST", body: JSON.stringify(p) }),
+
+  deleteYear: (contractId: string, yearId: string) =>
+    req(`/contracts/${contractId}/upload/years/${yearId}`, { method: "DELETE" }),
+
+  listPlaces: (contractId: string) =>
+    req<Array<{ id: string; name: string; why?: string }>>(`/contracts/${contractId}/upload/places`),
+
+  addPlace: (contractId: string, p: { name: string; why?: string }) =>
+    req<{ id: string; name: string; why?: string }>(`/contracts/${contractId}/upload/places`, { method: "POST", body: JSON.stringify(p) }),
+
+  deletePlace: (contractId: string, placeId: string) =>
+    req(`/contracts/${contractId}/upload/places/${placeId}`, { method: "DELETE" }),
+
+  listMessages: (contractId: string) =>
+    req<Array<{ id: string; type: string; trigger?: string; body: string }>>(`/contracts/${contractId}/upload/messages`),
+
+  addMessage: (contractId: string, p: { type: string; trigger?: string; body: string }) =>
+    req<{ id: string; type: string; trigger?: string; body: string }>(`/contracts/${contractId}/upload/messages`, { method: "POST", body: JSON.stringify(p) }),
+
+  deleteMessage: (contractId: string, messageId: string) =>
+    req(`/contracts/${contractId}/upload/messages/${messageId}`, { method: "DELETE" }),
+
+  getKeeperProfile: (contractId: string) =>
+    req<{ who_they_are?: string; who_theyre_becoming?: string; what_you_want?: string; what_you_want_known?: string; advice?: string }>(`/contracts/${contractId}/upload/keeper-profile`),
+
+  saveKeeperProfile: (contractId: string, p: Record<string, string | undefined>) =>
+    req(`/contracts/${contractId}/upload/keeper-profile`, { method: "PUT", body: JSON.stringify(p) }),
 };
