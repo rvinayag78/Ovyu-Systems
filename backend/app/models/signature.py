@@ -21,7 +21,7 @@ class Signature(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     contract_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("contracts.id"), index=True)
     user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
-    role: Mapped[SignerRole] = mapped_column(Enum(SignerRole, values_callable=lambda x: [e.value for e in x]))
+    role: Mapped[SignerRole] = mapped_column(Enum(SignerRole, native_enum=False))
     typed_name: Mapped[str] = mapped_column(String(256))
     matched_against: Mapped[str | None] = mapped_column(String(256), nullable=True)
     ip_address: Mapped[str | None] = mapped_column(String(64), nullable=True)

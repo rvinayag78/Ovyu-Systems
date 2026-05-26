@@ -23,7 +23,7 @@ class InvitationToken(Base):
     token: Mapped[str] = mapped_column(String(128), unique=True, index=True)
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     invitee_email: Mapped[str] = mapped_column(String(320))
-    invitee_role: Mapped[InviteeRole] = mapped_column(Enum(InviteeRole, values_callable=lambda x: [e.value for e in x]))
+    invitee_role: Mapped[InviteeRole] = mapped_column(Enum(InviteeRole, native_enum=False))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     used: Mapped[bool] = mapped_column(Boolean, default=False)
     used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
