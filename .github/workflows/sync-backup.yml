@@ -1,0 +1,21 @@
+name: Sync to backup
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to backup
+        run: |
+          git remote add backup https://x-access-token:${{ secrets.BACKUP_PAT }}@github.com/ovyuSystems/OVYU.git
+          git push backup --mirror
