@@ -78,6 +78,13 @@ export const api = {
   getUpload: (contractId: string) =>
     req<{ id: string; voice_status: string }>(`/contracts/${contractId}/upload`),
 
+  getHub: (contractId: string) =>
+    req<{
+      contract_id: string; keeper_name: string; upload_id: string; voice_status: string;
+      dimension_counts: Record<string, number>;
+      your_life_counts: { people: number; years: number; places: number };
+    }>(`/contracts/${contractId}/upload/hub`),
+
   getUploadProgress: (contractId: string) =>
     req<{ voice_done: boolean; you_pct: number; your_life_pct: number; for_keeper_pct: number }>(`/contracts/${contractId}/upload/progress`),
 
@@ -93,10 +100,13 @@ export const api = {
     req(`/contracts/${contractId}/upload/voice/complete`, { method: "POST", body: JSON.stringify(p) }),
 
   getDimension: (contractId: string, slug: string) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; body: string; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: Record<string, string[]>; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
 
-  addDimensionEntry: (contractId: string, slug: string, body: string) =>
-    req<{ id: string; body: string; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify({ body }) }),
+  upsertDimension: (contractId: string, slug: string, structured: Record<string, unknown>) =>
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: Record<string, string[]>; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
+
+  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: Record<string, string[]> }) =>
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: Record<string, string[]>; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
 
   deleteDimensionEntry: (contractId: string, slug: string, entryId: string) =>
     req(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "DELETE" }),

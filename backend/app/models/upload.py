@@ -49,7 +49,10 @@ class DimensionEntry(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     dimension_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("dimensions.id", ondelete="CASCADE"))
+    title: Mapped[str | None] = mapped_column(Text(), nullable=True)
     body: Mapped[str] = mapped_column(Text())
+    entry_type: Mapped[str] = mapped_column(String(10), default="text")
+    tags: Mapped[dict | None] = mapped_column(JSON(), nullable=True)
     media_s3_key: Mapped[str | None] = mapped_column(Text(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

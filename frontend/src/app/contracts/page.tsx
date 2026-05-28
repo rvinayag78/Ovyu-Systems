@@ -63,7 +63,7 @@ function MakerRow({ c }: { c: ContractRow }) {
             View Contract
           </Link>
           <div style={{ display: "flex", flexDirection: "row", gap: "12px", alignItems: "center" }}>
-            <Link href="/upload/start" style={{
+            <Link href={`/upload/${c.id}`} style={{
               fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
             }}>
               UPLOAD

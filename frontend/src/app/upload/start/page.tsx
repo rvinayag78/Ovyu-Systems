@@ -1,5 +1,9 @@
-import { UploadDashboard } from "./UploadDashboard";
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function UploadStartPage() {
-  return <UploadDashboard />;
+export default function UploadStartRedirect() {
+  const router = useRouter();
+  useEffect(() => { router.replace("/contracts"); }, [router]);
+  return null;
 }

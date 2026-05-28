@@ -9,6 +9,7 @@ from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.upload import (
     DimensionEntryCreate, DimensionEntryRead, DimensionRead, DimensionUpdate,
+    HubResponse,
     KeeperMessageCreate, KeeperMessageRead, KeeperProfileRead, KeeperProfileUpdate,
     PersonCreate, PersonRead, PlaceCreate, PlaceRead,
     UploadProgressResponse, UploadRead, VoiceCompleteRequest,
@@ -20,7 +21,7 @@ from app.services.upload_service import UploadService
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-YOU_SLUGS = ["faith", "family", "work", "health", "values", "personality", "legacy", "lessons"]
+YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
 
 
 async def _require_upload(
@@ -38,6 +39,28 @@ async def _require_upload(
     upload = await svc.get_or_create_upload(contract_id, current_user.id)
     await db.commit()
     return upload, svc
+
+
+# ── Hub ───────────────────────────────────────────────────────────────────────
+
+@router.get("/contracts/{contract_id}/upload/hub", response_model=HubResponse)
+async def get_hub(
+    contract_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> HubResponse:
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    contract_svc = ContractService(db)
+    contract = await contract_svc.get_contract(contract_id, current_user)
+    counts = await svc.get_hub_counts(upload.id)
+    return HubResponse(
+        contract_id=contract_id,
+        keeper_name=contract.keeper_name,
+        upload_id=upload.id,
+        voice_status=upload.voice_status,
+        dimension_counts=counts["dimension_counts"],
+        your_life_counts=counts["your_life_counts"],
+    )
 
 
 # ── Upload state ──────────────────────────────────────────────────────────────
@@ -126,7 +149,7 @@ async def get_dimension(
     if not dim:
         return DimensionRead(id=upload.id, slug=slug, structured=None, entries=[])
     return DimensionRead(id=dim.id, slug=slug, structured=dim.structured, entries=[
-        DimensionEntryRead(id=e.id, body=e.body, created_at=e.created_at) for e in entries
+        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, created_at=e.created_at) for e in entries
     ])
 
 
@@ -145,7 +168,7 @@ async def upsert_dimension(
     entries = await svc.get_dimension_entries(dim.id)
     await db.commit()
     return DimensionRead(id=dim.id, slug=slug, structured=dim.structured, entries=[
-        DimensionEntryRead(id=e.id, body=e.body, created_at=e.created_at) for e in entries
+        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, created_at=e.created_at) for e in entries
     ])
 
 
@@ -163,9 +186,9 @@ async def add_dimension_entry(
     dim = await svc.get_dimension(upload.id, slug)
     if not dim:
         dim = await svc.upsert_dimension(upload.id, slug, {})
-    entry = await svc.add_dimension_entry(dim.id, body.body)
+    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, body.tags)
     await db.commit()
-    return DimensionEntryRead(id=entry.id, body=entry.body, created_at=entry.created_at)
+    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, created_at=entry.created_at)
 
 
 @router.delete("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}", status_code=204)

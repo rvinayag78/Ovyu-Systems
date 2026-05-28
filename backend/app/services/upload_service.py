@@ -3,8 +3,7 @@ import logging
 from datetime import datetime, timezone
 
 import boto3
-from botocore.exceptions import ClientError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -119,8 +118,21 @@ class UploadService:
         await self.db.flush()
         return dim
 
-    async def add_dimension_entry(self, dimension_id: uuid.UUID, body: str) -> DimensionEntry:
-        entry = DimensionEntry(dimension_id=dimension_id, body=body)
+    async def add_dimension_entry(
+        self,
+        dimension_id: uuid.UUID,
+        body: str,
+        title: str | None = None,
+        entry_type: str = "text",
+        tags: dict | None = None,
+    ) -> DimensionEntry:
+        entry = DimensionEntry(
+            dimension_id=dimension_id,
+            title=title,
+            body=body,
+            entry_type=entry_type,
+            tags=tags,
+        )
         self.db.add(entry)
         await self.db.flush()
         return entry
@@ -267,16 +279,47 @@ class UploadService:
         await self.db.flush()
         return profile
 
+    # ── Hub counts ────────────────────────────────────────────────────────────
+
+    async def get_hub_counts(self, upload_id: uuid.UUID) -> dict:
+        YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
+
+        dims_result = await self.db.execute(
+            select(Dimension).where(Dimension.upload_id == upload_id)
+        )
+        dims = {d.slug: d.id for d in dims_result.scalars().all()}
+
+        dimension_counts: dict[str, int] = {slug: 0 for slug in YOU_SLUGS}
+        for slug, dim_id in dims.items():
+            if slug in dimension_counts:
+                count_result = await self.db.execute(
+                    select(func.count()).select_from(DimensionEntry).where(DimensionEntry.dimension_id == dim_id)
+                )
+                dimension_counts[slug] = count_result.scalar_one()
+
+        people_count = await self.db.scalar(select(func.count()).select_from(Person).where(Person.upload_id == upload_id))
+        years_count = await self.db.scalar(select(func.count()).select_from(Year).where(Year.upload_id == upload_id))
+        places_count = await self.db.scalar(select(func.count()).select_from(Place).where(Place.upload_id == upload_id))
+
+        return {
+            "dimension_counts": dimension_counts,
+            "your_life_counts": {
+                "people": people_count or 0,
+                "years": years_count or 0,
+                "places": places_count or 0,
+            },
+        }
+
     # ── Progress ──────────────────────────────────────────────────────────────
 
     async def get_progress(self, upload: Upload, contract_id: uuid.UUID) -> dict:
-        YOU_SLUGS = ["faith", "family", "work", "health", "values", "personality", "legacy", "lessons"]
+        YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
 
         dims_result = await self.db.execute(
             select(Dimension).where(Dimension.upload_id == upload.id)
         )
-        filled_dims = {d.slug for d in dims_result.scalars().all() if d.structured}
-        you_pct = int(len(filled_dims) / len(YOU_SLUGS) * 100)
+        filled_dims = {d.slug for d in dims_result.scalars().all() if d.structured or True}
+        you_pct = min(100, int(len({s for s in filled_dims if s in YOU_SLUGS}) / len(YOU_SLUGS) * 100))
 
         people_result = await self.db.execute(select(Person).where(Person.upload_id == upload.id))
         years_result = await self.db.execute(select(Year).where(Year.upload_id == upload.id))

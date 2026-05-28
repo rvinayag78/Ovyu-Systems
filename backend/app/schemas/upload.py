@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class UploadRead(BaseModel):
@@ -10,7 +10,7 @@ class UploadRead(BaseModel):
     contract_id: uuid.UUID
     voice_status: str
     created_at: datetime
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class VoicePresignedResponse(BaseModel):
@@ -38,27 +38,43 @@ class UploadProgressResponse(BaseModel):
     for_keeper_pct: int
 
 
+class DimensionEntryRead(BaseModel):
+    id: uuid.UUID
+    title: str | None
+    body: str
+    entry_type: str
+    tags: dict | None
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DimensionEntryCreate(BaseModel):
+    title: str | None = None
+    body: str
+    entry_type: str = "text"
+    tags: dict | None = None
+
+
 class DimensionRead(BaseModel):
     id: uuid.UUID
     slug: str
     structured: dict[str, Any] | None
-    entries: list["DimensionEntryRead"]
-    model_config = {"from_attributes": True}
+    entries: list[DimensionEntryRead]
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DimensionUpdate(BaseModel):
     structured: dict[str, Any]
 
 
-class DimensionEntryRead(BaseModel):
-    id: uuid.UUID
-    body: str
-    created_at: datetime
-    model_config = {"from_attributes": True}
-
-
-class DimensionEntryCreate(BaseModel):
-    body: str
+class HubResponse(BaseModel):
+    contract_id: uuid.UUID
+    keeper_name: str
+    upload_id: uuid.UUID
+    voice_status: str
+    dimension_counts: dict  # {"history": 2, "relationships": 0, ...}
+    your_life_counts: dict  # {"people": 3, "years": 1, "places": 2}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PersonRead(BaseModel):
@@ -67,7 +83,7 @@ class PersonRead(BaseModel):
     role: str | None
     notes: str | None
     created_at: datetime
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PersonCreate(BaseModel):
@@ -82,7 +98,7 @@ class YearRead(BaseModel):
     title: str
     body: str | None
     created_at: datetime
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class YearCreate(BaseModel):
@@ -96,7 +112,7 @@ class PlaceRead(BaseModel):
     name: str
     why: str | None
     created_at: datetime
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PlaceCreate(BaseModel):
@@ -110,7 +126,7 @@ class KeeperMessageRead(BaseModel):
     trigger: str | None
     body: str
     created_at: datetime
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class KeeperMessageCreate(BaseModel):
@@ -125,7 +141,7 @@ class KeeperProfileRead(BaseModel):
     what_you_want: str | None
     what_you_want_known: str | None
     advice: str | None
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
 
 
 class KeeperProfileUpdate(BaseModel):
