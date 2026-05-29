@@ -1,10 +1,9 @@
 name: Sync to backup
 
 on:
-  push:
-    branches:
-      - main
-      - staging
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC daily (10 PM ET / 7 PM PT)
+  workflow_dispatch:        # allow manual trigger from Actions tab
 
 jobs:
   mirror:
@@ -13,9 +12,11 @@ jobs:
       - name: Checkout full history
         uses: actions/checkout@v4
         with:
+          ref: staging
           fetch-depth: 0
 
       - name: Push to backup
         run: |
           git remote add backup https://x-access-token:${{ secrets.BACKUP_PAT }}@github.com/ovyuSystems/OVYU.git
+          git fetch --all
           git push backup --mirror
