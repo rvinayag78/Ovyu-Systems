@@ -100,13 +100,16 @@ export const api = {
     req(`/contracts/${contractId}/upload/voice/complete`, { method: "POST", body: JSON.stringify(p) }),
 
   getDimension: (contractId: string, slug: string) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: Record<string, string[]>; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
 
   upsertDimension: (contractId: string, slug: string, structured: Record<string, unknown>) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: Record<string, string[]>; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
 
-  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: Record<string, string[]> }) =>
-    req<{ id: string; title?: string; body: string; entry_type: string; tags?: Record<string, string[]>; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
+  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: { people?: string[]; year?: string | null; place?: string | null } }) =>
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
+
+  updateDimensionEntry: (contractId: string, slug: string, entryId: string, p: { title?: string; body?: string; tags?: Record<string, unknown>; retag?: boolean }) =>
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "PUT", body: JSON.stringify(p) }),
 
   deleteDimensionEntry: (contractId: string, slug: string, entryId: string) =>
     req(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "DELETE" }),
