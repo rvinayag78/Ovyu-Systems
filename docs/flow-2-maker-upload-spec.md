@@ -259,6 +259,8 @@ History is the first dimension being built out. Its (A)–(E) states follow Sect
 | M | Children | "Culture, ethnicity, the place that shaped you" | ✓ | ⚠ placeholder likely a copy/paste bug — should be "Full name". Confirm. |
 | R | Languages | "Add a language" | ✓ | **Language typeahead** |
 
+> **Decision (locked):** Partners → placeholder **"Full name"**; Children → placeholder **"Full name"** (the Figma "City, Country" / "Culture, ethnicity…" placeholders are copy/paste bugs).
+
 - CTA (black): **"Save and continue →"** → History dashboard (B).
 
 ### (B) History dashboard — `2045:1116`
@@ -298,7 +300,12 @@ Every entry card carries **3 tags**: **People/Name**, **Year**, **Place**. These
 | **Text entry** | one structured **Claude Haiku** call → `{ people: [], year: "", place: "" }` |
 | **Voice entry** | **Amazon Transcribe** → transcript → same Haiku extraction call. (Transcript also feeds the auto-generated card title, e.g. "This is the story of when I got lost in Tokyo…") |
 
-Why Haiku over plain NER (spaCy): it's already the project's **classification model** (`us.anthropic.claude-haiku-4-5`, per CLAUDE.md), one prompt handles both modalities, returns clean JSON, and copes with messy speech far better than rule-based NER. Cost stays low (short input, Haiku pricing). A local spaCy `en_core_web_sm` NER is the zero-LLM-cost fallback if needed, but loses recall and the title-generation freebie.
+**Decision (locked): Bedrock Claude Haiku** (`us.anthropic.claude-haiku-4-5`). Cost comparison on the AWS stack:
+- Haiku per entry: ~300–700 in + ~50 out tokens ≈ **~$0.001/entry** (~$1 per 1,000 entries).
+- Local spaCy in Lambda: ~**$0.00003/entry** raw compute — marginally cheaper but heavier deploy, cold starts, lower name recall, no auto-title.
+- **Dominant cost is Amazon Transcribe** for voice (~$0.024/min ⇒ ~$0.06 per 2.5-min clip), required in both paths.
+
+Net: at this scale Haiku tagging is rounding error next to Transcribe, gives better accuracy (matters for a legacy product) and a free auto-title, and reuses the model already designated in CLAUDE.md. Haiku wins on total cost of ownership.
 
 - Run extraction **async** (SQS + Lambda worker per the stack) right after save; show a "tagging…" state on the card, then fill chips. Falls back to `unknown` on low confidence.
 
@@ -319,4 +326,27 @@ The History **form facts** (full name, goes-by, DOB/year, place of birth, homes,
 | Place of birth / Homes / (Partners?) | **City, Country typeahead** — suggest as the user types so they can click a `City, Country` instead of typing it fully. Backing data: a static cities dataset (e.g. GeoNames) for client-side fuzzy search, or a Places autocomplete API. Country list is small/static. |
 | Languages | **Language typeahead** from a static ISO 639 language list (free, bundled). |
 
-> Open question for product: are the **prompt-question decks** identical across all 7 dimensions (as History == Heart suggests), or should each dimension get its own deck? Current build assumption: **shared deck** unless told otherwise.
+> **Decision (locked): prompt decks are UNIQUE per dimension.** ⚠ Note: the current Figma frames show the *same* placeholder deck on History and Heart, so the real per-dimension questions are **not yet authored**. Each dimension needs its own ~5+ rotating prompts written before build (or a content task to author them). Track them in Section 9.
+
+---
+
+## 9. Per-dimension prompt decks (to author — unique per dimension)
+
+The "ADD AN ENTRY" rotating deck must be unique per dimension. The Figma placeholder deck (shown on History & Heart) is:
+1. "When was the first time you felt like an adult?"
+2. "What did home smell like when you were young?"
+3. "What's a choice you made young that still holds?"
+4. "When did you first feel really proud of yourself?"
+5. "What's a sound from your past you can still hear?"
+
+| Dimension | Real prompts |
+|---|---|
+| History | _to author_ |
+| Relationships | _to author_ |
+| How you think | _to author_ |
+| How you talk | _to author_ |
+| How you live | _to author_ |
+| Beliefs | _to author_ |
+| Heart | _to author_ |
+
+> Build note: store the deck per dimension as config/data so prompts can be edited without code changes.
