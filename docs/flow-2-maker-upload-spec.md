@@ -128,6 +128,109 @@ The dashboard a returning Maker lands on (accordion unlocked, collapsed at the b
 
 ---
 
-## 5. Dimension forms
+## 5. Dimension sub-flow (applies to ALL 7 dimensions)
 
-_(Captured one at a time with the product owner. Each will get: purpose, verbatim copy, layout, interactive elements, and transitions.)_
+The seven dimensions to build are **History, Relationships, How you think, How you talk, How you live, Beliefs, Heart**. They are **identical in structure** — same screens, same components, same transitions. Only the copy differs (title, subtitle, form fields, prompt questions, summary template). **Build one parameterised dimension component and feed it per-dimension content.**
+
+`Heart` is documented below as the canonical example. Node IDs for all seven are in Section 6.
+
+### Sub-flow sequence
+
+```
+YOU accordion ─ tap a layer ─▶  (A) Dimension form  [first time only / via "edit"]
+                                     │ Save and continue →
+                                     ▼
+                                (B) Dimension dashboard  ("add entry")
+                                     │   choose Voice or Text   (Video = "soon", disabled)
+                        ┌────────────┴────────────┐
+                        ▼                          ▼
+              (C-text) ADD TEXT ENTRY     (C-voice) ADD VOICE ENTRY
+              textarea, Save              waveform + record, Save
+                        └────────────┬────────────┘
+                                     ▼
+                                (D) Entry editor  ("save … entry")
+                                enrich: people / year / place + structured prompts
+                                     │ Save
+                                     ▼
+                                (E) Dashboard with new entry card in ENTRIES list
+                                     (loop back to add another)
+```
+
+### (A) Dimension form — `Heart (form)` `2062:2981`
+The common "fill-in" page reached when a dimension is first opened (and via **edit** later).
+- Header (global) + breadcrumb `< Your contracts`.
+- Serif H1 **"Heart"**, italic subtitle **"What you love, and how."**
+- One large card holding labelled short-answer fields in three columns. Each field = bold label + `Your answer` input + italic `e.g., …` helper. Repeatable fields have a **`+ Add more`** affordance.
+
+| Field label | Helper (verbatim) | Add more? |
+|---|---|---|
+| How you love | "e.g., hard and fast, slow to start, forever once I do, all in" | – |
+| How you forgive | "e.g., easily, never, after time, only when it's earned" | – |
+| How deeply you feel | "e.g., loud and visible, deep but quiet, intensely, hard to access" | – |
+| How you express what's inside | "e.g., words, music, painting, cooking, building, in silence" | ✓ |
+| Things you love | "e.g., the ocean, jazz, the smell of rain, a long drive" | ✓ |
+| Who you love | "e.g., your kids, your dog, your oldest friend" | ✓ |
+| What you find beautiful | "e.g., old buildings, your grandmother's handwriting, the desert, hands" | ✓ |
+| What makes you laugh | "e.g., your kids, slapstick, the way your partner tells stories" | ✓ |
+| What you can't stand | "e.g., cruelty, small talk, slow walkers, dishonesty" | ✓ |
+
+- Primary CTA (black): **"Save and continue →"** → goes to (B).
+
+### (B) Dimension dashboard — `Heart (add entry)` `2062:3155`
+The critical per-dimension hub.
+- **Summary title bar** (lilac), populated from the (A) answers, with a status circle on the left and an **edit** link (→ back to form A):
+  - "Heart" + "Loves: [how] · Forgives: [how] · Feels: [how deeply] · Expresses through [answer] · Loves [things] · Loves [people] · Finds beautiful: [answer] · Laughs at: [answer] · Can't stand: [answer]"
+- **Left column `ENTRIES`** — empty state: "Your stories live here. Add your first entry." Once entries exist they render as cards (see Entry card below).
+- **Right column `ADD AN ENTRY`** — a card cycling reflective **prompt questions** (faded above/below, one in focus), e.g.:
+  - "When was the first time you felt like an adult?"
+  - "What did home smell like when you were young?"
+  - **"What's a choice you made young that still holds?"** (focused)
+  - "When did you first feel really proud of yourself?"
+  - "What's a sound from your past you can still hear?"
+- **Mode buttons:** **`♪ Voice`** (purple, default selected) · **`✎ Text`** (white) · **`● Video (soon)`** (greyed, disabled).
+- **`Save`** button — disabled (light) until there is content.
+
+### (C-text) Add text entry — `Heart (add entry // text)` `2062:3497`
+- Right panel header changes to **`ADD TEXT ENTRY`**.
+- The prompt card becomes a large **textarea**, placeholder **"Start typing here…"**.
+- Mode buttons remain; **Save** becomes active (purple). Save → (D).
+
+### (C-voice) Add voice entry — `Heart (add entry // voice)` `2083:4778`
+- Right panel header changes to **`ADD VOICE ENTRY`**.
+- The card becomes a **waveform** recorder area.
+- Per product owner: the **`Voice`** button changes to a **`RECORD`** button; tapping it records; the waveform animates; **Save** completes & saves the recording. Save → (D).
+
+### (D) Entry editor — `Heart (save text entry)` `2182:5392` · `Heart (save voice entry)` `2131:5014`
+Shared editor for BOTH text and voice (only the body differs). Heading **`ENTRY`**, dismiss **✕** top-right.
+- **Title** (e.g., "The day I met my best friend" / "This is the story of when I got lost in Tokyo…").
+- **Meta line:** "Text · April 14, 2026"  /  "Voice · April 14, 2026 · 2:35".
+- **Tag chips:** e.g. `Kalee` `2013` `Paris`  /  `Sofia` `2021` `Tokyo`.
+- **Add-metadata buttons:** `+ Add Person`  `+ Add Year`  `+ Add Place`.
+- **Body:**
+  - *Text:* the written story in a panel with a ✎ edit icon.
+  - *Voice:* audio **play / pause / stop** controls + waveform.
+- **Structured prompts (both):**
+  - *"Someone worth naming?"* → **WHAT YOU CALL THEM** (helper "Mum • Auntie N • Whatever you actually say") · **FULL NAME** (helper "First and last, if you know it.")
+  - *"A time that mattered?"* → **WHAT HAPPENED** (helper "Born · Moved · Married · A child arrived · Someone left") · **WHEN** (helper "A day, a month, a year, or a span. April 14, 2003 · 2015 to 2019")
+- **`Save`** (purple) → (E).
+
+### (E) Dashboard with saved entry — `…(add entry // text/voice entry in)` `2062:3319` / `2088:5034`
+- The new entry now appears as a **card** in the left `ENTRIES` list:
+  - Title · meta ("Text · date" or "Voice · date · duration") · tag chips · `…` overflow menu.
+- Right panel returns to `ADD AN ENTRY` (prompt rotator) ready for the next entry.
+
+---
+
+## 6. Per-dimension frame index
+
+All seven dimensions repeat the (A)–(E) states above. Field copy / prompt copy for the other six still needs to be captured from their `(form)` and `(add entry)` frames — structure is identical to Heart.
+
+| Dimension | form (A) | add entry (B) | text (C) | text entry in (E) | save text (D) | voice (C) | voice entry in (E) | save voice (D) |
+|---|---|---|---|---|---|---|---|---|
+| **History** | 2044:694 | 2045:1116 | 2062:1016 | 2062:1195 | 2182:7663 | 2095:6793 | 2095:6746 | 2182:7611 |
+| **Relationships** | 2062:1400 | 2062:1451 | 2062:1533 | 2062:1487 | 2182:7273 | 2095:6401 | 2095:6354 | 2182:7221 |
+| **How you think** | 2062:1893 | 2062:1944 | 2062:2026 | 2062:1980 | 2182:6883 | 2095:6013 | 2095:5966 | 2182:6831 |
+| **How you talk** | 2062:2386 | 2062:2437 | 2062:2519 | 2062:2473 | 2182:6493 | 2093:5633 | 2093:5587 | 2182:6441 |
+| **How you live** | 2062:2879 | 2062:3083 | 2062:3411 | 2062:3227 | 2182:6103 | 2091:5268 | 2091:5221 | 2182:6051 |
+| **Beliefs** | 2062:2930 | 2062:3119 | 2062:3454 | 2062:3273 | 2182:5713 | 2083:4287 | 2083:3491 | 2182:5661 |
+| **Heart** | 2062:2981 | 2062:3155 | 2062:3497 | 2062:3319 | 2182:5392 | 2083:4778 | 2088:5034 | 2131:5014 |
