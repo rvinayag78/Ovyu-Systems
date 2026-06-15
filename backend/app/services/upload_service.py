@@ -48,6 +48,20 @@ class UploadService:
         )
         return url, s3_key
 
+    def generate_presigned_put_entry(self, upload_id: uuid.UUID) -> tuple[str, str]:
+        """Presigned PUT for a voice-entry audio blob — same envelope as the
+        name/profile recordings, but a unique key per entry under entries/."""
+        s3_key = f"makers/{upload_id}/entries/{uuid.uuid4()}.webm"
+        if not settings.media_bucket:
+            raise ValueError("MEDIA_BUCKET not configured")
+        s3 = boto3.client("s3", region_name=settings.aws_region)
+        url = s3.generate_presigned_url(
+            "put_object",
+            Params={"Bucket": settings.media_bucket, "Key": s3_key, "ContentType": "audio/webm"},
+            ExpiresIn=300,
+        )
+        return url, s3_key
+
     async def complete_voice_recording(
         self,
         upload_id: uuid.UUID,
@@ -129,6 +143,7 @@ class UploadService:
         title: str | None = None,
         entry_type: str = "text",
         tags: dict | None = None,
+        media_s3_key: str | None = None,
     ) -> DimensionEntry:
         entry = DimensionEntry(
             dimension_id=dimension_id,
@@ -136,6 +151,7 @@ class UploadService:
             body=body,
             entry_type=entry_type,
             tags=tags,
+            media_s3_key=media_s3_key,
         )
         self.db.add(entry)
         await self.db.flush()

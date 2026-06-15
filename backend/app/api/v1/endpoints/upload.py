@@ -172,6 +172,23 @@ async def upsert_dimension(
     ])
 
 
+@router.post("/contracts/{contract_id}/upload/dimensions/{slug}/entries/presigned", response_model=VoicePresignedResponse)
+async def entry_media_presigned(
+    contract_id: UUID,
+    slug: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> VoicePresignedResponse:
+    if slug not in YOU_SLUGS:
+        raise HTTPException(status_code=404, detail="Unknown dimension slug")
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    try:
+        url, s3_key = svc.generate_presigned_put_entry(upload.id)
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return VoicePresignedResponse(upload_id=upload.id, presigned_url=url, s3_key=s3_key)
+
+
 @router.post("/contracts/{contract_id}/upload/dimensions/{slug}/entries", response_model=DimensionEntryRead, status_code=201)
 async def add_dimension_entry(
     contract_id: UUID,
@@ -191,9 +208,9 @@ async def add_dimension_entry(
     tags = body.tags
     if tags is None and body.entry_type == "text" and body.body.strip():
         tags = svc.auto_tag(body.body)
-    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags)
+    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags, body.media_s3_key)
     await db.commit()
-    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, created_at=entry.created_at)
+    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, created_at=entry.created_at)
 
 
 @router.put("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}", response_model=DimensionEntryRead)

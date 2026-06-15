@@ -292,15 +292,17 @@ function EntriesView({
   async function addVoiceEntry(blob: Blob, durationS: number) {
     setSaving(true);
     try {
-      // Audio upload + transcription run server-side (Transcribe worker); until
-      // the transcript lands the entry carries an empty body and is tagged later.
+      // Same pipeline as the name / "sound of you" recordings:
+      // presigned PUT → upload blob to S3 → create the entry with its media key.
+      const { presigned_url, s3_key } = await api.getEntryMediaPresigned(contractId, dim.slug);
+      await fetch(presigned_url, { method: "PUT", body: blob, headers: { "Content-Type": "audio/webm" } });
       const mins = Math.floor(durationS / 60);
       const secs = String(durationS % 60).padStart(2, "0");
-      void blob; // captured by the recorder; S3 upload wired with the media endpoint
       const e = await api.addDimensionEntry(contractId, dim.slug, {
         body: "",
         entry_type: "voice",
         title: `Voice note (${mins}:${secs})`,
+        media_s3_key: s3_key,
       });
       onEntryAdded(e as Entry);
     } finally { setSaving(false); }

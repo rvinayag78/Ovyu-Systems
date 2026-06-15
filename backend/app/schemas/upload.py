@@ -44,6 +44,7 @@ class DimensionEntryRead(BaseModel):
     body: str
     entry_type: str
     tags: dict | None
+    media_s3_key: str | None = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
@@ -53,6 +54,7 @@ class DimensionEntryCreate(BaseModel):
     body: str
     entry_type: str = "text"
     tags: dict | None = None
+    media_s3_key: str | None = None
 
 
 class DimensionEntryUpdate(BaseModel):
