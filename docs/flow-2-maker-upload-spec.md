@@ -375,5 +375,5 @@ History was ~70% built already (form, text entries, GET/PUT dimension, POST/DELE
 ### Remaining (not yet built)
 1. **Voice pipeline** — the recorded audio Blob is captured but **not yet uploaded to S3**, and there is **no Amazon Transcribe worker**. Voice entries currently save with an empty body + placeholder title; transcript + voice auto-tagging land later. Needs: an entry-media presigned-PUT endpoint (mirror the existing voice one) + a Transcribe Lambda worker that fills `transcript`, generates the title, and triggers tagging.
 2. **Async tagging** — tagging runs **synchronously** in the POST handler (~1s). Move to SQS + worker per the stack if latency matters.
-3. **StatusCircle wiring** — component exists (3-state graduated fill); still needs to be wired into the hub accordion (`upload/[contractId]/page.tsx`) using `dimension_counts` + voice status.
+3. ~~StatusCircle wiring~~ **Done** — graduated `StatusCircle` now drives the hub accordion rows (Voice = recorded/not; the 7 dimensions and People/Years/Places = empty → partial ring → full at ≥3) in `upload/[contractId]/page.tsx`.
 4. **Verification** — `node_modules` isn't installed in this environment, so the frontend was **not** built/typechecked here. Run `npm install && npm run build` (and `npm run lint`) locally before merge.
