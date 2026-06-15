@@ -350,3 +350,30 @@ The "ADD AN ENTRY" rotating deck must be unique per dimension. The Figma placeho
 | Heart | _to author_ |
 
 > Build note: store the deck per dimension as config/data so prompts can be edited without code changes.
+>
+> Implementation note: the frontend `PROMPTS` map in `frontend/src/app/upload/[contractId]/[dimension]/page.tsx` already holds a **unique deck per dimension** (working copy authored in code) — confirm/replace the wording with product. The Figma placeholder deck is unrelated.
+
+---
+
+## 10. Implementation status (History)
+
+History was ~70% built already (form, text entries, GET/PUT dimension, POST/DELETE entries, models, migration 0007). This branch (`claude/sharp-keller-md2imk`) adds:
+
+### Done — backend
+- **Entry auto-tagging** via Bedrock Haiku — `backend/app/services/tagging_service.py` (`extract_entry_tags` → `{people[], year, place}`, graceful empty fallback). Model id in `settings.bedrock_haiku_model_id`.
+- Auto-tag wired into **POST entry** (text entries, best-effort, when client sends no tags).
+- **PUT entry** edit endpoint + `update_dimension_entry` service + `DimensionEntryUpdate` schema (title/body/tags, optional `retag`).
+- **Triangulation** — `_triangulate_history_facts` populates People (parents/siblings/partners/children + role), Places (place_of_birth + homes), Years (birth year parsed from DOB), deduped case-insensitively against existing rows. Runs on History dimension upsert.
+
+### Done — frontend
+- **Form helpers** — DOB `MM/DD/YYYY` mask + validation; City/Country typeahead (`PLACES`); Language typeahead (`LANGUAGES`); per-field placeholders per spec; Partners/Children → "Full name".
+- **Add-entry modes** — Voice / Text / Video(soon) buttons; text path; **VoiceRecorder** (MediaRecorder: record → stop → playback → save).
+- **Entry card** — title/meta, 3 tag chips (People/Year/Place, italic "unknown" fallback), **`⋯` overflow menu → edit / delete**.
+- **EntryEditor modal** (§D) — editable title/body, removable tag chips, structured prompts ("Someone worth naming?", "A time that mattered?", "Where did it happen?") that feed tags.
+- New components: `Typeahead`, `VoiceRecorder`, `EntryEditor`, `StatusCircle`; `lib/refdata.ts`; `api.updateDimensionEntry`.
+
+### Remaining (not yet built)
+1. **Voice pipeline** — the recorded audio Blob is captured but **not yet uploaded to S3**, and there is **no Amazon Transcribe worker**. Voice entries currently save with an empty body + placeholder title; transcript + voice auto-tagging land later. Needs: an entry-media presigned-PUT endpoint (mirror the existing voice one) + a Transcribe Lambda worker that fills `transcript`, generates the title, and triggers tagging.
+2. **Async tagging** — tagging runs **synchronously** in the POST handler (~1s). Move to SQS + worker per the stack if latency matters.
+3. **StatusCircle wiring** — component exists (3-state graduated fill); still needs to be wired into the hub accordion (`upload/[contractId]/page.tsx`) using `dimension_counts` + voice status.
+4. **Verification** — `node_modules` isn't installed in this environment, so the frontend was **not** built/typechecked here. Run `npm install && npm run build` (and `npm run lint`) locally before merge.
