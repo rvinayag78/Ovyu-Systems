@@ -116,6 +116,10 @@ class UploadService:
             dim = Dimension(upload_id=upload_id, slug=slug, structured=structured)
             self.db.add(dim)
         await self.db.flush()
+        # History facts (names, births, homes, family) feed the same People / Years /
+        # Places triangulation store as entry tags — populate them automatically.
+        if slug == "history":
+            await self._triangulate_history_facts(upload_id, structured or {})
         return dim
 
     async def add_dimension_entry(
@@ -137,6 +141,33 @@ class UploadService:
         await self.db.flush()
         return entry
 
+    async def get_dimension_entry(self, entry_id: uuid.UUID) -> DimensionEntry | None:
+        result = await self.db.execute(select(DimensionEntry).where(DimensionEntry.id == entry_id))
+        return result.scalar_one_or_none()
+
+    async def update_dimension_entry(
+        self,
+        entry_id: uuid.UUID,
+        *,
+        title: str | None = None,
+        body: str | None = None,
+        tags: dict | None = None,
+        retag: bool = False,
+    ) -> DimensionEntry | None:
+        entry = await self.get_dimension_entry(entry_id)
+        if not entry:
+            return None
+        if title is not None:
+            entry.title = title
+        if body is not None:
+            entry.body = body
+        if tags is not None:
+            entry.tags = tags
+        elif retag:
+            entry.tags = self.auto_tag(entry.body)
+        await self.db.flush()
+        return entry
+
     async def delete_dimension_entry(self, entry_id: uuid.UUID) -> None:
         result = await self.db.execute(select(DimensionEntry).where(DimensionEntry.id == entry_id))
         entry = result.scalar_one_or_none()
@@ -148,6 +179,66 @@ class UploadService:
             select(DimensionEntry).where(DimensionEntry.dimension_id == dimension_id)
         )
         return list(result.scalars().all())
+
+    def auto_tag(self, text: str) -> dict:
+        """Best-effort People/Year/Place extraction for an entry (Bedrock Haiku)."""
+        from app.services.tagging_service import extract_entry_tags
+        return extract_entry_tags(text)
+
+    # ── Triangulation (form facts → People / Years / Places, deduped) ───────────
+
+    @staticmethod
+    def _norm(value: str) -> str:
+        return " ".join(value.strip().lower().split())
+
+    async def _triangulate_history_facts(self, upload_id: uuid.UUID, structured: dict) -> None:
+        """Populate People / Years / Places from History form facts, skipping
+        anything already present (whether it came from the form or an entry tag)."""
+        def as_list(key: str) -> list[str]:
+            v = structured.get(key)
+            if isinstance(v, list):
+                return [str(x).strip() for x in v if str(x).strip()]
+            if isinstance(v, str) and v.strip():
+                return [v.strip()]
+            return []
+
+        # People — parents / siblings / partners / children, tagged with their role.
+        existing_people = {self._norm(p.name) for p in await self.list_people(upload_id)}
+        role_map = {"parents": "parent", "siblings": "sibling", "partners": "partner", "children": "child"}
+        for field, role in role_map.items():
+            for name in as_list(field):
+                if self._norm(name) not in existing_people:
+                    self.db.add(Person(upload_id=upload_id, name=name, role=role))
+                    existing_people.add(self._norm(name))
+
+        # Places — place of birth + every home.
+        existing_places = {self._norm(p.name) for p in await self.list_places(upload_id)}
+        place_fields = as_list("place_of_birth") + as_list("homes")
+        for name in place_fields:
+            if self._norm(name) not in existing_places:
+                self.db.add(Place(upload_id=upload_id, name=name))
+                existing_places.add(self._norm(name))
+
+        # Years — birth year parsed from DOB (MM/DD/YYYY).
+        birth_year = self._parse_year(structured.get("dob"))
+        if birth_year is not None:
+            existing_years = {y.year for y in await self.list_years(upload_id)}
+            if birth_year not in existing_years:
+                self.db.add(Year(upload_id=upload_id, year=birth_year, title="Born"))
+
+        await self.db.flush()
+
+    @staticmethod
+    def _parse_year(dob) -> int | None:
+        if not dob or not isinstance(dob, str):
+            return None
+        for part in dob.replace("-", "/").split("/"):
+            part = part.strip()
+            if len(part) == 4 and part.isdigit():
+                y = int(part)
+                if 1900 <= y <= 2100:
+                    return y
+        return None
 
     # ── YOUR LIFE — People ────────────────────────────────────────────────────
 

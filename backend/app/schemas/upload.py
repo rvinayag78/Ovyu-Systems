@@ -55,6 +55,14 @@ class DimensionEntryCreate(BaseModel):
     tags: dict | None = None
 
 
+class DimensionEntryUpdate(BaseModel):
+    # All optional — only provided fields are updated (partial edit from the entry editor).
+    title: str | None = None
+    body: str | None = None
+    tags: dict | None = None
+    retag: bool = False  # re-run auto-tagging from the (possibly edited) body
+
+
 class DimensionRead(BaseModel):
     id: uuid.UUID
     slug: str

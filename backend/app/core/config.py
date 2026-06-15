@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     sqs_queue_url: str = ""
     media_bucket: str = ""
 
+    # Bedrock — classification / extraction model (entry auto-tagging)
+    bedrock_haiku_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+
     email_verification_secret: str = "dev-secret-change-in-production"
 
     frontend_url: str = "http://localhost:3000"
