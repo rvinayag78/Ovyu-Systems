@@ -234,3 +234,89 @@ All seven dimensions repeat the (A)–(E) states above. Field copy / prompt copy
 | **How you live** | 2062:2879 | 2062:3083 | 2062:3411 | 2062:3227 | 2182:6103 | 2091:5268 | 2091:5221 | 2182:6051 |
 | **Beliefs** | 2062:2930 | 2062:3119 | 2062:3454 | 2062:3273 | 2182:5713 | 2083:4287 | 2083:3491 | 2182:5661 |
 | **Heart** | 2062:2981 | 2062:3155 | 2062:3497 | 2062:3319 | 2182:5392 | 2083:4778 | 2088:5034 | 2131:5014 |
+
+---
+
+## 7. History — full detail
+
+History is the first dimension being built out. Its (A)–(E) states follow Section 5; the History-specific copy and rules are below.
+
+### (A) History form — `2044:694`
+- Serif H1 **"History"**, subtitle **"Where you come from. Who you come from."**
+- Three-column card of labelled fields. Verbatim labels + placeholders:
+
+| Column | Label | Placeholder (verbatim) | Add more? | Notes |
+|---|---|---|---|---|
+| L | Full name | "Your full name, exactly as you write it" | – | |
+| L | Goes by | "What people actually call you" | – | |
+| L | Date of birth | "MM/DD/YYYY" | – | **Validate format MM/DD/YYYY** |
+| L | Place of birth | "City, Country" | – | **City/Country typeahead** |
+| L | Where you're from | "Culture, ethnicity, the place that shaped you" | ✓ | |
+| L | Homes | "Where?" | ✓ | place typeahead; ordered list (see summary "Home 1 → Home 2 → …") |
+| M | Parents | "Full name" | ✓ | |
+| M | Siblings | "Full name" | ✓ | |
+| M | Partners | "City, Country" | ✓ | ⚠ placeholder likely a copy/paste bug — should be "Full name". Confirm. |
+| M | Children | "Culture, ethnicity, the place that shaped you" | ✓ | ⚠ placeholder likely a copy/paste bug — should be "Full name". Confirm. |
+| R | Languages | "Add a language" | ✓ | **Language typeahead** |
+
+- CTA (black): **"Save and continue →"** → History dashboard (B).
+
+### (B) History dashboard — `2045:1116`
+- **Summary title bar** template (populated from A):
+  - "[Full name] · Born [date] in [place of birth] · From [where you're from] · Parents: [parent names] · Siblings: [sibling names] · Partners: [partner names] · Children: [children names] · Languages: [languages]"
+  - second line: "[Home 1] → [Home 2] → [Home 3] → …"
+  - status circle (left) + **edit** link (→ form A).
+- `ENTRIES` empty state: "Your stories live here. Add your first entry."
+- `ADD AN ENTRY` rotating prompt deck (focused item centered, others faded). **This deck is the SAME set seen on Heart** → prompts appear to be a shared/generic deck, not dimension-specific:
+  - "When was the first time you felt like an adult?"
+  - "What did home smell like when you were young?"
+  - **"What's a choice you made young that still holds?"** (focused)
+  - "When did you first feel really proud of yourself?"
+  - "What's a sound from your past you can still hear?"
+- **♪ Voice** (default) · **✎ Text** · **● Video (soon)** (disabled) · **Save** (disabled until content).
+
+### (C/D/E) Text & Voice — `2062:1016` (text) · `2095:6793` (voice) · editors `2182:7663` (text) / `2182:7611` (voice) · saved-list `2062:1195` (text) / `2095:6746` (voice)
+Same as Heart's (C)–(E). For voice, the **Voice** button becomes a **RECORD** button; record → Save completes & saves; a card appears in `ENTRIES`.
+
+### Entry card + overflow menu
+Each saved card shows: **title**, meta ("Voice/Text · date [· duration]"), and **3 tag chips** (People · Year · Place). A **`…`** button opens a menu:
+- **✎ edit** → opens the entry editor (D)
+- **✕ delete** → removes the entry
+
+---
+
+## 8. Entry auto-tagging + fact triangulation (NEW — needs build decision)
+
+> Product owner (Raji): *"These facts (names, births, homes, family) feed the backend triangulation too, same as entry tags. They should populate people/years/places automatically, not just sit as form fields. Watch for duplicates where a fact comes from both the form and an entry."*
+
+### 8.1 What needs tagging
+Every entry card carries **3 tags**: **People/Name**, **Year**, **Place**. These must be **auto-detected** from the entry's text (or the voice transcript). If a tag can't be found, store it as **`unknown`** (still shown as a chip so the Maker can fill it via `+ Add Person/Year/Place`).
+
+### 8.2 Recommended approach (simple + cost-effective)
+| Modality | Pipeline |
+|---|---|
+| **Text entry** | one structured **Claude Haiku** call → `{ people: [], year: "", place: "" }` |
+| **Voice entry** | **Amazon Transcribe** → transcript → same Haiku extraction call. (Transcript also feeds the auto-generated card title, e.g. "This is the story of when I got lost in Tokyo…") |
+
+Why Haiku over plain NER (spaCy): it's already the project's **classification model** (`us.anthropic.claude-haiku-4-5`, per CLAUDE.md), one prompt handles both modalities, returns clean JSON, and copes with messy speech far better than rule-based NER. Cost stays low (short input, Haiku pricing). A local spaCy `en_core_web_sm` NER is the zero-LLM-cost fallback if needed, but loses recall and the title-generation freebie.
+
+- Run extraction **async** (SQS + Lambda worker per the stack) right after save; show a "tagging…" state on the card, then fill chips. Falls back to `unknown` on low confidence.
+
+### 8.3 Triangulation store (form facts + entry tags → one graph)
+The History **form facts** (full name, goes-by, DOB/year, place of birth, homes, parents, siblings, partners, children, languages) must also **populate the people/years/places store** — not just live as form fields.
+
+- Maintain a per-contract canonical set of **People**, **Years**, **Places**. Both **form facts** and **entry tags** write into it.
+- **Dedupe** on a normalized key:
+  - People: lowercase + trim + nickname/alias linking ("Goes by" ↔ full name; "Mum" ↔ full name from the entry editor's "Someone worth naming?").
+  - Years: normalize to a 4-digit year (or range).
+  - Places: normalize "City, Country" (consider geocode/canonical id).
+- **Watch the form↔entry duplicate case** Raji flagged: a parent named in the form and again mentioned in an entry should resolve to **one** person node, not two.
+
+### 8.4 Form input helpers / validation (History form)
+| Field | Helper / validation |
+|---|---|
+| Date of birth | Masked **MM/DD/YYYY** input; reject malformed dates; consider a date picker. Feeds Year into triangulation. |
+| Place of birth / Homes / (Partners?) | **City, Country typeahead** — suggest as the user types so they can click a `City, Country` instead of typing it fully. Backing data: a static cities dataset (e.g. GeoNames) for client-side fuzzy search, or a Places autocomplete API. Country list is small/static. |
+| Languages | **Language typeahead** from a static ISO 639 language list (free, bundled). |
+
+> Open question for product: are the **prompt-question decks** identical across all 7 dimensions (as History == Heart suggests), or should each dimension get its own deck? Current build assumption: **shared deck** unless told otherwise.
