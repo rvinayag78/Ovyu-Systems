@@ -33,21 +33,7 @@
 
 **Private path** — Keeper does not know. TC is nominated instead. Maker signs → TC is emailed → TC signs → `LOCKED`. TC initiates the Transfer when the Maker dies.
 
----
-
-## Contract Status State Machine
-
-```
-PENDING_KEEPER     → Maker signed; waiting for Keeper (aware path)
-PENDING_TC         → Maker signed; waiting for TC (private path)
-LOCKED             → Both parties signed; Contract active
-SUSPENDED_BY_MAKER → Maker temporarily suspended
-WITHDRAWN_BY_MAKER → Maker permanently withdrew; void
-WITHDRAWN_BY_KEEPER→ Keeper withdrew; void
-TRANSFER_PENDING   → Transfer initiated
-TRANSFER_COMPLETE  → Keeper has access
-EXPIRED            → 12-month window elapsed with no counter-signature
-```
+> For full state machines across all flows see `docs/state-machines.md`.
 
 ---
 
@@ -99,6 +85,7 @@ EXPIRED            → 12-month window elapsed with no counter-signature
 |------|---------------|
 | `docs/figma-workflow.md` | Step-by-step Figma→code rules — mandatory before any UI work |
 | `docs/flow-1-overview.md` | Flow 1 spec: glossary, flow chart, UI spec, backend table flow, pending issues |
+| `docs/state-machines.md` | All flow state machines — contract statuses, transitions, triggers |
 | `docs/cicd-pipeline.md` | CI/CD pipeline design — **POST-MVP, not yet implemented** |
 
 ---
