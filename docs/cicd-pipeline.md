@@ -1,3 +1,5 @@
+> **POST-MVP** — This pipeline is planned for after the MVP ships. Current deploys are manual (backend `deploy.sh`, frontend via Amplify auto-deploy on push to `staging`). Do not implement any of this until the MVP is complete and stable.
+
 # CI/CD Pipeline — Ovyu
 
 ## Branch Model
