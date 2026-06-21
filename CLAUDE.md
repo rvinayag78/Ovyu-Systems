@@ -84,7 +84,7 @@
 | File | What it covers |
 |------|---------------|
 | `docs/figma-workflow.md` | Step-by-step Figma→code rules — mandatory before any UI work |
-| `docs/flow-1-overview.md` | Flow 1 spec: glossary, flow chart, UI spec, backend table flow, pending issues |
+| `docs/flow-1-TheContract.md` | Flow 1 spec: glossary, flow chart, UI spec, backend table flow, pending issues |
 | `docs/state-machines.md` | All flow state machines — contract statuses, transitions, triggers |
 | `docs/cicd-pipeline.md` | CI/CD pipeline design — **POST-MVP, not yet implemented** |
 
@@ -160,6 +160,6 @@ When job count reaches 20, delete the oldest 15 to keep history clean.
 
 | Flow | Status |
 |------|--------|
-| Flow 1 — The Contract | Complete. See `docs/flow-1-overview.md` |
+| Flow 1 — The Contract | Complete. See `docs/flow-1-TheContract.md` |
 | Flow 2 — Memory Upload | In progress |
 | Flow 3 — The Transfer | Not started (POST-MVP) |
