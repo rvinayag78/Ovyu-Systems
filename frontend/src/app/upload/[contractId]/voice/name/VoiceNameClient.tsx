@@ -104,7 +104,8 @@ export function VoiceNameClient() {
     }
   }
 
-  const canSave = confirmed && recorded && !saving;
+  const meetsMinDuration = durationS >= 10;
+  const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
     <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
@@ -183,7 +184,7 @@ export function VoiceNameClient() {
                 ))}
               </div>
 
-              {/* Recording button */}
+              {/* Recording button — idle */}
               {!isRecording && !recorded && (
                 <button
                   onClick={startRecording}
@@ -202,25 +203,27 @@ export function VoiceNameClient() {
                 </button>
               )}
 
+              {/* Recording button — active */}
               {isRecording && (
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <span style={{ fontFamily: sans, fontSize: "18px", color: "#ec9b42", fontVariantNumeric: "tabular-nums" }}>
-                    ● {fmtTime(recordingMs)}
+                <button
+                  onClick={stopRecording}
+                  style={{
+                    height: "49px", padding: "0 24px",
+                    background: "#4b3c5e", border: "none",
+                    borderRadius: "15px", cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: "10px",
+                  }}
+                >
+                  <span style={{ fontFamily: sans, fontSize: "18px", color: "#fff", fontVariantNumeric: "tabular-nums" }}>
+                    ⏸ Pause recording
                   </span>
-                  <button
-                    onClick={stopRecording}
-                    style={{
-                      width: "120px", height: "49px",
-                      background: "#1a1a1a", border: "none",
-                      borderRadius: "15px", cursor: "pointer",
-                      fontFamily: sans, fontSize: "16px", color: "#fff",
-                    }}
-                  >
-                    Stop
-                  </button>
-                </div>
+                  <span style={{ fontFamily: sans, fontSize: "14px", color: "#d4c9e8", fontVariantNumeric: "tabular-nums" }}>
+                    {fmtTime(recordingMs)}
+                  </span>
+                </button>
               )}
 
+              {/* After recording — re-record option */}
               {recorded && !isRecording && (
                 <button
                   onClick={startRecording}
@@ -239,21 +242,40 @@ export function VoiceNameClient() {
               )}
             </div>
 
+            {/* Post-recording: duration + validation criteria */}
+            {recorded && !isRecording && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "14px", color: meetsMinDuration ? "#4a6640" : "#B4372C" }}>
+                    {meetsMinDuration ? "✓" : "✗"}
+                  </span>
+                  <span style={{
+                    fontFamily: sans, fontSize: "14px",
+                    color: meetsMinDuration ? "#4a6640" : "#B4372C",
+                  }}>
+                    {meetsMinDuration
+                      ? `Recording: ${Math.round(durationS)}s — good to go`
+                      : `Recording too short (${Math.round(durationS)}s). Need at least 10 seconds.`}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Confirm checkbox */}
             <label style={{
               display: "flex", alignItems: "center", gap: "12px",
-              cursor: "pointer", marginBottom: "24px",
+              cursor: meetsMinDuration ? "pointer" : "default", marginBottom: "24px",
             }}>
               <input
                 type="checkbox"
                 checked={confirmed}
                 onChange={e => setConfirmed(e.target.checked)}
-                disabled={!recorded}
-                style={{ width: "24px", height: "24px", cursor: recorded ? "pointer" : "not-allowed", flexShrink: 0 }}
+                disabled={!recorded || !meetsMinDuration}
+                style={{ width: "24px", height: "24px", cursor: meetsMinDuration ? "pointer" : "not-allowed", flexShrink: 0 }}
               />
               <span style={{
                 fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
-                color: recorded ? "#888" : "#bababa",
+                color: meetsMinDuration ? "#888" : "#bababa",
               }}>
                 I confirm this is my voice
               </span>
@@ -265,7 +287,7 @@ export function VoiceNameClient() {
               disabled={!canSave}
               style={{
                 width: "304px", height: "48px",
-                background: "#efeaf2",
+                background: canSave ? "#1a1a1a" : "#efeaf2",
                 borderRadius: "8px",
                 border: "none",
                 cursor: canSave ? "pointer" : "not-allowed",
@@ -273,8 +295,8 @@ export function VoiceNameClient() {
               }}
             >
               <span style={{
-                fontFamily: sans, fontSize: "18px", fontWeight: 400,
-                color: canSave ? "#1a1a1a" : "#bababa",
+                fontFamily: sans, fontSize: "16px", fontWeight: 700,
+                color: canSave ? "#f5f0e8" : "#bababa",
               }}>
                 {saving ? "Saving…" : "Save and continue →"}
               </span>
