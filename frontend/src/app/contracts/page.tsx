@@ -270,7 +270,7 @@ export default function ContractsPage() {
       </div>
 
       {/* Hint text above locked YOU bar */}
-      <div style={{ display: "flex", justifyContent: "center", paddingBottom: "12px" }}>
+      <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
         <p style={{
           fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal",
         }}>
