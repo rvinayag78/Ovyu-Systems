@@ -62,12 +62,6 @@ function MakerRow({ c }: { c: ContractRow }) {
           }}>
             View Contract
           </Link>
-          <Link href={`/upload/${c.id}`} style={{
-            display: "flex", alignItems: "center", gap: "10px",
-            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
-          }}>
-            UPLOAD <span>→</span>
-          </Link>
         </>
       ) : makerSigned ? (
         <>
@@ -215,25 +209,25 @@ export default function ContractsPage() {
             <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>MAKING</p>
             {loading ? (
               <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
-            ) : making.length === 0 ? (
-              <div style={{
-                width: "1700px", height: "100px",
-                border: "1px solid #888", borderRadius: "10px",
-                display: "flex", alignItems: "center", gap: "20px",
-                paddingLeft: "55px", boxSizing: "border-box",
-              }}>
-                <span style={{ fontFamily: sans, fontSize: "22px", color: "#888" }}>+</span>
-                <Link href="/signup" style={{
-                  fontFamily: sans, fontWeight: 700, fontSize: "16px",
-                  textTransform: "uppercase", color: "#1a1a1a",
-                  letterSpacing: "0.05em", textDecoration: "none",
-                }}>
-                  Start a new contract
-                </Link>
-              </div>
             ) : (
               <>
                 {making.map(c => <MakerRow key={c.id} c={c} />)}
+                {/* "Start a new contract" row — always shown */}
+                <div style={{
+                  width: "1700px", height: "100px",
+                  border: "1px solid #888", borderRadius: "8px",
+                  display: "flex", alignItems: "center", gap: "20px",
+                  paddingLeft: "55px", boxSizing: "border-box",
+                }}>
+                  <span style={{ fontFamily: sans, fontSize: "22px", color: "#888" }}>+</span>
+                  <Link href="/signup" style={{
+                    fontFamily: sans, fontWeight: 700, fontSize: "16px",
+                    textTransform: "uppercase", color: "#1a1a1a",
+                    letterSpacing: "0.05em", textDecoration: "none",
+                  }}>
+                    Start a new contract
+                  </Link>
+                </div>
                 {/* "Ready to begin?" CTA — shown for the first LOCKED contract */}
                 {(() => {
                   const locked = making.find(c => c.status === "LOCKED");
@@ -257,19 +251,11 @@ export default function ContractsPage() {
             )}
           </div>
 
-          {/* Receiving section */}
-          {(receiving.length > 0 || !loading) && (
+          {/* Receiving section — only shown when there are receiving contracts */}
+          {receiving.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>RECEIVING</p>
-              {loading ? (
-                <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
-              ) : receiving.length === 0 ? (
-                <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
-                  No contracts received yet.
-                </p>
-              ) : (
-                receiving.map(c => <KeeperRow key={c.id} c={c} />)
-              )}
+              {receiving.map(c => <KeeperRow key={c.id} c={c} />)}
             </div>
           )}
 
