@@ -45,7 +45,7 @@
                └───────────────────┬───────────────────┘
                                    │
                          Maker begins Flow 2
-                         (Memory Upload — not yet built)
+                         (Memory Upload)
 ```
 
 ---
