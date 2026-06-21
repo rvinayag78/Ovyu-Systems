@@ -210,7 +210,7 @@ export default function ContractsPage() {
 
           {error && <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", margin: 0 }}>{error}</p>}
 
-          {/* Making section */}
+              {/* Making section */}
           <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>MAKING</p>
             {loading ? (
@@ -232,7 +232,28 @@ export default function ContractsPage() {
                 </Link>
               </div>
             ) : (
-              making.map(c => <MakerRow key={c.id} c={c} />)
+              <>
+                {making.map(c => <MakerRow key={c.id} c={c} />)}
+                {/* "Ready to begin?" CTA — shown for the first LOCKED contract */}
+                {(() => {
+                  const locked = making.find(c => c.status === "LOCKED");
+                  if (!locked) return null;
+                  return (
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Link href={`/upload/${locked.id}/voice/name`} style={{
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        width: "345px", height: "48px",
+                        background: "#1a1a1a", borderRadius: "8px",
+                        fontFamily: sans, fontSize: "16px", color: "#f5f0e8",
+                        textDecoration: "none",
+                      }}>
+                        <em style={{ fontWeight: 300, fontStyle: "italic" }}>Ready to begin?</em>
+                        &nbsp;Start with your voice →
+                      </Link>
+                    </div>
+                  );
+                })()}
+              </>
             )}
           </div>
 
