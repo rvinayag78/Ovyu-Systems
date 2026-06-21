@@ -178,7 +178,8 @@ export function VoiceProfileClient() {
 
         {/* Recording controls */}
         <div style={{ paddingLeft: "110px", display: "flex", flexDirection: "column", gap: "24px", maxWidth: "554px" }}>
-          {!isRecording && !recorded && (
+          {/* Start recording — shown when not actively recording */}
+          {!isRecording && (
             <button
               onClick={startRecording}
               style={{
@@ -191,62 +192,31 @@ export function VoiceProfileClient() {
                 cursor: "pointer",
               }}
             >
-              <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block" }} />
-              <span style={{ fontFamily: sans, fontSize: "22px", color: "#6a4d7d" }}>Start recording</span>
+              <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
+              <span style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d" }}>Start recording</span>
             </button>
           )}
 
-          {/* Recording — active */}
+          {/* Pause recording — shown while actively recording */}
           {isRecording && (
-            <button
-              onClick={stopRecording}
-              style={{
-                height: "49px", padding: "0 24px",
-                background: "#4b3c5e", border: "none",
-                borderRadius: "15px", cursor: "pointer",
-                display: "flex", alignItems: "center", gap: "10px",
-              }}
-            >
-              <span style={{ fontFamily: sans, fontSize: "18px", color: "#fff" }}>
-                ⏸ Pause recording
-              </span>
-              <span style={{ fontFamily: sans, fontSize: "14px", color: "#d4c9e8", fontVariantNumeric: "tabular-nums" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <button
+                onClick={stopRecording}
+                style={{
+                  width: "214px", height: "49px",
+                  background: "#4b3c5e", border: "none",
+                  borderRadius: "15px", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                }}
+              >
+                <span style={{ fontFamily: sans, fontSize: "18px", color: "#fff" }}>⏸ Pause recording</span>
+              </button>
+              <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", textAlign: "center", fontVariantNumeric: "tabular-nums" }}>
                 {fmtTime(recordingMs)}
-              </span>
-            </button>
-          )}
-
-          {/* After recording — re-record */}
-          {recorded && !isRecording && (
-            <button
-              onClick={startRecording}
-              style={{
-                width: "214px", height: "49px",
-                background: "#efeaf2",
-                border: "1px solid #6a4d7d",
-                borderRadius: "15px",
-                display: "flex", alignItems: "center", gap: "10px",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <span style={{ fontFamily: sans, fontSize: "16px", color: "#6a4d7d" }}>↺ Re-record</span>
-            </button>
-          )}
-
-          {/* Duration + validation criteria */}
-          {recorded && !isRecording && (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "14px", color: meetsMinDuration ? "#4a6640" : "#B4372C" }}>
-                {meetsMinDuration ? "✓" : "✗"}
-              </span>
-              <span style={{ fontFamily: sans, fontSize: "14px", color: meetsMinDuration ? "#4a6640" : "#B4372C" }}>
-                {meetsMinDuration
-                  ? `Recording: ${Math.round(durationS)}s — good to go`
-                  : `Recording too short (${Math.round(durationS)}s). Need at least 10 seconds.`}
               </span>
             </div>
           )}
+
 
           {/* Confirm checkbox */}
           <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: meetsMinDuration ? "pointer" : "default" }}>
