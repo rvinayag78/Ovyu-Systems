@@ -48,6 +48,8 @@ export function InviteClient() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [accepted, setAccepted] = useState(false);
+  const [declined, setDeclined] = useState(false);
+  const [declining, setDeclining] = useState(false);
   const redirectedRef = useRef(false);
 
   useEffect(() => {
@@ -99,6 +101,18 @@ export function InviteClient() {
   const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const keeperInitial = preview.keeper_name?.[0]?.toUpperCase() ?? "?";
 
+  async function handleDecline() {
+    setDeclining(true);
+    try {
+      await api.declineInvitation(token);
+      setDeclined(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not decline. Please try again.");
+    } finally {
+      setDeclining(false);
+    }
+  }
+
   async function handleAccept(e: React.FormEvent) {
     e.preventDefault();
     if (!nameMatch) return;
@@ -113,6 +127,22 @@ export function InviteClient() {
       setLoading(false);
     }
   }
+
+  // ── Declined confirmation ────────────────────────────────────────────────
+  if (declined) return (
+    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header variant="loggedOut" />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+        <p style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "48px", color: "#1a1a1a", margin: 0 }}>
+          You&apos;ve declined.
+        </p>
+        <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "20px", color: "#888", margin: 0 }}>
+          {preview?.maker_name} has been notified. No further action is needed from you.
+        </p>
+      </div>
+      <Footer />
+    </div>
+  );
 
   // ── Signed confirmation (Keeper or TC) ───────────────────────────────────
   if (accepted) return (
@@ -340,6 +370,25 @@ export function InviteClient() {
               }}
             >
               {loading ? "Signing…" : "Sign and continue →"}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDecline}
+              disabled={declining}
+              style={{
+                height: "48px",
+                background: "none",
+                border: "1px solid #888",
+                borderRadius: "8px",
+                width: "100%",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: sans, fontWeight: 400, fontSize: "16px",
+                color: "#888",
+                cursor: declining ? "not-allowed" : "pointer",
+              }}
+            >
+              {declining ? "Declining…" : "Decline this invitation"}
             </button>
           </div>
 

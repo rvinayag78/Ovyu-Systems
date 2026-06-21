@@ -209,30 +209,57 @@ After every text entry is saved, the backend calls **AWS Bedrock Claude Haiku** 
 
 ---
 
-## Pending Issues
+## Implementation Status
 
-### 1. Voice entries not uploaded to S3
-The voice recorder captures audio in the browser but does not yet upload it. Voice entries save with an empty body. The full pipeline needs a presigned PUT endpoint + an upload step after recording.
+*Last updated: 2026-06-21*
 
-**Fix:** Wire `VoiceRecorder` → presigned S3 PUT → save S3 key to `dimension_entries`.
+### ✅ COMPLETE — Frontend
 
-### 2. No Amazon Transcribe worker
-Voice entries have no transcript, so auto-tagging does not work for voice (only text). Transcription is needed to extract People/Year/Place and generate the entry title automatically.
+| Screen | Route | Status | Notes |
+|--------|-------|--------|-------|
+| Voice Gate — Your Name | `/upload/[contractId]/voice/name` | ✅ Done | MediaRecorder + script card + confirm checkbox + presigned S3 upload |
+| Voice Gate — Sound of You | `/upload/[contractId]/voice/profile` | ✅ Done | MediaRecorder + two-panel script + presigned S3 upload |
+| Upload Hub (Dashboard) | `/upload/[contractId]` | ✅ Done | For [Keeper], MESSAGES cards, Keeper profile cards, YOU bar |
+| Dimension Form (A) — all 7 | `/upload/[contractId]/[dimension]` | ✅ Done | 3-column card; DOB mask+validation; City/Country typeahead; Language typeahead; `+ Add more` multi-fields |
+| Entries View (B/C) — all 7 | same route | ✅ Done | Lavender banner card; 800px 2-col layout; rotating questions (click-to-highlight); 433px entry card; animated waveform; 3 mode buttons (253×70px); Save 255×71px |
+| Voice recording — dimension entries | same route | ✅ Done | MediaRecorder → animated bars → Record/Save → presigned S3 PUT → `addDimensionEntry` with `media_s3_key` |
+| Entry edit view (D) | same route (inline state) | ✅ Done | Inline (not modal); banner stays; ENTRY label; circle × close; tag chips with ×; `+ Add Person/Year/Place`; ✎ edit body; voice read-only with waveform; "Someone worth naming?" + "A time that mattered?" forms; Save 204px lavender |
+| Delete entry | same route | ✅ Done | `…` menu → delete → `deleteDimensionEntry` |
+| YOU bar | all dimension pages | ✅ Done | 70px `#efeaf2`; current dim bold purple; others grey; all 7 links wired |
+| AI auto-tags display | entry cards | ✅ Done | `people / year / place` chips from API response; no manual fallback chips (unknown excluded if empty) |
+| Structured data prose in banner | history + all dims | ✅ Done | History: prose format per Figma; other dims: `Field: value · …` format |
 
-**Fix (POST-MVP):** Lambda worker triggered after S3 upload → Transcribe → extract tags via Haiku → update entry.
+### ✅ COMPLETE — Backend
 
-### 3. Auto-tagging is synchronous
-Tagging currently blocks the POST entry response (~1 second). For a better experience it should run in the background and update the card asynchronously.
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Upload hub endpoint | ✅ Done | `GET /contracts/{id}/upload/hub` |
+| Keeper profile CRUD | ✅ Done | `GET/PUT /contracts/{id}/upload/keeper-profile` |
+| Messages CRUD | ✅ Done | `GET/POST/DELETE /contracts/{id}/upload/messages` |
+| Dimension form upsert | ✅ Done | `PUT /upload/dimensions/{slug}` with triangulation |
+| Dimension entry CRUD | ✅ Done | `POST/PUT/DELETE /upload/dimensions/{slug}/entries` |
+| Entry auto-tagging (text) | ✅ Done | Bedrock Claude Haiku; synchronous; returns `{people[], year, place}` |
+| History triangulation | ✅ Done | Populates People/Places/Years store from form facts; dedupes |
+| Voice presigned upload — name/profile | ✅ Done | `POST /upload/voice/presigned?voice_type=name|profile` |
+| Entry media presigned upload — dimensions | ✅ Done | `POST /upload/dimensions/{slug}/entries/media-presigned` |
 
-**Fix (POST-MVP):** Move to SQS + Lambda worker; show "tagging…" chip state until complete.
+---
 
-### 4. Prompt decks not yet authored per dimension
-The "ADD AN ENTRY" panel cycles through rotating prompt questions to inspire the Maker. Currently all 7 dimensions show the same placeholder deck. Each dimension needs its own unique questions written.
+## Pending Issues / TODO
 
-**Fix:** Author 5+ unique prompts per dimension with product owner; store as config so they can be updated without code changes.
+### 🔴 MVP blocker
 
-### 5. Status circle threshold not confirmed
-The status circle fills from empty → partial → full based on entry count. The proposed threshold is 3 entries = full. This is a placeholder — confirm per-dimension targets with product.
+| # | Issue | Impact |
+|---|-------|--------|
+| 1 | **No Amazon Transcribe worker** | Voice dimension entries save audio to S3 but have no transcript → auto-tagging doesn't run for voice → entry title stays "Voice note (m:ss)" → no people/year/place chips for voice entries |
+| 2 | **Prompt decks need 10 unique questions per dimension** | Currently 5 working-copy prompts per dim coded in `DimensionClient.tsx`. User will provide final 10 per dim — need a content swap pass once provided |
 
-### 6. Dashboard Figma alignment (reverted)
-The Contract Dashboard, YOU bar, and dimension pages were built and then reverted due to Figma misalignment. These need to be rebuilt correctly from scratch using the Figma workflow (`docs/figma-workflow.md`) — frame by frame, one component at a time.
+### 🟡 Post-MVP / Quality
+
+| # | Issue | Fix path |
+|---|-------|----------|
+| 3 | **Auto-tagging is synchronous** | Blocks POST entry response ~1s. Move to SQS + Lambda worker; show "tagging…" chip until complete |
+| 4 | **StatusCircle threshold not confirmed** | 3 entries = full is a placeholder. Confirm per-dimension target with product |
+| 5 | **Voice dimension entries have no playback UI** | The edit view shows a static decorative waveform; no play/pause. Needs audio playback wired to S3 URL once signed |
+| 6 | **Video entry mode** | Button is disabled ("Video soon"). Full video record + upload pipeline not planned for MVP |
+| 7 | **VoiceName / VoiceProfile use manual `fetch()`** | Bypass centralized error handling in `api.ts`. Migrate to `api.getVoicePresigned` / `api.completeVoice` for consistency |

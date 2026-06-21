@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";

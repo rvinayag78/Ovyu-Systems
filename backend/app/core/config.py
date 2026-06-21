@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     ses_from_name: str = "ovyu"
 
     sqs_queue_url: str = ""
+    transcription_queue_url: str = ""
     media_bucket: str = ""
 
     # Bedrock — classification / extraction model (entry auto-tagging)

@@ -62,14 +62,12 @@ function MakerRow({ c }: { c: ContractRow }) {
           }}>
             View Contract
           </Link>
-          <div style={{ display: "flex", flexDirection: "row", gap: "12px", alignItems: "center" }}>
-            <Link href={`/upload/${c.id}`} style={{
-              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
-            }}>
-              UPLOAD
-            </Link>
-            <span style={{ fontSize: "18px" }}>→</span>
-          </div>
+          <Link href={`/upload/${c.id}`} style={{
+            display: "flex", alignItems: "center", gap: "10px",
+            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
+          }}>
+            UPLOAD <span>→</span>
+          </Link>
         </>
       ) : makerSigned ? (
         <>
@@ -262,6 +260,43 @@ export default function ContractsPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Hint text above locked YOU bar */}
+      <div style={{ display: "flex", justifyContent: "center", paddingBottom: "12px" }}>
+        <p style={{
+          fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal",
+        }}>
+          Complete your voice recording to unlock your profile.
+        </p>
+      </div>
+
+      {/* Locked YOU bar */}
+      <div style={{
+        width: "1920px",
+        height: "70px",
+        background: "#f0f0f0",
+        borderTop: "3px solid #bababa",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 50px",
+        boxSizing: "border-box",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#bababa" }}>YOU</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"].map((label, i, arr) => (
+              <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
+                {i < arr.length - 1 && (
+                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#bababa", display: "inline-block" }} />
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+        <span style={{ fontSize: "20px", color: "#bababa" }}>🔒</span>
       </div>
 
       <Footer />

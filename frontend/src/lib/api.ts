@@ -58,6 +58,9 @@ export const api = {
   acceptInvitation: (token: string, typed_name: string) =>
     req(`/contracts/invite/${token}/accept`, { method: "POST", body: JSON.stringify({ typed_name }) }),
 
+  declineInvitation: (token: string) =>
+    req(`/contracts/decline/${token}`, { method: "POST" }),
+
   requestMagicLink: (email: string, mode: "login" | "tc") =>
     req("/auth/request-magic-link", { method: "POST", body: JSON.stringify({ email, mode }) }),
 

@@ -38,6 +38,7 @@ export function Header({ variant = "loggedOut", initial }: HeaderProps) {
   return (
     <header style={{
       width: "100%",
+      minWidth: "1920px",
       height: "103px",
       background: "#fff",
       borderBottom: "3px solid #e1e1e1",

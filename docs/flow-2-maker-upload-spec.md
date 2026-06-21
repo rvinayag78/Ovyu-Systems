@@ -355,25 +355,53 @@ The "ADD AN ENTRY" rotating deck must be unique per dimension. The Figma placeho
 
 ---
 
-## 10. Implementation status (History)
+## 10. Implementation status
 
-History was ~70% built already (form, text entries, GET/PUT dimension, POST/DELETE entries, models, migration 0007). This branch (`claude/sharp-keller-md2imk`) adds:
+*Last updated: 2026-06-21. All 7 dimensions + voice gate + hub are complete for MVP.*
 
-### Done — backend
-- **Entry auto-tagging** via Bedrock Haiku — `backend/app/services/tagging_service.py` (`extract_entry_tags` → `{people[], year, place}`, graceful empty fallback). Model id in `settings.bedrock_haiku_model_id`.
-- Auto-tag wired into **POST entry** (text entries, best-effort, when client sends no tags).
-- **PUT entry** edit endpoint + `update_dimension_entry` service + `DimensionEntryUpdate` schema (title/body/tags, optional `retag`).
-- **Triangulation** — `_triangulate_history_facts` populates People (parents/siblings/partners/children + role), Places (place_of_birth + homes), Years (birth year parsed from DOB), deduped case-insensitively against existing rows. Runs on History dimension upsert.
+### ✅ Complete — Backend
 
-### Done — frontend
-- **Form helpers** — DOB `MM/DD/YYYY` mask + validation; City/Country typeahead (`PLACES`); Language typeahead (`LANGUAGES`); per-field placeholders per spec; Partners/Children → "Full name".
-- **Add-entry modes** — Voice / Text / Video(soon) buttons; text path; **VoiceRecorder** (MediaRecorder: record → stop → playback → save).
-- **Entry card** — title/meta, 3 tag chips (People/Year/Place, italic "unknown" fallback), **`⋯` overflow menu → edit / delete**.
-- **EntryEditor modal** (§D) — editable title/body, removable tag chips, structured prompts ("Someone worth naming?", "A time that mattered?", "Where did it happen?") that feed tags.
-- New components: `Typeahead`, `VoiceRecorder`, `EntryEditor`, `StatusCircle`; `lib/refdata.ts`; `api.updateDimensionEntry`.
+| Feature | Notes |
+|---------|-------|
+| Upload hub endpoint | `GET /contracts/{id}/upload/hub` — returns keeper name, voice status, dimension counts |
+| Keeper profile CRUD | `GET/PUT /contracts/{id}/upload/keeper-profile` |
+| Messages CRUD | `GET/POST/DELETE /contracts/{id}/upload/messages` |
+| Dimension form upsert (all 7) | `PUT /upload/dimensions/{slug}` — stores structured form fields |
+| History triangulation | Populates People/Places/Years store from form facts (parents, siblings, partners, children, DOB, homes); dedupes case-insensitively |
+| Dimension entry CRUD (all 7) | `POST/PUT/DELETE /upload/dimensions/{slug}/entries` |
+| Entry auto-tagging (text) | Bedrock Claude Haiku (`us.anthropic.claude-haiku-4-5`); synchronous on POST; returns `{people[], year, place}`; graceful fallback to empty |
+| Voice presigned upload — name/profile | `POST /upload/voice/presigned?voice_type=name|profile` → presigned S3 PUT |
+| Entry media presigned upload | `POST /upload/dimensions/{slug}/entries/media-presigned` → presigned S3 PUT for voice dimension entries |
 
-### Remaining (not yet built)
-1. **Voice pipeline** — the recorded audio Blob is captured but **not yet uploaded to S3**, and there is **no Amazon Transcribe worker**. Voice entries currently save with an empty body + placeholder title; transcript + voice auto-tagging land later. Needs: an entry-media presigned-PUT endpoint (mirror the existing voice one) + a Transcribe Lambda worker that fills `transcript`, generates the title, and triggers tagging.
-2. **Async tagging** — tagging runs **synchronously** in the POST handler (~1s). Move to SQS + worker per the stack if latency matters.
-3. ~~StatusCircle wiring~~ **Done** — graduated `StatusCircle` now drives the hub accordion rows (Voice = recorded/not; the 7 dimensions and People/Years/Places = empty → partial ring → full at ≥3) in `upload/[contractId]/page.tsx`.
-4. **Verification** — `node_modules` isn't installed in this environment, so the frontend was **not** built/typechecked here. Run `npm install && npm run build` (and `npm run lint`) locally before merge.
+### ✅ Complete — Frontend
+
+| Screen | Route | Figma frames | Notes |
+|--------|-------|-------------|-------|
+| Voice Gate — Your Name | `/upload/[contractId]/voice/name` | `2026:583` | MediaRecorder + script card + confirm checkbox + presigned S3 PUT |
+| Voice Gate — Sound of You | `/upload/[contractId]/voice/profile` | `2026:696` | MediaRecorder + two-panel script + presigned S3 PUT |
+| Upload Hub (Dashboard) | `/upload/[contractId]` | `2004:1726` / `2005:1923` | For [Keeper], MESSAGES cards (pink), Keeper profile cards (lavender), YOU accordion |
+| Dimension Form (A) — all 7 | `/upload/[contractId]/[dimension]` | per Section 6 | 3-column card; DOB mask + validation; City/Country typeahead; Language typeahead; `+ Add more` multi-fields |
+| Entries View (B/C) — all 7 | same route | `2062:1016` / `2095:6793` | Lavender banner card (avatar + prose + edit link); 800px 2-col layout (ENTRIES + ADD AN ENTRY); rotating question carousel with click-to-highlight; 433px entry textarea / animated waveform; 3 mode buttons (253×70px); Save 255×71px |
+| Voice recording — dimension entries | same route | `2095:6793` | MediaRecorder → animated 24-bar waveform → Save = stop + presigned S3 PUT → `addDimensionEntry` with `media_s3_key` |
+| Entry edit view (D) — all 7 | same route (inline state swap) | `2182:7663` / `2182:7611` | Inline (not modal); banner card stays; title + tag chips with ×; `+ Add Person/Year/Place`; ✎ toggle body editing; voice = read-only waveform + re-record note; "Someone worth naming?" + "A time that mattered?" structured prompts; Save 204px lavender |
+| Delete entry | same route | — | `…` menu → delete → `deleteDimensionEntry` |
+| YOU bar | all dimension pages | — | 70px `#efeaf2`; current dim bold purple; others grey; all 7 links wired |
+| AI auto-tags display | entry cards | — | `people / year / place` chips from API response; `unknown` excluded if empty; chips removable in edit view |
+| Structured data prose in banner | all 7 dims | — | History: full prose format (name · born · parents · siblings · etc.); other dims: `Field: value · …` format |
+
+### 🔴 MVP Blockers
+
+| # | Issue | Impact |
+|---|-------|--------|
+| 1 | **No Amazon Transcribe worker** | Voice dimension entries save audio to S3 but have no transcript → auto-tagging doesn't run for voice → entry title stays "Voice note (m:ss)" → no people/year/place chips for voice entries |
+| 2 | **Prompt decks need 10 unique questions per dimension** | Currently 5 working-copy prompts per dim in `DimensionClient.tsx` `PROMPTS` map. User to provide final 10 per dim — content swap pass needed |
+
+### 🟡 Post-MVP / Quality
+
+| # | Issue | Fix path |
+|---|-------|----------|
+| 3 | **Auto-tagging is synchronous** | Blocks POST entry response ~1s. Move to SQS + Lambda worker; show "tagging…" chip until complete |
+| 4 | **StatusCircle threshold not confirmed** | 3 entries = full is a placeholder. Confirm per-dimension target with product |
+| 5 | **Voice dimension entries have no playback UI** | Edit view shows decorative waveform; no play/pause. Needs audio playback wired to S3 presigned URL |
+| 6 | **Video entry mode** | Button disabled ("Video soon"). Full video record + upload pipeline not planned for MVP |
+| 7 | **VoiceName / VoiceProfile use manual `fetch()`** | Bypass centralized error handling in `api.ts`. Migrate to `api.getVoicePresigned` / `api.completeVoice` for consistency |

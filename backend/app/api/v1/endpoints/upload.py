@@ -1,9 +1,13 @@
+import json
 import logging
 from uuid import UUID
 
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
@@ -210,6 +214,18 @@ async def add_dimension_entry(
         tags = svc.auto_tag(body.body)
     entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags, body.media_s3_key)
     await db.commit()
+
+    # Enqueue transcription job for voice entries that have audio on S3.
+    if body.entry_type == "voice" and body.media_s3_key and settings.transcription_queue_url:
+        try:
+            boto3.client("sqs", region_name=settings.aws_region).send_message(
+                QueueUrl=settings.transcription_queue_url,
+                MessageBody=json.dumps({"entry_id": str(entry.id), "media_s3_key": body.media_s3_key}),
+            )
+        except (BotoCoreError, ClientError) as e:
+            # Non-fatal — entry is saved, transcription can be re-queued manually.
+            logger.warning("failed to enqueue transcription job for entry %s: %s", entry.id, e)
+
     return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, created_at=entry.created_at)
 
 

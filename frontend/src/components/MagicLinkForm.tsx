@@ -5,6 +5,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
 
+const serif = "Georgia, serif";
+const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
 interface Props {
   mode: "login" | "tc";
 }
@@ -20,13 +23,14 @@ export function MagicLinkForm({ mode }: Props) {
   const heading = isTC ? "Activate Transfer." : "Welcome back.";
   const sub = isTC
     ? "Enter your email. If you've been named a Transfer Contact, we'll send you a link to begin."
-    : "Enter your email and we'll send you a sign-in link.";
-  const btnLabel = isTC ? "Send Transfer link →" : "Send confirmation link →";
+    : "Enter your email. We'll send you a link to sign in.";
+  const btnLabel = isTC ? "Send Transfer link" : "Send me a link";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
-    setError(""); setLoading(true);
+    setError("");
+    setLoading(true);
     try {
       await api.requestMagicLink(email.trim(), mode);
       setDone(true);
@@ -39,62 +43,130 @@ export function MagicLinkForm({ mode }: Props) {
 
   if (done) {
     return (
-      <div className="ovyu-page">
+      <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
         <Header />
-        <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ maxWidth: 520, textAlign: "center" }}>
-            <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: "clamp(32px,4vw,52px)", lineHeight: 1.05, marginBottom: 20 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "214px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "25px", alignItems: "center" }}>
+            <p style={{ fontFamily: serif, fontWeight: 400, fontSize: "88px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
               Check your inbox.
-            </h1>
-            <p style={{ fontSize: 18, color: "var(--ovyu-ink-soft)", lineHeight: 1.55, marginBottom: 12 }}>
-              If <strong>{email}</strong> is registered, you'll receive a link shortly.
             </p>
-            <p style={{ fontSize: 14, color: "var(--ovyu-muted)" }}>
-              The link expires in 15 minutes and can only be used once.
+            <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", margin: 0, lineHeight: "normal" }}>
+              If <strong>{email}</strong> is registered, you&apos;ll receive a link shortly. It expires in 15 minutes.
             </p>
           </div>
-        </main>
+        </div>
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="ovyu-page">
+    <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
       <Header />
-      <main className="ovyu-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ maxWidth: 632, width: "100%" }}>
-          <div style={{ marginBottom: 40 }}>
-            <h1 style={{ fontFamily: "var(--ovyu-font-serif)", fontSize: 64, lineHeight: 1.05, marginBottom: 12 }}>
-              {heading}
-            </h1>
-            <p style={{ fontSize: 17, color: "var(--ovyu-ink-soft)", lineHeight: 1.55 }}>{sub}</p>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="ovyu-field" style={{ marginBottom: 24 }}>
-              <label className="ovyu-field__label" htmlFor="email">Email address</label>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "214px" }}>
+        {/* Title + subtitle */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "25px", alignItems: "center", marginBottom: "112px" }}>
+          <p style={{ fontFamily: serif, fontWeight: 400, fontSize: "88px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+            {heading}
+          </p>
+          <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", margin: 0, lineHeight: "normal" }}>
+            {sub}
+          </p>
+        </div>
+
+        {/* Card */}
+        <div style={{
+          width: "752px",
+          height: "332px",
+          background: "#fff",
+          border: "2px solid #e1e1e1",
+          borderRadius: "12px",
+          position: "relative",
+        }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              position: "absolute",
+              left: "80px",
+              top: "65px",
+              width: "593px",
+            }}
+          >
+            {/* Label + input */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "6px" }}>
+              <label
+                htmlFor="email"
+                style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#444", lineHeight: "normal" }}
+              >
+                Email address
+              </label>
               <input
                 id="email"
                 type="email"
-                className="ovyu-input"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
                 autoFocus
+                style={{
+                  width: "100%",
+                  height: "57px",
+                  border: "1px solid #888",
+                  borderRadius: "10px",
+                  padding: "0 10px",
+                  fontFamily: sans,
+                  fontWeight: 400,
+                  fontSize: "16px",
+                  color: "#1a1a1a",
+                  background: "#fff",
+                  boxSizing: "border-box",
+                  outline: "none",
+                }}
               />
             </div>
-            {error && <p className="ovyu-error-text" style={{ marginBottom: 16 }}>{error}</p>}
+
+            {error && (
+              <p style={{ fontFamily: sans, fontSize: "14px", color: "#B4372C", margin: "0 0 6px" }}>{error}</p>
+            )}
+
+            {/* Send button */}
             <button
               type="submit"
-              className="ovyu-btn ovyu-btn--primary"
               disabled={loading || !email.trim()}
+              style={{
+                width: "590px",
+                height: "70px",
+                background: loading || !email.trim() ? "#888" : "#1a1a1a",
+                borderRadius: "8px",
+                border: "none",
+                cursor: loading || !email.trim() ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              {loading ? "Sending…" : btnLabel}
+              <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#f5f0e8" }}>
+                {loading ? "Sending…" : btnLabel}
+              </span>
             </button>
+
+            {/* Hint text */}
+            <p style={{
+              fontFamily: sans,
+              fontStyle: "oblique",
+              fontSize: "16px",
+              color: "#888",
+              textAlign: "center",
+              margin: "12px 0 0",
+              lineHeight: "normal",
+            }}>
+              Your account is private. Only you can access your information.
+            </p>
           </form>
         </div>
-      </main>
+      </div>
+
       <Footer />
     </div>
   );
