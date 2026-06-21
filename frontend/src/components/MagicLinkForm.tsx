@@ -51,7 +51,7 @@ export function MagicLinkForm({ mode }: Props) {
               Check your inbox.
             </p>
             <p style={{ fontFamily: sans, fontWeight: 400, fontSize: "22px", color: "#444", margin: 0, lineHeight: "normal" }}>
-              If <strong>{email}</strong> is registered, you&apos;ll receive a link shortly. It expires in 15 minutes.
+              If <strong>{email}</strong>{" "}is registered, you&apos;ll receive a link shortly. It expires in 15 minutes.
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
@@ -87,6 +88,12 @@ function ContractViewInner() {
 
       <div style={{ flex: 1, paddingTop: "40px", paddingBottom: "40px" }}>
         <div style={{ margin: "0 auto", width: "1804px", display: "flex", flexDirection: "column", gap: "23px" }}>
+          {/* Back link */}
+          <Link href="/contracts" style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none" }}>
+            <span style={{ fontSize: "18px", lineHeight: 1 }}>‹</span>
+            Your contracts
+          </Link>
+
           {/* Title row */}
           <div>
             <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px" }}>
