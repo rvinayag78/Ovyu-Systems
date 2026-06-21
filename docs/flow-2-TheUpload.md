@@ -242,6 +242,7 @@ After every text entry is saved, the backend calls **AWS Bedrock Claude Haiku** 
 | History triangulation | ✅ Done | Populates People/Places/Years store from form facts; dedupes |
 | Voice presigned upload — name/profile | ✅ Done | `POST /upload/voice/presigned?voice_type=name|profile` |
 | Entry media presigned upload — dimensions | ✅ Done | `POST /upload/dimensions/{slug}/entries/media-presigned` |
+| Amazon Transcribe worker | ✅ Done | `ovyu-transcribe-worker-staging` Lambda; SQS-triggered from POST voice entry; polls Transcribe → reads transcript → Haiku tags → updates `dimension_entries.body/title/tags`; voice entry cards show "transcribing…" chip while pending |
 
 ---
 
@@ -251,15 +252,14 @@ After every text entry is saved, the backend calls **AWS Bedrock Claude Haiku** 
 
 | # | Issue | Impact |
 |---|-------|--------|
-| 1 | **No Amazon Transcribe worker** | Voice dimension entries save audio to S3 but have no transcript → auto-tagging doesn't run for voice → entry title stays "Voice note (m:ss)" → no people/year/place chips for voice entries |
-| 2 | **Prompt decks need 10 unique questions per dimension** | Currently 5 working-copy prompts per dim coded in `DimensionClient.tsx`. User will provide final 10 per dim — need a content swap pass once provided |
+| 1 | **Prompt decks need 10 unique questions per dimension** | Currently 5 working-copy prompts per dim coded in `DimensionClient.tsx`. User will provide final 10 per dim — need a content swap pass once provided |
 
 ### 🟡 Post-MVP / Quality
 
 | # | Issue | Fix path |
 |---|-------|----------|
-| 3 | **Auto-tagging is synchronous** | Blocks POST entry response ~1s. Move to SQS + Lambda worker; show "tagging…" chip until complete |
-| 4 | **StatusCircle threshold not confirmed** | 3 entries = full is a placeholder. Confirm per-dimension target with product |
-| 5 | **Voice dimension entries have no playback UI** | The edit view shows a static decorative waveform; no play/pause. Needs audio playback wired to S3 URL once signed |
-| 6 | **Video entry mode** | Button is disabled ("Video soon"). Full video record + upload pipeline not planned for MVP |
-| 7 | **VoiceName / VoiceProfile use manual `fetch()`** | Bypass centralized error handling in `api.ts`. Migrate to `api.getVoicePresigned` / `api.completeVoice` for consistency |
+| 2 | **Auto-tagging is synchronous for text** | Blocks POST entry response ~1s. Move to SQS + Lambda worker; show "tagging…" chip until complete |
+| 3 | **StatusCircle threshold not confirmed** | 3 entries = full is a placeholder. Confirm per-dimension target with product |
+| 4 | **Voice dimension entries have no playback UI** | The edit view shows a static decorative waveform; no play/pause. Needs audio playback wired to S3 URL once signed |
+| 5 | **Video entry mode** | Button is disabled ("Video soon"). Full video record + upload pipeline not planned for MVP |
+| 6 | **VoiceName / VoiceProfile use manual `fetch()`** | Bypass centralized error handling in `api.ts`. Migrate to `api.getVoicePresigned` / `api.completeVoice` for consistency |

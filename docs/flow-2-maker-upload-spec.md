@@ -393,8 +393,7 @@ The "ADD AN ENTRY" rotating deck must be unique per dimension. The Figma placeho
 
 | # | Issue | Impact |
 |---|-------|--------|
-| 1 | **No Amazon Transcribe worker** | Voice dimension entries save audio to S3 but have no transcript → auto-tagging doesn't run for voice → entry title stays "Voice note (m:ss)" → no people/year/place chips for voice entries |
-| 2 | **Prompt decks need 10 unique questions per dimension** | Currently 5 working-copy prompts per dim in `DimensionClient.tsx` `PROMPTS` map. User to provide final 10 per dim — content swap pass needed |
+| 1 | **Prompt decks need 10 unique questions per dimension** | Currently 5 working-copy prompts per dim in `DimensionClient.tsx` `PROMPTS` map. User to provide final 10 per dim — content swap pass needed |
 
 ### 🟡 Post-MVP / Quality
 
