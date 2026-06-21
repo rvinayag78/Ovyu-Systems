@@ -21,6 +21,9 @@ const DIMENSIONS = [
   { slug: "heart", label: "Heart", sub: "What moves you. What you love, what you can't stand, what lights you up." },
 ];
 
+const FOOTER_H = 103;
+const BAR_H = 70;
+
 const KEEPER_CARDS = [
   { key: "who_they_are", label: "Who they are", sub: "Their story, history, birth dates, context. Your relationship to them.", width: 555 },
   { key: "who_theyre_becoming", label: "Who they're becoming", sub: "Who they are now, their hopes, the person they're turning into.", width: 550 },
@@ -109,7 +112,7 @@ export function UploadHubClient() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "78px" }}>
+      <div style={{ flex: 1, paddingTop: "78px", paddingBottom: `${FOOTER_H + BAR_H}px` }}>
         <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingBottom: "60px" }}>
 
           {/* Breadcrumb */}
@@ -188,61 +191,72 @@ export function UploadHubClient() {
           </div>
         </div>
 
-        {/* YOU Accordion */}
-        <div>
-          <button onClick={() => setYouOpen(v => !v)} style={{
-            width: "1920px", background: youOpen ? "#efeaf2" : "white",
-            borderTop: "3px solid #bababa", borderBottom: "none", borderLeft: "none", borderRight: "none",
-            height: "70px", display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "0 50px", cursor: "pointer",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textTransform: "uppercase" }}>You</span>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                {["Voice", ...DIMENSIONS.map(d => d.label)].map((label, i, arr) => (
-                  <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>{label}</span>
-                    {i < arr.length - 1 && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#888", display: "inline-block" }} />}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <span style={{ fontFamily: sans, fontSize: "20px", color: "#888", transform: youOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s", display: "inline-block" }}>›</span>
-          </button>
-
-          {youOpen && (
-            <div style={{ background: "white", borderBottom: "0.5px solid #888", padding: "13px 88px", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {/* Voice row */}
-              <div style={{
-                background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-                height: "73px", display: "flex", alignItems: "center", padding: "0 40px", gap: "30px",
-              }}>
-                <StatusCircle count={0} voiceRecorded={hub?.voice_status === "complete"} size={40} />
-                <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
-                <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>Facial expressions and video coming soon.</span>
-              </div>
-              {/* Dimension rows */}
-              {DIMENSIONS.map(d => (
-                <Link key={d.slug} href={`/upload/${contractId}/${d.slug}`} style={{
-                  background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-                  height: "73px", display: "flex", alignItems: "center", justifyContent: "space-between",
-                  padding: "0 40px", textDecoration: "none", gap: "30px",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                    <StatusCircle count={hub?.dimension_counts[d.slug] ?? 0} threshold={3} size={40} />
-                    <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
-                    <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
-                  </div>
-                  <span style={{ fontFamily: sans, fontSize: "20px", color: "#888" }}>›</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
       </div>
 
       <Footer />
+
+      {/* YOU bar — fixed above footer */}
+      {youOpen && (
+        <>
+          {/* Backdrop */}
+          <div onClick={() => setYouOpen(false)} style={{
+            position: "fixed", inset: 0, zIndex: 108,
+          }} />
+          {/* Expanded panel */}
+          <div style={{
+            position: "fixed", bottom: `${FOOTER_H + BAR_H}px`, left: 0, right: 0,
+            background: "white", borderTop: "0.5px solid #bababa",
+            padding: "13px 88px", display: "flex", flexDirection: "column", gap: "10px",
+            zIndex: 109, maxHeight: "60vh", overflowY: "auto",
+          }}>
+            {/* Voice row */}
+            <div style={{
+              background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
+              height: "73px", display: "flex", alignItems: "center", padding: "0 40px", gap: "30px",
+            }}>
+              <StatusCircle count={0} voiceRecorded={hub?.voice_status === "complete"} size={40} />
+              <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
+              <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>Facial expressions and video coming soon.</span>
+            </div>
+            {/* Dimension rows */}
+            {DIMENSIONS.map(d => (
+              <Link key={d.slug} href={`/upload/${contractId}/${d.slug}`} style={{
+                background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
+                height: "73px", display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "0 40px", textDecoration: "none", gap: "30px",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
+                  <StatusCircle count={hub?.dimension_counts[d.slug] ?? 0} threshold={3} size={40} />
+                  <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
+                  <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
+                </div>
+                <span style={{ fontFamily: sans, fontSize: "20px", color: "#888" }}>›</span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+      {/* YOU bar button */}
+      <button onClick={() => setYouOpen(v => !v)} style={{
+        position: "fixed", bottom: `${FOOTER_H}px`, left: 0, right: 0,
+        width: "100%", background: youOpen ? "#efeaf2" : "white",
+        borderTop: "3px solid #bababa", borderBottom: "none", borderLeft: "none", borderRight: "none",
+        height: `${BAR_H}px`, display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "0 50px", cursor: "pointer", zIndex: 110, boxSizing: "border-box",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textTransform: "uppercase" }}>You</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {["Voice", ...DIMENSIONS.map(d => d.label)].map((label, i, arr) => (
+              <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>{label}</span>
+                {i < arr.length - 1 && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#888", display: "inline-block" }} />}
+              </span>
+            ))}
+          </div>
+        </div>
+        <span style={{ fontFamily: sans, fontSize: "20px", color: "#888", transform: youOpen ? "rotate(270deg)" : "rotate(90deg)", transition: "transform 0.2s", display: "inline-block" }}>›</span>
+      </button>
 
       {/* Keeper card edit modal */}
       {editKeeperKey && (
