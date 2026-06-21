@@ -308,7 +308,7 @@ export function VoiceNameClient() {
 
       {/* Locked YOU bar */}
       <div style={{
-        width: "1920px",
+        width: "100%",
         height: "70px",
         background: "#f0f0f0",
         borderTop: "3px solid #bababa",
