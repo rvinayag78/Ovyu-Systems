@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { StatusCircle } from "@/components/StatusCircle";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
@@ -218,7 +219,7 @@ export default function UploadHubPage() {
                 background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
                 height: "73px", display: "flex", alignItems: "center", padding: "0 40px", gap: "30px",
               }}>
-                <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: hub?.voice_status === "complete" ? "#6a4d7d" : "#ddd6c6" }} />
+                <StatusCircle count={0} voiceRecorded={hub?.voice_status === "complete"} size={40} />
                 <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
                 <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>Facial expressions and video coming soon.</span>
               </div>
@@ -230,7 +231,7 @@ export default function UploadHubPage() {
                   padding: "0 40px", textDecoration: "none", gap: "30px",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: (hub?.dimension_counts[d.slug] ?? 0) > 0 ? "#6a4d7d" : "#ddd6c6" }} />
+                    <StatusCircle count={hub?.dimension_counts[d.slug] ?? 0} threshold={3} size={40} />
                     <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
                     <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
                   </div>
@@ -276,7 +277,7 @@ export default function UploadHubPage() {
                   padding: "0 40px", textDecoration: "none",
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: item.count > 0 ? "#6a4d7d" : "#ddd6c6" }} />
+                    <StatusCircle count={item.count} threshold={3} size={40} />
                     <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{item.label}</span>
                     <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{item.sub}</span>
                   </div>
