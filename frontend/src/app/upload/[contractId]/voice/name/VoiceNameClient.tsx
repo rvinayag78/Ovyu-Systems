@@ -111,8 +111,10 @@ export function VoiceNameClient() {
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "173px" }}>
+        {/* 1500px container at left 209px */}
+        <div style={{ marginLeft: "209px", width: "1500px", display: "flex", flexDirection: "column", gap: "34px" }}>
+
         {/* Back link */}
-        <div style={{ paddingLeft: "209px", marginBottom: "60px" }}>
           <Link href="/contracts" style={{
             display: "flex", alignItems: "center", gap: "10px",
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
@@ -120,33 +122,32 @@ export function VoiceNameClient() {
             <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
             Your contracts
           </Link>
-        </div>
 
-        {/* Title + subtitle */}
-        <div style={{ paddingLeft: "209px", marginBottom: "60px" }}>
-          <h1 style={{
-            fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-            fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px", lineHeight: "normal",
-          }}>
-            Your name
-          </h1>
-          <p style={{
-            fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
-            fontSize: "22px", color: "#888", margin: 0, lineHeight: "normal",
-          }}>
-            Say it the way the people who love you say it.
-          </p>
-        </div>
+          {/* Title + subtitle */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
+            <h1 style={{
+              fontFamily: serif, fontStyle: "italic", fontWeight: 400,
+              fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+            }}>
+              Your name
+            </h1>
+            <p style={{
+              fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
+              fontSize: "22px", color: "#888", margin: 0, lineHeight: "normal",
+            }}>
+              Say it the way the people who love you say it.
+            </p>
+          </div>
 
-        {/* Two-column content */}
-        <div style={{ paddingLeft: "209px", display: "flex", gap: "186px", alignItems: "flex-start" }}>
+          {/* Two-column content */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
           {/* Left — before you begin */}
           <div style={{ width: "432px", flexShrink: 0 }}>
             <p style={{
               fontFamily: serif, fontStyle: "italic", fontWeight: 400,
               fontSize: "22px", color: "#1a1a1a", lineHeight: "44px", margin: 0,
             }}>
-              Before you begin, find a quiet space. Speak naturally — exactly as you would introducing yourself to someone you already trust.
+              Before you begin, we need to hear your name. Not performed. Not spelled out. Just said, the way you actually say it. Read each line aloud, naturally, at your own pace.
             </p>
           </div>
 
@@ -158,24 +159,24 @@ export function VoiceNameClient() {
               border: "1px solid #bababa",
               borderRadius: "15px",
               padding: "50px",
-              marginBottom: "24px",
+              marginBottom: "20px",
               display: "flex",
               flexDirection: "column",
-              gap: "28px",
+              gap: "19px",
             }}>
-              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.02em" }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0 }}>
                 READ THIS ALOUD
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div>
                 {[
                   `My name is ${makerFullName}.`,
                   `Most people call me ${makerPreferred}.`,
-                  `Some people also call me — [any nicknames you go by].`,
-                  `When I introduce myself, I usually say — [how you normally say it].`,
+                  `Some people also call me [alternative nickname, if any].`,
+                  `When I introduce myself, I usually say: hi, I'm ${makerPreferred}.`,
                 ].map((line, i) => (
                   <p key={i} style={{
                     fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
-                    fontSize: "16px", color: "#1a1a1a", margin: 0, lineHeight: 1.5,
+                    fontSize: "16px", color: "#1a1a1a", margin: 0, lineHeight: 2,
                   }}>
                     {line}
                   </p>
@@ -279,7 +280,8 @@ export function VoiceNameClient() {
               </span>
             </button>
           </div>
-        </div>
+        </div>{/* end two-column */}
+        </div>{/* end 1500px container */}
       </div>
 
       {/* Locked YOU bar */}
