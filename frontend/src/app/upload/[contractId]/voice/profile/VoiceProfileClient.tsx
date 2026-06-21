@@ -107,8 +107,9 @@ export function VoiceProfileClient() {
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "173px" }}>
-        {/* Back link */}
-        <div style={{ paddingLeft: "110px", marginBottom: "60px" }}>
+        <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column", gap: "34px" }}>
+
+          {/* Back link */}
           <Link href="/contracts" style={{
             display: "flex", alignItems: "center", gap: "10px",
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
@@ -116,68 +117,64 @@ export function VoiceProfileClient() {
             <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
             Your contracts
           </Link>
-        </div>
 
-        {/* Title + subtitle */}
-        <div style={{ paddingLeft: "110px", marginBottom: "60px" }}>
-          <h1 style={{
-            fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-            fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px", lineHeight: "normal",
-          }}>
-            The sound of you.
-          </h1>
-          <p style={{
-            fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
-            fontSize: "22px", color: "#888", margin: 0, lineHeight: "normal",
-            width: "1256px",
-          }}>
-            This is the longest recording. Speak freely — the rhythm of your voice, the way you pause, the way you laugh. All of it matters.
-          </p>
-        </div>
-
-        {/* Two-column script */}
-        <div style={{ paddingLeft: "110px", display: "flex", gap: "113px", marginBottom: "48px" }}>
-          {/* Left script */}
-          <div style={{ width: "760px" }}>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: "0 0 20px", letterSpacing: "0.02em" }}>
-              READ THIS ALOUD
+          {/* Title + subtitle */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
+            <h1 style={{
+              fontFamily: serif, fontStyle: "italic", fontWeight: 400,
+              fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+            }}>
+              The sound of you
+            </h1>
+            <p style={{
+              fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
+              fontSize: "22px", color: "#888", margin: 0, lineHeight: 1.4,
+              width: "1256px",
+            }}>
+              Read this aloud. Your voice, saying these words, is what we keep. And as you read, you&apos;ll learn exactly what you&apos;re building here.<br />
+              Speak at the pace you&apos;d use to tell a story to someone you trust. If you slow down, that&apos;s right. If you pause, that&apos;s right too.
             </p>
-            {[
-              "Talk about yourself — who you are, where you grew up, your family. Speak as if you're telling a new friend your story.",
-              "Tell us something that made you laugh this week. Or something that's been on your mind.",
-              "Describe someone you love. How do they make you feel? What do you love most about them?",
-            ].map((line, i) => (
-              <p key={i} style={{
-                fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
-                color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.3,
-              }}>
-                {line}
-              </p>
-            ))}
           </div>
 
-          {/* Right script */}
-          <div style={{ width: "800px" }}>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: "0 0 20px", letterSpacing: "0.02em" }}>
-              CONTINUE WITH
-            </p>
-            {[
-              "What does a perfect day look like for you? Walk us through it from morning to night.",
-              "What&apos;s something you believe that most people around you don&apos;t?",
-              "If you could say one thing to the people who love you — the most important thing — what would it be?",
-            ].map((line, i) => (
-              <p key={i} style={{
-                fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
-                color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.3,
-              }}>
-                {line}
-              </p>
-            ))}
-          </div>
-        </div>
+          {/* Two-column script + controls */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
+            {/* Script columns */}
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              {/* Left — READ THIS ALOUD */}
+              <div style={{ width: "760px" }}>
+                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: "0 0 10px" }}>
+                  READ THIS ALOUD
+                </p>
+                {[
+                  "My name is [name]. I am recording this because I have chosen to leave a piece of myself behind for someone I love. When I pass, that person will be able to come here and have a conversation with what I have left: my voice, my stories, my memories, the way I think and talk and see the world. Ovyu holds all of it securely and delivers it to them when the time comes. Only they will ever have access to it.",
+                  "Once this recording is done, my full profile unlocks. And before I go further: I am just going to talk the way I normally talk. The more like myself I sound now, the more like myself I will sound to them later. So this is me, ordinary voice, no performance.",
+                  "My profile is built across eight dimensions, and together they add up to me. Voice is the one I am doing right now, the sound of how I actually talk. History is where I come from and the moments that changed things. Relationships is the people who shaped me, and how I am with them. How I think is the way I work things out. How I talk is my phrases, my humor, the words that are mine. How I live is what an ordinary day actually looks like. Beliefs is what I hold onto and will not apologize for. And Heart is what moves me, what I love, what I cannot stand. I can move through them in any order I like.",
+                  "Each one starts with a few quick questions, the things Ovyu wants to get right. I can edit any of those answers anytime. After that, I add as much as I want, recorded or written, whenever something comes to me. If I hit a wall and do not know what to add for an entry, I can refer to a rotating list of questions designed to open something up and get me thinking and talking within that dimension. They are specific to wherever I am in the upload.",
+                ].map((para, i) => (
+                  <p key={i} style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.3 }}>
+                    {para}
+                  </p>
+                ))}
+              </div>
 
-        {/* Recording controls */}
-        <div style={{ paddingLeft: "110px", display: "flex", flexDirection: "column", gap: "24px", maxWidth: "554px" }}>
+              {/* Right — continuation */}
+              <div style={{ width: "800px" }}>
+                {[
+                  "As I go, Ovyu will ask me small things: who was in this story, where it happened, when it was. All of it is optional, but the more I share, the fuller the picture becomes, and the more of me there is to find later. All of that is me, the eight dimensions, and that is what every person I leave something for will meet.",
+                  "Then there is the part I build for one person in particular. This works the same way, my own questions to answer, my own entries to add, the same small tags for the people and places and times that come up, but all of it is turned toward them. Everything I know and notice about who they are, and who they are becoming. A welcome, for the moment they arrive. Messages for the moments still ahead of them, the ones I will not be there for. What I want for them. What I want them to know. And my advice, for the times they will need it. This part is as deep as everything else, and it is built for them alone.",
+                  "And if there is more than one person I want to leave something for, I do not start over. The eight dimensions are already me, they carry across to everyone. For each new person, I just build their part, their questions, their entries, everything turned toward them. So the me stays the same. What I gather and say for each of them is theirs alone.",
+                  "One thing about these early recordings: while I am getting started, what I record also helps Ovyu learn the sound of my voice. So for now, it really does need to be me. No getting my brother to do it in a funny accent.",
+                  "Well. That was a lot to take in, and also a lot to say out loud. But I think I have a sense of what I am building here and why it matters. Time to begin.",
+                ].map((para, i) => (
+                  <p key={i} style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.3 }}>
+                    {para}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            {/* Recording controls */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "19px" }}>
           {/* Start recording — shown when not actively recording */}
           {!isRecording && (
             <button
@@ -255,7 +252,9 @@ export function VoiceProfileClient() {
               {saving ? "Saving…" : "Save and continue →"}
             </span>
           </button>
-        </div>
+          </div>{/* end recording controls */}
+          </div>{/* end script+controls column */}
+        </div>{/* end 1673px container */}
       </div>
 
       {/* Locked YOU bar */}
