@@ -186,44 +186,46 @@ export function VoiceProfileClient() {
 
             {/* Recording controls */}
             <div style={{ display: "flex", flexDirection: "column", gap: "19px" }}>
-          {/* Start recording — shown when not actively recording */}
-          {!isRecording && (
-            <button
-              onClick={startRecording}
-              style={{
-                width: "214px", height: "49px",
-                background: "#efeaf2",
-                border: "1px solid #6a4d7d",
-                borderRadius: "15px",
-                display: "flex", alignItems: "center", gap: "10px",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
-              <span style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d" }}>Start recording</span>
-            </button>
-          )}
-
-          {/* Pause recording — shown while actively recording */}
-          {isRecording && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+          {/* Start / Pause recording — left-aligned, same fixed size in both states */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
+            {!isRecording ? (
+              <button
+                onClick={startRecording}
+                style={{
+                  width: "214px", height: "49px",
+                  background: "#efeaf2",
+                  border: "1px solid #6a4d7d",
+                  borderRadius: "15px",
+                  boxSizing: "border-box",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
+                <span style={{ fontFamily: sans, fontSize: "22px", color: "#6a4d7d" }}>Start recording</span>
+              </button>
+            ) : (
               <button
                 onClick={stopRecording}
                 style={{
                   width: "214px", height: "49px",
-                  background: "#4b3c5e", border: "none",
-                  borderRadius: "15px", cursor: "pointer",
+                  background: "#4b3c5e",
+                  border: "1px solid #4b3c5e",
+                  borderRadius: "15px",
+                  boxSizing: "border-box",
                   display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                  cursor: "pointer",
                 }}
               >
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#fff" }}>⏸ Pause recording</span>
+                <span style={{ fontFamily: sans, fontSize: "22px", color: "#fff" }}>⏸ Pause recording</span>
               </button>
-              <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums" }}>
+            )}
+            {isRecording && (
+              <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums", paddingLeft: "4px" }}>
                 {fmtTime(recordingMs)}
               </span>
-            </div>
-          )}
+            )}
+          </div>
 
 
           {/* Confirm checkbox */}
