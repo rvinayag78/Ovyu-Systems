@@ -64,13 +64,15 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
           }}>
             View Contract
           </Link>
-          <Link href={`/upload/${c.id}`} style={{
-            display: "flex", alignItems: "center", gap: "8px",
-            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
-            textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.05em",
-          }}>
-            Upload <span style={{ fontSize: "16px" }}>›</span>
-          </Link>
+          {voiceComplete && (
+            <Link href={`/upload/${c.id}`} style={{
+              display: "flex", alignItems: "center", gap: "8px",
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+              textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.05em",
+            }}>
+              Upload <span style={{ fontSize: "16px" }}>›</span>
+            </Link>
+          )}
         </>
       ) : makerSigned ? (
         <>
