@@ -54,17 +54,10 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: expanded ? "#1a1a1a" : (voiceComplete ? "#1a1a1a" : "#bababa") }}>YOU</span>
           {showCollapsed && (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               {dimensions.map((label, i, arr) => (
                 <span key={label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  {voiceComplete ? (
-                    <>
-                      <StatusCircle count={label === "Voice" && voiceComplete ? 1 : 0} threshold={1} voiceRecorded={label === "Voice" && voiceComplete} size={18} />
-                      <span style={{ fontFamily: sans, fontSize: "16px", color: label === "Voice" ? "#bababa" : "#888" }}>{label}</span>
-                    </>
-                  ) : (
-                    <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
-                  )}
+                  <span style={{ fontFamily: sans, fontSize: "14px", color: voiceComplete ? "#888" : "#bababa" }}>{label}</span>
                   {i < arr.length - 1 && (
                     <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: voiceComplete ? "#888" : "#bababa", display: "inline-block" }} />
                   )}
