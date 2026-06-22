@@ -14,7 +14,11 @@ const YOU_DIMS = ["Voice", "History", "Relationships", "How you think", "How you
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
 export function VoiceProfileClient() {
-  const { contractId } = useParams<{ contractId: string }>();
+  const params = useParams<{ contractId: string }>();
+  let contractId = params.contractId;
+  if (contractId === "_") {
+    contractId = typeof window !== "undefined" ? sessionStorage.getItem("ovyu_contract_id") ?? "" : "";
+  }
   const router = useRouter();
   const [initial, setInitial] = useState("?");
 

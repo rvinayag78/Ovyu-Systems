@@ -234,7 +234,7 @@ export default function ContractsPage() {
                   if (!locked) return null;
                   return (
                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                      <Link href={`/upload/${locked.id}/voice/name`} style={{
+                      <Link href="/upload/_/voice/name" onClick={() => sessionStorage.setItem("ovyu_contract_id", locked.id)} style={{
                         display: "flex", alignItems: "center", justifyContent: "center",
                         width: "345px", height: "48px",
                         background: "#1a1a1a", borderRadius: "8px",
