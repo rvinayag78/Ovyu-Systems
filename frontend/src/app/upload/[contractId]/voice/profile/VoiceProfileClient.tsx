@@ -208,7 +208,7 @@ export function VoiceProfileClient() {
 
           {/* Pause recording — shown while actively recording */}
           {isRecording && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
               <button
                 onClick={stopRecording}
                 style={{
@@ -220,7 +220,7 @@ export function VoiceProfileClient() {
               >
                 <span style={{ fontFamily: sans, fontSize: "18px", color: "#fff" }}>⏸ Pause recording</span>
               </button>
-              <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", textAlign: "center", fontVariantNumeric: "tabular-nums" }}>
+              <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums" }}>
                 {fmtTime(recordingMs)}
               </span>
             </div>
