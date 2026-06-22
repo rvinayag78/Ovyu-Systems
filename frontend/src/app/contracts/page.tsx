@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { StatusCircle } from "@/components/StatusCircle";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
@@ -316,10 +317,17 @@ export default function ContractsPage() {
           <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: voiceIsComplete ? "#1a1a1a" : "#bababa" }}>YOU</span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"].map((label, i, arr) => (
-              <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontFamily: sans, fontSize: "18px", color: voiceIsComplete ? "#888" : "#bababa" }}>{label}</span>
+              <span key={label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {voiceIsComplete ? (
+                  <>
+                    <StatusCircle count={label === "Voice" && voiceIsComplete ? 1 : 0} threshold={1} voiceRecorded={label === "Voice" && voiceIsComplete} size={18} />
+                    <span style={{ fontFamily: sans, fontSize: "16px", color: label === "Voice" ? "#bababa" : "#888" }}>{label}</span>
+                  </>
+                ) : (
+                  <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
+                )}
                 {i < arr.length - 1 && (
-                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: voiceIsComplete ? "#888" : "#bababa", display: "inline-block" }} />
+                  <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: voiceIsComplete ? "#888" : "#bababa", display: "inline-block" }} />
                 )}
               </span>
             ))}
