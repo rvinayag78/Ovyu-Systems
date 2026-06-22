@@ -9,9 +9,10 @@ const dimensions = ["Voice", "History", "Relationships", "How you think", "How y
 type YouBarProps = {
   voiceComplete?: boolean;
   onDimensionClick?: (dimension: string) => void;
+  expandedContent?: React.ReactNode;
 };
 
-export function YouBar({ voiceComplete = false, onDimensionClick }: YouBarProps) {
+export function YouBar({ voiceComplete = false, onDimensionClick, expandedContent }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   const isClickable = voiceComplete;
@@ -90,31 +91,35 @@ export function YouBar({ voiceComplete = false, onDimensionClick }: YouBarProps)
           position: "relative",
           zIndex: 1001,
         }}>
-          {dimensions.map((label) => (
-            <div
-              key={label}
-              onClick={() => {
-                if (label !== "Voice" && onDimensionClick) {
-                  onDimensionClick(label);
-                  setExpanded(false);
-                }
-              }}
-              style={{
-                background: "#fff",
-                border: "1px solid #ddd6c6",
-                borderRadius: "8px",
-                padding: "20px 40px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: label === "Voice" ? "default" : "pointer",
-                opacity: label === "Voice" ? 0.6 : 1,
-              }}>
-              <StatusCircle count={label === "Voice" ? 1 : 0} threshold={1} voiceRecorded={label === "Voice"} size={20} />
-              <span style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", flex: 1 }}>{label}</span>
-              {label !== "Voice" && <span style={{ fontSize: "16px", color: "#888" }}>›</span>}
-            </div>
-          ))}
+          {expandedContent ? (
+            expandedContent
+          ) : (
+            dimensions.map((label) => (
+              <div
+                key={label}
+                onClick={() => {
+                  if (label !== "Voice" && onDimensionClick) {
+                    onDimensionClick(label);
+                    setExpanded(false);
+                  }
+                }}
+                style={{
+                  background: "#fff",
+                  border: "1px solid #ddd6c6",
+                  borderRadius: "8px",
+                  padding: "20px 40px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                  cursor: label === "Voice" ? "default" : "pointer",
+                  opacity: label === "Voice" ? 0.6 : 1,
+                }}>
+                <StatusCircle count={label === "Voice" ? 1 : 0} threshold={1} voiceRecorded={label === "Voice"} size={20} />
+                <span style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", flex: 1 }}>{label}</span>
+                {label !== "Voice" && <span style={{ fontSize: "16px", color: "#888" }}>›</span>}
+              </div>
+            ))
+          )}
         </div>
       )}
     </>
