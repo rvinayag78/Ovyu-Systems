@@ -172,6 +172,7 @@ export default function ContractsPage() {
   const [error, setError] = useState("");
   const [initial, setInitial] = useState("?");
   const [voiceCompleteMap, setVoiceCompleteMap] = useState<Record<string, boolean>>({});
+  const [youExpanded, setYouExpanded] = useState(false);
 
   useEffect(() => {
     const name = sessionStorage.getItem("ovyu_maker_name") ?? sessionStorage.getItem("ovyu_keeper_name") ?? "";
@@ -302,39 +303,97 @@ export default function ContractsPage() {
       )}
 
       {/* YOU bar — locked or unlocked state */}
-      <div style={{
-        width: "100%",
-        height: "70px",
-        background: voiceIsComplete ? "#fff" : "#f0f0f0",
-        borderTop: `3px solid ${voiceIsComplete ? "#1a1a1a" : "#bababa"}`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 50px",
-        boxSizing: "border-box",
-      }}>
+      <div
+        onClick={() => voiceIsComplete && setYouExpanded(!youExpanded)}
+        style={{
+          width: "100%",
+          height: "70px",
+          background: youExpanded ? "#efeaf2" : (voiceIsComplete ? "#fff" : "#f0f0f0"),
+          borderTop: `3px solid ${youExpanded ? "#6a4d7d" : (voiceIsComplete ? "#1a1a1a" : "#bababa")}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 50px",
+          boxSizing: "border-box",
+          cursor: voiceIsComplete ? "pointer" : "default",
+        }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: voiceIsComplete ? "#1a1a1a" : "#bababa" }}>YOU</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"].map((label, i, arr) => (
-              <span key={label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {voiceIsComplete ? (
-                  <>
-                    <StatusCircle count={label === "Voice" && voiceIsComplete ? 1 : 0} threshold={1} voiceRecorded={label === "Voice" && voiceIsComplete} size={18} />
-                    <span style={{ fontFamily: sans, fontSize: "16px", color: label === "Voice" ? "#bababa" : "#888" }}>{label}</span>
-                  </>
-                ) : (
-                  <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
-                )}
-                {i < arr.length - 1 && (
-                  <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: voiceIsComplete ? "#888" : "#bababa", display: "inline-block" }} />
-                )}
-              </span>
-            ))}
-          </div>
+          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: youExpanded ? "#1a1a1a" : (voiceIsComplete ? "#1a1a1a" : "#bababa") }}>YOU</span>
+          {!youExpanded && (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              {["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"].map((label, i, arr) => (
+                <span key={label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  {voiceIsComplete ? (
+                    <>
+                      <StatusCircle count={label === "Voice" && voiceIsComplete ? 1 : 0} threshold={1} voiceRecorded={label === "Voice" && voiceIsComplete} size={18} />
+                      <span style={{ fontFamily: sans, fontSize: "16px", color: label === "Voice" ? "#bababa" : "#888" }}>{label}</span>
+                    </>
+                  ) : (
+                    <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
+                  )}
+                  {i < arr.length - 1 && (
+                    <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: voiceIsComplete ? "#888" : "#bababa", display: "inline-block" }} />
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-        <span style={{ fontSize: "20px", color: voiceIsComplete ? "#1a1a1a" : "#bababa" }}>{voiceIsComplete ? "›" : "🔒"}</span>
+        <span style={{ fontSize: "20px", color: youExpanded ? "#1a1a1a" : (voiceIsComplete ? "#1a1a1a" : "#bababa") }}>
+          {youExpanded ? "∨" : (voiceIsComplete ? "›" : "🔒")}
+        </span>
       </div>
+
+      {/* Backdrop for expanded YOU panel */}
+      {youExpanded && (
+        <div
+          onClick={() => setYouExpanded(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.3)",
+            zIndex: 1000,
+          }}
+        />
+      )}
+
+      {/* Expanded YOU panel */}
+      {youExpanded && (
+        <div style={{
+          width: "100%",
+          background: "#efeaf2",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          padding: "20px 50px",
+          boxSizing: "border-box",
+          position: "relative",
+          zIndex: 1001,
+        }}>
+          {["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"].map((label) => (
+            <div
+              key={label}
+              style={{
+                background: "#fff",
+                border: "1px solid #ddd6c6",
+                borderRadius: "8px",
+                padding: "20px 40px",
+                display: "flex",
+                alignItems: "center",
+                gap: "16px",
+                cursor: label === "Voice" ? "default" : "pointer",
+                opacity: label === "Voice" ? 0.6 : 1,
+              }}>
+              <StatusCircle count={label === "Voice" ? 1 : 0} threshold={1} voiceRecorded={label === "Voice"} size={20} />
+              <span style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", flex: 1 }}>{label}</span>
+              {label !== "Voice" && <span style={{ fontSize: "16px", color: "#888" }}>›</span>}
+            </div>
+          ))}
+        </div>
+      )}
 
       <Footer />
     </div>
