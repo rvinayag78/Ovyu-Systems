@@ -85,7 +85,7 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
             </div>
           )}
         </div>
-        <span style={{ fontSize: "20px", color: expanded ? "#1a1a1a" : (voiceComplete ? "#1a1a1a" : "#bababa") }}>
+        <span style={{ fontSize: "24px", color: expanded ? "#1a1a1a" : (voiceComplete ? "#1a1a1a" : "#bababa") }}>
           {expanded ? "∨" : (voiceComplete ? "›" : "🔒")}
         </span>
       </div>
