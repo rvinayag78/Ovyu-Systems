@@ -187,7 +187,7 @@ export default function ContractsPage() {
         for (const c of makerContracts) {
           try {
             const status = await api.getVoiceStatus(c.id);
-            voiceMap[c.id] = status.name && status.profile;
+            voiceMap[c.id] = !!status.name && !!status.profile;
           } catch {
             voiceMap[c.id] = false;
           }
