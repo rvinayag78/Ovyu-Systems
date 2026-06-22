@@ -241,3 +241,52 @@ async def cleanup_maker_contracts(
 
     await db.commit()
     return CleanupResponse(withdrawn=withdrawn, kept_contract_id=str(keep.id))
+
+
+# ── Voice recording reset ────────────────────────────────────────────────────
+
+class ResetVoiceResponse(BaseModel):
+    deleted_recordings: int
+
+
+@router.post("/reset-voice/{contract_id}", response_model=ResetVoiceResponse)
+async def reset_voice_recordings(
+    contract_id: str,
+    db: AsyncSession = Depends(get_db),
+) -> ResetVoiceResponse:
+    """Delete all voice recordings for a contract. Test use only."""
+    _guard()
+    from sqlalchemy import select as sa_select, text
+    from uuid import UUID
+
+    try:
+        contract_uuid = UUID(contract_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid contract ID format")
+
+    # Get the upload record
+    from app.models.upload import Upload, VoiceRecording
+
+    upload_result = await db.execute(
+        sa_select(Upload).where(Upload.contract_id == contract_uuid)
+    )
+    upload = upload_result.scalar_one_or_none()
+
+    if not upload:
+        raise HTTPException(status_code=404, detail="Upload not found for this contract")
+
+    # Delete all voice recordings for this upload
+    result = await db.execute(
+        select(VoiceRecording).where(VoiceRecording.upload_id == upload.id)
+    )
+    recordings = result.scalars().all()
+    deleted_count = len(recordings)
+
+    for recording in recordings:
+        await db.delete(recording)
+
+    # Reset upload voice_status to pending
+    upload.voice_status = "pending"
+
+    await db.commit()
+    return ResetVoiceResponse(deleted_recordings=deleted_count)
