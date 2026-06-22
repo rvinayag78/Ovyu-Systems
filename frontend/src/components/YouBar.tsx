@@ -39,7 +39,7 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
           width: "100%",
           height: "70px",
           background: expanded ? "#efeaf2" : (voiceComplete ? "#fff" : "#f0f0f0"),
-          borderTop: `3px solid ${expanded ? "#6a4d7d" : (voiceComplete ? "#1a1a1a" : "#bababa")}`,
+          borderTop: `3px solid ${expanded ? "#6a4d7d" : "#bababa"}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

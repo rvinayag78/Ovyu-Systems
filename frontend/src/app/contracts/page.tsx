@@ -58,11 +58,18 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
           <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
             Signed on {lockedDate}
           </span>
-          <Link href={voiceComplete ? `/upload/${c.id}` : `/keeper/contracts/view?id=${c.id}`} style={{
+          <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
             fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
-            textDecoration: "underline",
+            textDecoration: "none",
           }}>
-            {voiceComplete ? "Upload" : "View Contract"}
+            View Contract
+          </Link>
+          <Link href={`/upload/${c.id}`} style={{
+            display: "flex", alignItems: "center", gap: "8px",
+            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+            textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.05em",
+          }}>
+            Upload <span style={{ fontSize: "16px" }}>›</span>
           </Link>
         </>
       ) : makerSigned ? (
@@ -187,7 +194,7 @@ export default function ContractsPage() {
         for (const c of makerContracts) {
           try {
             const status = await api.getVoiceStatus(c.id);
-            voiceMap[c.id] = !!status.name && !!status.profile;
+            voiceMap[c.id] = status.name === "complete" && status.profile === "complete";
           } catch {
             voiceMap[c.id] = false;
           }
@@ -227,7 +234,7 @@ export default function ContractsPage() {
           {error && <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", margin: 0 }}>{error}</p>}
 
               {/* Making section */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>MAKING</p>
             {loading ? (
               <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
@@ -241,11 +248,10 @@ export default function ContractsPage() {
                   display: "flex", alignItems: "center", gap: "20px",
                   paddingLeft: "55px", boxSizing: "border-box",
                 }}>
-                  <span style={{ fontFamily: sans, fontSize: "22px", color: "#888" }}>+</span>
+                  <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#888" }}>+</span>
                   <Link href="/signup" style={{
-                    fontFamily: sans, fontWeight: 700, fontSize: "16px",
-                    textTransform: "uppercase", color: "#1a1a1a",
-                    letterSpacing: "0.05em", textDecoration: "none",
+                    fontFamily: sans, fontWeight: 700, fontSize: "22px",
+                    color: "#888", textDecoration: "none",
                   }}>
                     Start a new contract
                   </Link>
