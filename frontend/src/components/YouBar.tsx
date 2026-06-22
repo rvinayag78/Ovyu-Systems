@@ -124,7 +124,11 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             display: "flex", alignItems: "center",
             padding: "16px 40px", gap: "30px",
           }}>
-            <StatusCircle count={1} threshold={1} voiceRecorded size={62} />
+            <div style={{ position: "relative", width: "40px", height: "40px", flexShrink: 0 }}>
+              <div style={{ position: "absolute", top: "-11px", left: "-11px", width: "62px", height: "62px" }}>
+                <StatusCircle count={1} threshold={1} voiceRecorded size={62} />
+              </div>
+            </div>
             <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
             <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>
               Facial expressions and video coming soon.
@@ -136,7 +140,11 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             const inner = (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                  <StatusCircle count={dimensionCounts[d.slug] ?? 0} threshold={3} size={62} />
+                  <div style={{ position: "relative", width: "40px", height: "40px", flexShrink: 0 }}>
+                    <div style={{ position: "absolute", top: "-11px", left: "-11px", width: "62px", height: "62px" }}>
+                      <StatusCircle count={dimensionCounts[d.slug] ?? 0} threshold={3} size={62} />
+                    </div>
+                  </div>
                   <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
                   <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
                 </div>

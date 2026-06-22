@@ -43,6 +43,7 @@ export function UploadHubClient() {
   const [profile, setProfile] = useState<KeeperProfile>({});
   const [messages, setMessages] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(true);
+  const [voiceComplete, setVoiceComplete] = useState(false);
   const [editKeeperKey, setEditKeeperKey] = useState<string | null>(null);
   const [editKeeperText, setEditKeeperText] = useState("");
   const [editMsgType, setEditMsgType] = useState<string | null>(null);
@@ -58,10 +59,13 @@ export function UploadHubClient() {
       api.getHub(contractId),
       api.getKeeperProfile(contractId),
       api.listMessages(contractId),
-    ]).then(([h, p, m]) => {
+      api.getVoiceStatus(contractId),
+    ]).then(([h, p, m, vs]) => {
       setHub(h as HubData);
       setProfile(p);
       setMessages(m);
+      const status = vs as { name: string; profile: string };
+      setVoiceComplete(status.name === "complete" && status.profile === "complete");
     }).catch(console.error).finally(() => setLoading(false));
   }, [contractId]);
 
@@ -98,8 +102,8 @@ export function UploadHubClient() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "78px", display: "flex", flexDirection: "column" }}>
-        <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingBottom: "60px" }}>
+      <div style={{ flex: 1, paddingTop: "40px", display: "flex", flexDirection: "column" }}>
+        <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "30px", paddingBottom: "30px" }}>
 
           {/* Breadcrumb */}
           <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
@@ -180,7 +184,7 @@ export function UploadHubClient() {
 
       {/* YOU bar */}
       <YouBar
-        voiceComplete={hub?.voice_status === "complete"}
+        voiceComplete={voiceComplete}
         contractId={contractId}
         dimensionCounts={hub?.dimension_counts ?? {}}
       />
