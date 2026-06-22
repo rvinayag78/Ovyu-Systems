@@ -301,7 +301,13 @@ export default function ContractsPage() {
         </div>
       )}
 
-      <YouBar voiceComplete={voiceIsComplete} />
+      <YouBar
+        voiceComplete={voiceIsComplete}
+        onDimensionClick={(dimension) => {
+          // On contracts page, dimension clicks don't navigate anywhere
+          // This is just to enable the interaction for consistency
+        }}
+      />
 
       <Footer />
     </div>
