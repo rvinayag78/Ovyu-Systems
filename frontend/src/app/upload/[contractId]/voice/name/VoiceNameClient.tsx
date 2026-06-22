@@ -5,11 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { YouBar } from "@/components/YouBar";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-
-const YOU_DIMS = ["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"];
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -188,44 +187,46 @@ export function VoiceNameClient() {
                 ))}
               </div>
 
-              {/* Start recording — shown when not actively recording */}
-              {!isRecording && (
-                <button
-                  onClick={startRecording}
-                  style={{
-                    width: "214px", height: "49px",
-                    background: "#efeaf2",
-                    border: "1px solid #6a4d7d",
-                    borderRadius: "15px",
-                    display: "flex", alignItems: "center", gap: "10px",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
-                  <span style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d" }}>Start recording</span>
-                </button>
-              )}
-
-              {/* Pause recording — shown while actively recording */}
-              {isRecording && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+              {/* Start / Pause recording — same fixed size in both states */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
+                {!isRecording ? (
+                  <button
+                    onClick={startRecording}
+                    style={{
+                      width: "214px", height: "49px",
+                      background: "#efeaf2",
+                      border: "1px solid #6a4d7d",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
+                    <span style={{ fontFamily: sans, fontSize: "22px", color: "#6a4d7d" }}>Start recording</span>
+                  </button>
+                ) : (
                   <button
                     onClick={stopRecording}
                     style={{
                       width: "214px", height: "49px",
-                      background: "#4b3c5e", border: "none",
-                      borderRadius: "15px", cursor: "pointer",
+                      background: "#4b3c5e",
+                      border: "1px solid #4b3c5e",
+                      borderRadius: "15px",
+                      boxSizing: "border-box",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                      cursor: "pointer",
                     }}
                   >
-                    <span style={{ fontFamily: sans, fontSize: "18px", color: "#fff" }}>⏸ Pause recording</span>
+                    <span style={{ fontFamily: sans, fontSize: "22px", color: "#fff" }}>⏸ Pause recording</span>
                   </button>
-                  <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums" }}>
+                )}
+                {isRecording && (
+                  <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums", paddingLeft: "4px" }}>
                     {fmtTime(recordingMs)}
                   </span>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
 
@@ -274,34 +275,7 @@ export function VoiceNameClient() {
         </div>{/* end 1500px container */}
       </div>
 
-      {/* Locked YOU bar */}
-      <div style={{
-        width: "100%",
-        height: "70px",
-        background: "#f0f0f0",
-        borderTop: "3px solid #bababa",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 50px",
-        boxSizing: "border-box",
-        flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#bababa" }}>YOU</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {YOU_DIMS.map((label, i, arr) => (
-              <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
-                {i < arr.length - 1 && (
-                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#bababa", display: "inline-block" }} />
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-        <span style={{ fontSize: "20px", color: "#bababa" }}>🔒</span>
-      </div>
+      <YouBar voiceComplete={false} />
 
       <Footer />
     </div>

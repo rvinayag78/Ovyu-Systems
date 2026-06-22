@@ -5,11 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { YouBar } from "@/components/YouBar";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-
-const YOU_DIMS = ["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"];
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -269,34 +268,7 @@ export function VoiceProfileClient() {
         </div>{/* end 1673px container */}
       </div>
 
-      {/* Locked YOU bar */}
-      <div style={{
-        width: "100%",
-        height: "70px",
-        background: "#f0f0f0",
-        borderTop: "3px solid #bababa",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 50px",
-        boxSizing: "border-box",
-        flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#bababa" }}>YOU</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {YOU_DIMS.map((label, i, arr) => (
-              <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
-                {i < arr.length - 1 && (
-                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#bababa", display: "inline-block" }} />
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-        <span style={{ fontSize: "20px", color: "#bababa" }}>🔒</span>
-      </div>
+      <YouBar voiceComplete={false} />
 
       <Footer />
     </div>
