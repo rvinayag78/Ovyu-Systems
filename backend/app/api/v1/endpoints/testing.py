@@ -290,3 +290,42 @@ async def reset_voice_recordings(
 
     await db.commit()
     return ResetVoiceResponse(deleted_recordings=deleted_count)
+
+
+class ResetAllVoiceResponse(BaseModel):
+    uploads_reset: int
+    total_recordings_deleted: int
+
+
+@router.post("/reset-voice-all", response_model=ResetAllVoiceResponse)
+async def reset_all_voice_recordings(
+    db: AsyncSession = Depends(get_db),
+) -> ResetAllVoiceResponse:
+    """Delete all voice recordings for all contracts. Test use only."""
+    _guard()
+    from sqlalchemy import select as sa_select
+    from app.models.upload import Upload, VoiceRecording
+
+    # Get all uploads
+    result = await db.execute(sa_select(Upload))
+    uploads = result.scalars().all()
+
+    uploads_reset = 0
+    total_deleted = 0
+
+    for upload in uploads:
+        # Delete all voice recordings for this upload
+        recordings_result = await db.execute(
+            sa_select(VoiceRecording).where(VoiceRecording.upload_id == upload.id)
+        )
+        recordings = recordings_result.scalars().all()
+
+        if recordings:
+            for recording in recordings:
+                await db.delete(recording)
+            total_deleted += len(recordings)
+            upload.voice_status = "pending"
+            uploads_reset += 1
+
+    await db.commit()
+    return ResetAllVoiceResponse(uploads_reset=uploads_reset, total_recordings_deleted=total_deleted)
