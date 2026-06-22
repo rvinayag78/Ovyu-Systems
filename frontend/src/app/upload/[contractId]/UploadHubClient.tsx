@@ -28,12 +28,14 @@ type Msg = { id: string; type: string; body: string };
 
 function Dot({ filled }: { filled: boolean }) {
   return (
-    <div style={{
-      width: "26px", height: "26px", borderRadius: "50%",
-      border: `1.5px solid ${filled ? "#6a4d7d" : "#bababa"}`,
-      background: filled ? "#6a4d7d" : "transparent",
-      flexShrink: 0,
-    }} />
+    <div style={{ position: "relative", width: "26px", height: "26px", flexShrink: 0 }}>
+      <div style={{
+        position: "absolute", top: "-6px", left: "-6px",
+        width: "37px", height: "37px", borderRadius: "50%",
+        border: `1.5px solid ${filled ? "#6a4d7d" : "#bababa"}`,
+        background: filled ? "#6a4d7d" : "transparent",
+      }} />
+    </div>
   );
 }
 
@@ -102,8 +104,8 @@ export function UploadHubClient() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "40px", display: "flex", flexDirection: "column" }}>
-        <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "30px", paddingBottom: "30px" }}>
+      <div style={{ flex: 1, paddingTop: "31px", display: "flex", flexDirection: "column" }}>
+        <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
           {/* Breadcrumb */}
           <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
@@ -111,74 +113,79 @@ export function UploadHubClient() {
             <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
           </Link>
 
-          {/* Heading */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
-              For {keeperName}.
-            </h1>
-            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
-              A bit of you. Started today.
-            </p>
-          </div>
+          {/* Inner content — gap 50px between heading, messages, keeper */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "50px", width: "100%" }}>
 
-          {/* MESSAGES */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#8e5e6e", margin: 0 }}>MESSAGES</p>
-            <div style={{ display: "flex", justifyContent: "space-between", width: "1700px" }}>
-              {[
-                { type: "welcome", label: "Welcome", sub: "The first thing received upon transfer." },
-                { type: "for_when", label: "For when", sub: "Messages for specific moments.\nScheduled delivery coming soon." },
-              ].map(card => {
-                const saved = messages.find(m => m.type === card.type);
-                return (
-                  <button key={card.type} onClick={() => { setEditMsgType(card.type); setEditMsgText(saved?.body ?? ""); }} style={{
-                    background: "#f4e8ec", borderRadius: "10px", border: "none", cursor: "pointer",
-                    height: "130px", width: "840px", padding: "20px 30px", textAlign: "left",
-                    display: "flex", alignItems: "flex-start",
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
-                        <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
-                        <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, whiteSpace: "pre-line" }}>
-                          {saved ? saved.body.slice(0, 70) + (saved.body.length > 70 ? "…" : "") : card.sub}
-                        </p>
-                      </div>
-                      <Dot filled={!!saved} />
-                    </div>
-                  </button>
-                );
-              })}
+            {/* Heading */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+                For {keeperName}.
+              </h1>
+              <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
+                A bit of you. Started today.
+              </p>
             </div>
-          </div>
 
-          {/* KEEPER section */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d", margin: 0 }}>
-              {keeperName.toUpperCase()}
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "22px", width: "1700px" }}>
-              {KEEPER_CARDS.map(card => {
-                const value = (profile as Record<string, string | undefined>)[card.key];
-                return (
-                  <button key={card.key} onClick={() => { setEditKeeperKey(card.key); setEditKeeperText(value ?? ""); }} style={{
-                    background: "#efeaf2", borderRadius: "10px", border: "none", cursor: "pointer",
-                    height: "130px", width: `${card.width}px`, padding: "20px 30px", textAlign: "left",
-                    display: "flex", alignItems: "flex-start",
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "9px", flex: 1, marginRight: "12px" }}>
-                        <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
-                        <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
-                          {value ? value.slice(0, 70) + (value.length > 70 ? "…" : "") : card.sub}
-                        </p>
+            {/* MESSAGES */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#8e5e6e", margin: 0 }}>MESSAGES</p>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "1700px" }}>
+                {[
+                  { type: "welcome", label: "Welcome", sub: "The first thing received upon transfer." },
+                  { type: "for_when", label: "For when", sub: "Messages for specific moments.\nScheduled delivery coming soon." },
+                ].map(card => {
+                  const saved = messages.find(m => m.type === card.type);
+                  return (
+                    <button key={card.type} onClick={() => { setEditMsgType(card.type); setEditMsgText(saved?.body ?? ""); }} style={{
+                      background: "#f4e8ec", borderRadius: "10px", border: "none", cursor: "pointer",
+                      height: "130px", width: "840px", padding: "20px 30px", textAlign: "left",
+                      display: "flex", alignItems: "flex-start",
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
+                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, whiteSpace: "pre-line" }}>
+                            {saved ? saved.body.slice(0, 70) + (saved.body.length > 70 ? "…" : "") : card.sub}
+                          </p>
+                        </div>
+                        <Dot filled={!!saved} />
                       </div>
-                      <Dot filled={!!value} />
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+
+            {/* KEEPER section */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d", margin: 0 }}>
+                {keeperName.toUpperCase()}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "22px", width: "1700px" }}>
+                {KEEPER_CARDS.map(card => {
+                  const value = (profile as Record<string, string | undefined>)[card.key];
+                  return (
+                    <button key={card.key} onClick={() => { setEditKeeperKey(card.key); setEditKeeperText(value ?? ""); }} style={{
+                      background: "#efeaf2", borderRadius: "10px", border: "none", cursor: "pointer",
+                      height: "130px", width: `${card.width}px`, padding: "20px 30px", textAlign: "left",
+                      display: "flex", alignItems: "flex-start",
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "9px", flex: 1, marginRight: "12px" }}>
+                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
+                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
+                            {value ? value.slice(0, 70) + (value.length > 70 ? "…" : "") : card.sub}
+                          </p>
+                        </div>
+                        <Dot filled={!!value} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>{/* end inner content */}
         </div>
       </div>
 
