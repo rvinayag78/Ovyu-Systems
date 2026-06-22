@@ -31,7 +31,7 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
             width: "100%",
             height: "100%",
             background: "rgba(0, 0, 0, 0.3)",
-            zIndex: 1000,
+            zIndex: 108,
           }}
         />
       )}
@@ -40,6 +40,10 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
       <div
         onClick={() => isClickable && setExpanded(!expanded)}
         style={{
+          position: "fixed",
+          bottom: "103px",
+          left: 0,
+          right: 0,
           width: "100%",
           height: "70px",
           background: expanded ? "#efeaf2" : (voiceComplete ? "#fff" : "#f0f0f0"),
@@ -50,6 +54,7 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
           padding: "0 50px",
           boxSizing: "border-box",
           cursor: isClickable ? "pointer" : "default",
+          zIndex: 110,
         }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: expanded ? "#1a1a1a" : (voiceComplete ? "#1a1a1a" : "#bababa") }}>YOU</span>
@@ -74,6 +79,10 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
       {/* Expanded YOU panel */}
       {expanded && (
         <div style={{
+          position: "fixed",
+          bottom: "173px",
+          left: 0,
+          right: 0,
           width: "100%",
           background: "#efeaf2",
           display: "flex",
@@ -81,8 +90,9 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
           gap: "10px",
           padding: "20px 50px",
           boxSizing: "border-box",
-          position: "relative",
           zIndex: 1001,
+          maxHeight: "60vh",
+          overflowY: "auto",
         }}>
           {expandedContent ? (
             expandedContent
