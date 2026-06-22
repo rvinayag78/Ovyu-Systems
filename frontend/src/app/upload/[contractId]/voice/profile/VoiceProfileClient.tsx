@@ -35,7 +35,7 @@ export function VoiceProfileClient() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const name = sessionStorage.getItem("ovyu_full_name") ?? "";
+    const name = sessionStorage.getItem("ovyu_full_name") ?? sessionStorage.getItem("ovyu_maker_name") ?? "";
     setInitial(name[0]?.toUpperCase() ?? "?");
   }, []);
 
@@ -95,7 +95,7 @@ export function VoiceProfileClient() {
         body: JSON.stringify({ upload_id, type: "profile", s3_key, duration_s: durationS }),
       });
 
-      router.push(`/upload/${contractId}`);
+      router.push(`/contracts`);
     } catch {
       alert("Upload failed. Please try again.");
     } finally {

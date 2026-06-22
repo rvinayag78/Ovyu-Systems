@@ -13,6 +13,7 @@ type ContractRow = {
   id: string; path: string; status: string; my_role: string;
   maker_name?: string; keeper_name?: string; tc_name?: string;
   relationship?: string; maker_signed_at?: string; locked_at?: string;
+  voice_status?: string;
 };
 
 function fmtDate(iso?: string) {
@@ -20,7 +21,7 @@ function fmtDate(iso?: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function MakerRow({ c }: { c: ContractRow }) {
+function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolean }) {
   const makerSigned = !!c.maker_signed_at;
   const isLocked = c.status === "LOCKED";
   const sentDate = fmtDate(c.maker_signed_at);
@@ -56,11 +57,11 @@ function MakerRow({ c }: { c: ContractRow }) {
           <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
             Signed on {lockedDate}
           </span>
-          <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
+          <Link href={voiceComplete ? `/upload/${c.id}` : `/keeper/contracts/view?id=${c.id}`} style={{
             fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
             textDecoration: "underline",
           }}>
-            View Contract
+            {voiceComplete ? "Upload" : "View Contract"}
           </Link>
         </>
       ) : makerSigned ? (
@@ -169,13 +170,29 @@ export default function ContractsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [initial, setInitial] = useState("?");
+  const [voiceCompleteMap, setVoiceCompleteMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const name = sessionStorage.getItem("ovyu_maker_name") ?? sessionStorage.getItem("ovyu_keeper_name") ?? "";
     setInitial(name[0]?.toUpperCase() ?? "?");
 
     api.listMyContracts()
-      .then(setContracts)
+      .then(async (cs) => {
+        setContracts(cs);
+
+        // Fetch voice status for locked maker contracts
+        const makerContracts = cs.filter(c => c.my_role === "maker" && c.status === "LOCKED");
+        const voiceMap: Record<string, boolean> = {};
+        for (const c of makerContracts) {
+          try {
+            const status = await api.getVoiceStatus(c.id);
+            voiceMap[c.id] = status.name && status.profile;
+          } catch {
+            voiceMap[c.id] = false;
+          }
+        }
+        setVoiceCompleteMap(voiceMap);
+      })
       .catch(() => setError("Could not load contracts."))
       .finally(() => setLoading(false));
   }, []);
@@ -183,6 +200,9 @@ export default function ContractsPage() {
   const making = contracts.filter(c => c.my_role === "maker");
   const receiving = contracts.filter(c => c.my_role === "keeper");
   const tc = contracts.filter(c => c.my_role === "tc");
+
+  // Check if any locked maker contract has voice complete
+  const voiceIsComplete = making.some(c => c.status === "LOCKED" && voiceCompleteMap[c.id]);
 
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -211,7 +231,7 @@ export default function ContractsPage() {
               <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
             ) : (
               <>
-                {making.map(c => <MakerRow key={c.id} c={c} />)}
+                {making.map(c => <MakerRow key={c.id} c={c} voiceComplete={voiceCompleteMap[c.id]} />)}
                 {/* "Start a new contract" row — always shown */}
                 <div style={{
                   width: "1700px", height: "100px",
@@ -228,8 +248,8 @@ export default function ContractsPage() {
                     Start a new contract
                   </Link>
                 </div>
-                {/* "Ready to begin?" CTA — shown for the first LOCKED contract */}
-                {(() => {
+                {/* "Ready to begin?" CTA — shown for the first LOCKED contract without voice complete */}
+                {!voiceIsComplete && (() => {
                   const locked = making.find(c => c.status === "LOCKED");
                   if (!locked) return null;
                   return (
@@ -269,21 +289,23 @@ export default function ContractsPage() {
         </div>
       </div>
 
-      {/* Hint text above locked YOU bar */}
-      <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
-        <p style={{
-          fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal",
-        }}>
-          Complete your voice recording to unlock your profile.
-        </p>
-      </div>
+      {/* Hint text above locked YOU bar — only show when voice not complete */}
+      {!voiceIsComplete && (
+        <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
+          <p style={{
+            fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal",
+          }}>
+            Complete your voice recording to unlock your profile.
+          </p>
+        </div>
+      )}
 
-      {/* Locked YOU bar */}
+      {/* YOU bar — locked or unlocked state */}
       <div style={{
         width: "100%",
         height: "70px",
-        background: "#f0f0f0",
-        borderTop: "3px solid #bababa",
+        background: voiceIsComplete ? "#fff" : "#f0f0f0",
+        borderTop: `3px solid ${voiceIsComplete ? "#1a1a1a" : "#bababa"}`,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -291,19 +313,19 @@ export default function ContractsPage() {
         boxSizing: "border-box",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#bababa" }}>YOU</span>
+          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: voiceIsComplete ? "#1a1a1a" : "#bababa" }}>YOU</span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"].map((label, i, arr) => (
               <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#bababa" }}>{label}</span>
+                <span style={{ fontFamily: sans, fontSize: "18px", color: voiceIsComplete ? "#888" : "#bababa" }}>{label}</span>
                 {i < arr.length - 1 && (
-                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#bababa", display: "inline-block" }} />
+                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: voiceIsComplete ? "#888" : "#bababa", display: "inline-block" }} />
                 )}
               </span>
             ))}
           </div>
         </div>
-        <span style={{ fontSize: "20px", color: "#bababa" }}>🔒</span>
+        <span style={{ fontSize: "20px", color: voiceIsComplete ? "#1a1a1a" : "#bababa" }}>{voiceIsComplete ? "›" : "🔒"}</span>
       </div>
 
       <Footer />

@@ -37,7 +37,7 @@ export function VoiceNameClient() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const name = sessionStorage.getItem("ovyu_full_name") ?? "";
+    const name = sessionStorage.getItem("ovyu_full_name") ?? sessionStorage.getItem("ovyu_maker_name") ?? "";
     const preferred = sessionStorage.getItem("ovyu_preferred_name") ?? name.split(" ")[0] ?? "";
     setInitial(name[0]?.toUpperCase() ?? "?");
     if (name) setMakerFullName(name);
