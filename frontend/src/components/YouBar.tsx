@@ -3,8 +3,21 @@
 import { useState } from "react";
 import { StatusCircle } from "./StatusCircle";
 
+const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-const dimensions = ["Voice", "History", "Relationships", "How you think", "How you talk", "How you live", "Beliefs", "Heart"];
+
+const dimensionsWithDesc = [
+  { label: "Voice", sub: "Facial expressions and video coming soon." },
+  { label: "History", sub: "Childhood, schools, milestones, the turning points." },
+  { label: "Relationships", sub: "The people who shaped you, how you love, how you fight." },
+  { label: "How you think", sub: "How you decide, process, land on answers." },
+  { label: "How you talk", sub: "Catchphrases, inside jokes, the way you say things." },
+  { label: "How you live", sub: "Habits, rituals, the texture of your daily life." },
+  { label: "Beliefs", sub: "What you believe, what you'd stand up for. Your worldview and ideologies." },
+  { label: "Heart", sub: "What moves you. What you love, what you can't stand, what lights you up." },
+];
+
+const dimensions = dimensionsWithDesc.map(d => d.label);
 
 type YouBarProps = {
   voiceComplete?: boolean;
@@ -97,29 +110,33 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
           {expandedContent ? (
             expandedContent
           ) : (
-            dimensions.map((label) => (
+            dimensionsWithDesc.map((dim) => (
               <div
-                key={label}
+                key={dim.label}
                 onClick={() => {
-                  if (label !== "Voice" && onDimensionClick) {
-                    onDimensionClick(label);
+                  if (dim.label !== "Voice" && onDimensionClick) {
+                    onDimensionClick(dim.label);
                     setExpanded(false);
                   }
                 }}
                 style={{
-                  background: "#fff",
+                  background: "#f7f4ef",
                   border: "1px solid #ddd6c6",
                   borderRadius: "8px",
                   padding: "20px 40px",
                   display: "flex",
                   alignItems: "center",
-                  gap: "16px",
-                  cursor: label === "Voice" ? "default" : "pointer",
-                  opacity: label === "Voice" ? 0.6 : 1,
+                  gap: "30px",
+                  cursor: dim.label === "Voice" ? "default" : "pointer",
+                  opacity: dim.label === "Voice" ? 0.6 : 1,
+                  minHeight: "73px",
                 }}>
-                <StatusCircle count={label === "Voice" ? 1 : 0} threshold={1} voiceRecorded={label === "Voice"} size={20} />
-                <span style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", flex: 1 }}>{label}</span>
-                {label !== "Voice" && <span style={{ fontSize: "16px", color: "#888" }}>›</span>}
+                <StatusCircle count={dim.label === "Voice" ? 1 : 0} threshold={1} voiceRecorded={dim.label === "Voice"} size={40} />
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{dim.label}</span>
+                  <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "14px", color: "#888" }}>{dim.sub}</span>
+                </div>
+                {dim.label !== "Voice" && <span style={{ fontSize: "20px", color: "#888", flexShrink: 0 }}>›</span>}
               </div>
             ))
           )}
