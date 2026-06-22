@@ -109,7 +109,7 @@ export function VoiceProfileClient() {
     <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "173px" }}>
+      <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>
         <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column", gap: "34px" }}>
 
           {/* Back link */}
