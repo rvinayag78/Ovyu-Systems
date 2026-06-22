@@ -109,8 +109,8 @@ export function VoiceProfileClient() {
     <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>
-        <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column", gap: "34px" }}>
+      <div style={{ flex: 1, paddingTop: "20px", paddingBottom: "30px" }}>
+        <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
           {/* Back link */}
           <Link href="/contracts" style={{
@@ -148,7 +148,7 @@ export function VoiceProfileClient() {
           </div>
 
           {/* Two-column script + controls */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {/* Script columns */}
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               {/* Left — READ THIS ALOUD */}
@@ -162,7 +162,7 @@ export function VoiceProfileClient() {
                   "My profile is built across eight dimensions, and together they add up to me. Voice is the one I am doing right now, the sound of how I actually talk. History is where I come from and the moments that changed things. Relationships is the people who shaped me, and how I am with them. How I think is the way I work things out. How I talk is my phrases, my humor, the words that are mine. How I live is what an ordinary day actually looks like. Beliefs is what I hold onto and will not apologize for. And Heart is what moves me, what I love, what I cannot stand. I can move through them in any order I like.",
                   "Each one starts with a few quick questions, the things Ovyu wants to get right. I can edit any of those answers anytime. After that, I add as much as I want, recorded or written, whenever something comes to me. If I hit a wall and do not know what to add for an entry, I can refer to a rotating list of questions designed to open something up and get me thinking and talking within that dimension. They are specific to wherever I am in the upload.",
                 ].map((para, i) => (
-                  <p key={i} style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.3 }}>
+                  <p key={i} style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", margin: "0 0 8px", lineHeight: 1.3 }}>
                     {para}
                   </p>
                 ))}
@@ -177,7 +177,7 @@ export function VoiceProfileClient() {
                   "One thing about these early recordings: while I am getting started, what I record also helps Ovyu learn the sound of my voice. So for now, it really does need to be me. No getting my brother to do it in a funny accent.",
                   "Well. That was a lot to take in, and also a lot to say out loud. But I think I have a sense of what I am building here and why it matters. Time to begin.",
                 ].map((para, i) => (
-                  <p key={i} style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.3 }}>
+                  <p key={i} style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", margin: "0 0 8px", lineHeight: 1.3 }}>
                     {para}
                   </p>
                 ))}
