@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { StatusCircle } from "@/components/StatusCircle";
+import { YouBar } from "@/components/YouBar";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
@@ -56,7 +57,6 @@ export function UploadHubClient() {
   const [profile, setProfile] = useState<KeeperProfile>({});
   const [messages, setMessages] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(true);
-  const [youOpen, setYouOpen] = useState(false);
   const [editKeeperKey, setEditKeeperKey] = useState<string | null>(null);
   const [editKeeperText, setEditKeeperText] = useState("");
   const [editMsgType, setEditMsgType] = useState<string | null>(null);
@@ -196,25 +196,16 @@ export function UploadHubClient() {
       <Footer />
 
       {/* YOU bar — fixed above footer */}
-      {youOpen && (
-        <>
-          {/* Backdrop */}
-          <div onClick={() => setYouOpen(false)} style={{
-            position: "fixed", inset: 0, zIndex: 108,
-          }} />
-          {/* Expanded panel */}
-          <div style={{
-            position: "fixed", bottom: `${FOOTER_H + BAR_H}px`, left: 0, right: 0,
-            background: "white", borderTop: "0.5px solid #bababa",
-            padding: "13px 88px", display: "flex", flexDirection: "column", gap: "10px",
-            zIndex: 109, maxHeight: "60vh", overflowY: "auto",
-          }}>
+      <YouBar
+        voiceComplete={hub?.voice_status === "complete"}
+        expandedContent={hub ? (
+          <>
             {/* Voice row */}
             <div style={{
               background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
               height: "73px", display: "flex", alignItems: "center", padding: "0 40px", gap: "30px",
             }}>
-              <StatusCircle count={0} voiceRecorded={hub?.voice_status === "complete"} size={40} />
+              <StatusCircle count={0} voiceRecorded={hub.voice_status === "complete"} size={40} />
               <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
               <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>Facial expressions and video coming soon.</span>
             </div>
@@ -226,37 +217,16 @@ export function UploadHubClient() {
                 padding: "0 40px", textDecoration: "none", gap: "30px",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                  <StatusCircle count={hub?.dimension_counts[d.slug] ?? 0} threshold={3} size={40} />
+                  <StatusCircle count={hub.dimension_counts[d.slug] ?? 0} threshold={3} size={40} />
                   <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
                   <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
                 </div>
                 <span style={{ fontFamily: sans, fontSize: "20px", color: "#888" }}>›</span>
               </Link>
             ))}
-          </div>
-        </>
-      )}
-      {/* YOU bar button */}
-      <button onClick={() => setYouOpen(v => !v)} style={{
-        position: "fixed", bottom: `${FOOTER_H}px`, left: 0, right: 0,
-        width: "100%", background: youOpen ? "#efeaf2" : "white",
-        borderTop: "3px solid #bababa", borderBottom: "none", borderLeft: "none", borderRight: "none",
-        height: `${BAR_H}px`, display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 50px", cursor: "pointer", zIndex: 110, boxSizing: "border-box",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textTransform: "uppercase" }}>You</span>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {["Voice", ...DIMENSIONS.map(d => d.label)].map((label, i, arr) => (
-              <span key={label} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>{label}</span>
-                {i < arr.length - 1 && <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#888", display: "inline-block" }} />}
-              </span>
-            ))}
-          </div>
-        </div>
-        <span style={{ fontFamily: sans, fontSize: "20px", color: "#888", transform: youOpen ? "rotate(270deg)" : "rotate(90deg)", transition: "transform 0.2s", display: "inline-block" }}>›</span>
-      </button>
+          </>
+        ) : null}
+      />
 
       {/* Keeper card edit modal */}
       {editKeeperKey && (
