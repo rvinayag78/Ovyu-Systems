@@ -133,14 +133,14 @@ export function VoiceProfileClient() {
               <p style={{
                 fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
                 fontSize: "22px", color: "#888", margin: 0, lineHeight: 1.4,
-                width: "1256px",
+                whiteSpace: "nowrap",
               }}>
                 Read this aloud. Your voice, saying these words, is what we keep. And as you read, you&apos;ll learn exactly what you&apos;re building here.
               </p>
               <p style={{
                 fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
                 fontSize: "22px", color: "#888", margin: 0, lineHeight: 1.4,
-                width: "1256px",
+                whiteSpace: "nowrap",
               }}>
                 Speak at the pace you&apos;d use to tell a story to someone you trust. If you slow down, that&apos;s right. If you pause, that&apos;s right too.
               </p>
