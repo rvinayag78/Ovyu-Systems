@@ -213,6 +213,7 @@ export default function ContractsPage() {
 
   // Check if any locked maker contract has voice complete
   const voiceIsComplete = making.some(c => c.status === "LOCKED" && voiceCompleteMap[c.id]);
+  const lockedContractId = making.find(c => c.status === "LOCKED")?.id;
 
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -312,10 +313,7 @@ export default function ContractsPage() {
 
       <YouBar
         voiceComplete={voiceIsComplete}
-        onDimensionClick={(dimension) => {
-          // On contracts page, dimension clicks don't navigate anywhere
-          // This is just to enable the interaction for consistency
-        }}
+        contractId={lockedContractId}
       />
 
       <Footer />

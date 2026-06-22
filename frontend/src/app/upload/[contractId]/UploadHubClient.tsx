@@ -5,25 +5,11 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { StatusCircle } from "@/components/StatusCircle";
 import { YouBar } from "@/components/YouBar";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-
-const DIMENSIONS = [
-  { slug: "history", label: "History", sub: "Childhood, schools, milestones, the turning points." },
-  { slug: "relationships", label: "Relationships", sub: "The people who shaped you, how you love, how you fight." },
-  { slug: "how-you-think", label: "How you think", sub: "How you decide, process, land on answers." },
-  { slug: "how-you-talk", label: "How you talk", sub: "Catchphrases, inside jokes, the way you say things." },
-  { slug: "how-you-live", label: "How you live", sub: "Habits, rituals, the texture of your daily life." },
-  { slug: "beliefs", label: "Beliefs", sub: "What you believe, what you'd stand up for. Your worldview and ideologies." },
-  { slug: "heart", label: "Heart", sub: "What moves you. What you love, what you can't stand, what lights you up." },
-];
-
-const FOOTER_H = 103;
-const BAR_H = 70;
 
 const KEEPER_CARDS = [
   { key: "who_they_are", label: "Who they are", sub: "Their story, history, birth dates, context. Your relationship to them.", width: 555 },
@@ -195,34 +181,8 @@ export function UploadHubClient() {
       {/* YOU bar */}
       <YouBar
         voiceComplete={hub?.voice_status === "complete"}
-        expandedContent={hub ? (
-          <>
-            {/* Voice row */}
-            <div style={{
-              background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-              height: "73px", display: "flex", alignItems: "center", padding: "0 40px", gap: "30px",
-            }}>
-              <StatusCircle count={0} voiceRecorded={hub.voice_status === "complete"} size={40} />
-              <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
-              <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>Facial expressions and video coming soon.</span>
-            </div>
-            {/* Dimension rows */}
-            {DIMENSIONS.map(d => (
-              <Link key={d.slug} href={`/upload/${contractId}/${d.slug}`} style={{
-                background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-                height: "73px", display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "0 40px", textDecoration: "none", gap: "30px",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                  <StatusCircle count={hub.dimension_counts[d.slug] ?? 0} threshold={3} size={40} />
-                  <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
-                  <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
-                </div>
-                <span style={{ fontFamily: sans, fontSize: "20px", color: "#888" }}>›</span>
-              </Link>
-            ))}
-          </>
-        ) : null}
+        contractId={contractId}
+        dimensionCounts={hub?.dimension_counts ?? {}}
       />
 
       <Footer />
