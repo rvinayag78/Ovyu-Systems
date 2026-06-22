@@ -112,7 +112,7 @@ export function UploadHubClient() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "78px", paddingBottom: `${FOOTER_H + BAR_H}px` }}>
+      <div style={{ flex: 1, paddingTop: "78px", display: "flex", flexDirection: "column" }}>
         <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingBottom: "60px" }}>
 
           {/* Breadcrumb */}
@@ -190,12 +190,9 @@ export function UploadHubClient() {
             </div>
           </div>
         </div>
-
       </div>
 
-      <Footer />
-
-      {/* YOU bar — fixed above footer */}
+      {/* YOU bar */}
       <YouBar
         voiceComplete={hub?.voice_status === "complete"}
         expandedContent={hub ? (
@@ -227,6 +224,8 @@ export function UploadHubClient() {
           </>
         ) : null}
       />
+
+      <Footer />
 
       {/* Keeper card edit modal */}
       {editKeeperKey && (

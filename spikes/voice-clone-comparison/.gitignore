@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+samples/
+out/
+.DS_Store
+*.egg-info/
+.ruff_cache/
+.mypy_cache/
+uv.lock

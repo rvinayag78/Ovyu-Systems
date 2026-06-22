@@ -209,13 +209,14 @@ export default function ContractsPage() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "78px", paddingBottom: "80px" }}>
+      <div style={{ flex: 1, paddingTop: "78px" }}>
         <div style={{
           width: "1700px",
           margin: "0 auto",
           display: "flex",
           flexDirection: "column",
           gap: "50px",
+          paddingBottom: "50px",
         }}>
           <h1 style={{
             fontFamily: serif, fontStyle: "italic", fontWeight: 400,
