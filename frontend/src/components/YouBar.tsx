@@ -45,6 +45,7 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
             height: "100%",
             background: "rgba(0, 0, 0, 0.3)",
             zIndex: 108,
+            cursor: "pointer",
           }}
         />
       )}
@@ -91,22 +92,25 @@ export function YouBar({ voiceComplete = false, onDimensionClick, expandedConten
 
       {/* Expanded YOU panel */}
       {expanded && (
-        <div style={{
-          position: "fixed",
-          bottom: "173px",
-          left: 0,
-          right: 0,
-          width: "100%",
-          background: "#efeaf2",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          padding: "20px 50px",
-          boxSizing: "border-box",
-          zIndex: 1001,
-          maxHeight: "60vh",
-          overflowY: "auto",
-        }}>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            bottom: "173px",
+            left: 0,
+            right: 0,
+            width: "100%",
+            background: "#efeaf2",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            padding: "20px 50px",
+            boxSizing: "border-box",
+            zIndex: 1001,
+            maxHeight: "60vh",
+            overflowY: "auto",
+            pointerEvents: "auto",
+          }}>
           {expandedContent ? (
             expandedContent
           ) : (
