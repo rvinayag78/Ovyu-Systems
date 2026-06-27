@@ -136,6 +136,22 @@ async def voice_status(
     return VoiceStatusResponse(**statuses)
 
 
+@router.delete("/contracts/{contract_id}/upload/voice", status_code=204)
+async def delete_voice_recordings(
+    contract_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    from sqlalchemy import select as sa_select
+    from app.models.upload import VoiceRecording
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    result = await db.execute(sa_select(VoiceRecording).where(VoiceRecording.upload_id == upload.id))
+    for recording in result.scalars().all():
+        await db.delete(recording)
+    upload.voice_status = "pending"
+    await db.commit()
+
+
 # ── YOU — Dimensions ──────────────────────────────────────────────────────────
 
 @router.get("/contracts/{contract_id}/upload/dimensions/{slug}", response_model=DimensionRead)
