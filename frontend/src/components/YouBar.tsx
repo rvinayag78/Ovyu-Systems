@@ -58,7 +58,11 @@ function DimArrow() {
 
 function BarArrow({ expanded }: { expanded: boolean }) {
   return (
-    <div style={{ width: "15px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div style={{
+      width: expanded ? "26px" : "15px",
+      height: expanded ? "15px" : "26px",
+      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+    }}>
       <div style={{ transform: expanded ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
         <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
           <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -125,9 +129,10 @@ type YouBarProps = {
   contractId?: string;
   dimensionCounts?: Record<string, number>;
   onExpandedChange?: (expanded: boolean) => void;
+  overlayTop?: number;
 };
 
-export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange }: YouBarProps) {
+export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, overlayTop = 226 }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   function toggle() {
@@ -187,7 +192,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
       {/* Fixed overlay — covers all page content between header and footer, consistent across every page */}
       {expanded && (
         <div style={{
-          position: "fixed", top: "226px", left: 0, right: 0, bottom: "103px",
+          position: "fixed", top: `${overlayTop}px`, left: 0, right: 0, bottom: "103px",
           zIndex: 50,
           display: "flex", flexDirection: "column",
         }}>

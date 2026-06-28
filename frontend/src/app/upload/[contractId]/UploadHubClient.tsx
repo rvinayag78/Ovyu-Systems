@@ -12,11 +12,11 @@ const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
 
 const KEEPER_CARDS = [
-  { key: "who_they_are", label: "Who they are", sub: "Their story, history, birth dates, context. Your relationship to them.", width: 555 },
-  { key: "who_theyre_becoming", label: "Who they're becoming", sub: "Who they are now, their hopes, the person they're turning into.", width: 550 },
-  { key: "what_you_want", label: "What you want for them", sub: "Your hopes for their life. The shape you hope it takes.", width: 550 },
-  { key: "what_you_want_known", label: "What you want them to know", sub: "How you feel about them. Praise, acknowledgment, things worth naming.", width: 550 },
-  { key: "advice", label: "Advice", sub: "Counsel for happy times and hard times. What you imagine them needing.", width: 550 },
+  { key: "who_they_are", label: "Who they are", sub: "Their story, history, birth dates, context. Your relationship to them.", width: 555, textWidth: 465 },
+  { key: "who_theyre_becoming", label: "Who they're becoming", sub: "Who they are now, their hopes, the person they're turning into.", width: 550, textWidth: 443 },
+  { key: "what_you_want", label: "What you want for them", sub: "Your hopes for their life. The shape you hope it takes.", width: 550, textWidth: 380 },
+  { key: "what_you_want_known", label: "What you want them to know", sub: "How you feel about them. Praise, acknowledgment, things worth naming.", width: 550, textWidth: 380 },
+  { key: "advice", label: "Advice", sub: "Counsel for happy times and hard times. What you imagine them needing.", width: 550, textWidth: 380 },
 ];
 
 type HubData = {
@@ -133,6 +133,7 @@ export function UploadHubClient() {
         contractId={contractId}
         dimensionCounts={hub?.dimension_counts ?? {}}
         onExpandedChange={setYouExpanded}
+        overlayTop={315}
       />
 
       {/* Content sections — hidden while YOU is expanded */}
@@ -191,7 +192,7 @@ export function UploadHubClient() {
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d", margin: 0 }}>
                 {keeperName.toUpperCase()}
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", columnGap: "22px", alignContent: "space-between", height: "286px", width: "1700px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", columnGap: "22px", alignContent: "space-between", alignItems: "center", height: "286px", width: "1700px" }}>
                 {KEEPER_CARDS.map(card => {
                   const value = (profile as Record<string, string | undefined>)[card.key];
                   return (
@@ -201,7 +202,7 @@ export function UploadHubClient() {
                       display: "flex", alignItems: "flex-start",
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "9px", flex: 1, marginRight: "12px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "9px", width: `${card.textWidth}px`, flexShrink: 0 }}>
                           <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
                           <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
                             {value ? value.slice(0, 70) + (value.length > 70 ? "…" : "") : card.sub}
