@@ -90,6 +90,8 @@ type FormFieldDef = {
 
 type DimFormDef = {
   subtitle: string;
+  formGap?: number;   // gap between title block and form card; defaults to 50px
+  col3Height?: number; // explicit height for save column so justify-between pins button to bottom
   col1: FormFieldDef[];
   col2: FormFieldDef[];
   col3: FormFieldDef[];
@@ -98,6 +100,7 @@ type DimFormDef = {
 const DIMENSION_FORMS: Record<string, DimFormDef> = {
   history: {
     subtitle: "Where you come from. Who you come from.",
+    col3Height: 667,
     col1: [
       { key: "full_name",      label: "Full name",        placeholder: "Your full name, exactly as you write it", kind: "text",     multi: false },
       { key: "goes_by",        label: "Goes by",          placeholder: "What people actually call you",           kind: "text",     multi: false },
@@ -118,6 +121,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   },
   relationships: {
     subtitle: "How you are with the people in your life.",
+    formGap: 30,
     col1: [
       { key: "relationship_status",  label: "Relationship status",    placeholder: "Your answer", hint: "e.g., single, married, partnered, it's complicated",                kind: "text", multi: false },
       { key: "how_show_love",        label: "How you show love",      placeholder: "Your answer", hint: "e.g., words, time, gifts, touch, showing up",                       kind: "text", multi: false },
@@ -134,6 +138,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   },
   "how-you-think": {
     subtitle: "How you decide, process, land on answers.",
+    col3Height: 521,
     col1: [
       { key: "how_decide",       label: "How you make decisions",         placeholder: "Your answer", hint: "e.g., gut first, research first, ask someone I trust",               kind: "text", multi: false },
       { key: "when_stuck",       label: "What you do when you're stuck",  placeholder: "Your answer", hint: "e.g., walk, sleep on it, talk it through, push harder",             kind: "text", multi: false },
@@ -141,12 +146,14 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
     ],
     col2: [
       { key: "uncommon_belief",  label: "What you believe that most don't", placeholder: "Your answer", hint: "e.g., something you'd argue for but rarely say out loud",           kind: "text", multi: false },
+    ],
+    col3: [
       { key: "how_process",      label: "How you process information",      placeholder: "Your answer", hint: "e.g., instinct first, analysis first, a mix",                       kind: "text", multi: false },
     ],
-    col3: [],
   },
   "how-you-talk": {
     subtitle: "What people hear when you speak.",
+    col3Height: 376,
     col1: [
       { key: "accent",  label: "Your accent", placeholder: "Your answer", hint: "e.g., New York at home, neutral at work",                        kind: "text", multi: false },
       { key: "pace",    label: "Your pace",   placeholder: "Your answer", hint: "e.g., usually fast, slower when I'm being careful",              kind: "text", multi: false },
@@ -163,6 +170,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   },
   "how-you-live": {
     subtitle: "What your days are made of.",
+    col3Height: 619,
     col1: [
       { key: "mornings", label: "Your mornings",  placeholder: "Your answer", hint: "e.g., up at five, slow with coffee, hit snooze three times",                      kind: "text", multi: true },
       { key: "evenings", label: "Your evenings",  placeholder: "Your answer", hint: "e.g., long dinners, in bed by nine, restless until midnight",                     kind: "text", multi: true },
@@ -181,6 +189,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   },
   beliefs: {
     subtitle: "What you hold without apology.",
+    col3Height: 667,
     col1: [
       { key: "faith",           label: "Your faith",                    placeholder: "Your answer", hint: "e.g., Muslim, Catholic, spiritual but not religious, none",                             kind: "text", multi: false },
       { key: "how_practice",    label: "How you practice it",           placeholder: "Your answer", hint: "e.g., prayer, fasting, service, meditation, holidays only, not at all",                 kind: "text", multi: false },
@@ -200,6 +209,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   },
   heart: {
     subtitle: "What you love, and how.",
+    col3Height: 667,
     col1: [
       { key: "how_love",        label: "How you love",               placeholder: "Your answer", hint: "e.g., hard and fast, slow to start, forever once I do, all in",       kind: "text", multi: false },
       { key: "how_forgive",     label: "How you forgive",            placeholder: "Your answer", hint: "e.g., easily, never, after time, only when it's earned",               kind: "text", multi: false },
@@ -281,6 +291,7 @@ function FormColumn({
   isSaveCol,
   onSave,
   saving,
+  height,
 }: {
   fields: FormFieldDef[];
   form: Record<string, string | string[]>;
@@ -288,6 +299,7 @@ function FormColumn({
   isSaveCol?: boolean;
   onSave?: () => void;
   saving?: boolean;
+  height?: number;
 }) {
   return (
     <div style={{
@@ -297,6 +309,7 @@ function FormColumn({
       gap: "20px",
       width: "400px",
       flexShrink: 0,
+      ...(isSaveCol && height ? { height: `${height}px` } : {}),
     }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {fields.map(field => {
@@ -385,6 +398,7 @@ function DimensionForm({
   dim,
   formDef,
   initialStructured,
+  makerFirstName,
   onSaved,
 }: {
   contractId: string;
@@ -392,6 +406,7 @@ function DimensionForm({
   dim: typeof DIMENSIONS[number];
   formDef: DimFormDef;
   initialStructured: Record<string, unknown> | null;
+  makerFirstName: string;
   onSaved: (structured: Record<string, unknown>) => void;
 }) {
   const [form, setForm] = useState<Record<string, string | string[]>>(() => {
@@ -436,15 +451,15 @@ function DimensionForm({
       {/* Back link */}
       <Link href={`/upload/${contractId}`} style={{
         display: "flex", alignItems: "center", gap: "10px",
-        fontFamily: sans, fontSize: "16px", color: "#6a4d7d", textDecoration: "none",
+        fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
         marginBottom: "30px",
       }}>
-        <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
-        Upload hub
+        <span>‹</span>
+        <span>{makerFirstName || "Upload hub"}</span>
       </Link>
 
       {/* Title + subtitle */}
-      <div style={{ marginBottom: "50px" }}>
+      <div style={{ marginBottom: `${formDef.formGap ?? 50}px` }}>
         <h1 style={{
           fontFamily: serif, fontStyle: "italic", fontWeight: 400,
           fontSize: "64px", color: "#1a1a1a", margin: "0 0 10px",
@@ -478,6 +493,7 @@ function DimensionForm({
               isSaveCol={colIdx === saveColIdx}
               onSave={colIdx === saveColIdx ? handleSave : undefined}
               saving={saving}
+              height={colIdx === saveColIdx ? formDef.col3Height : undefined}
             />
           ) : null
         ))}
@@ -728,6 +744,7 @@ function EntriesView({
   dim,
   data,
   initial,
+  makerFirstName,
   onEntryAdded,
   onEntryDeleted,
   onEntryUpdated,
@@ -737,6 +754,7 @@ function EntriesView({
   dim: typeof DIMENSIONS[number];
   data: DimData;
   initial: string;
+  makerFirstName: string;
   onEntryAdded: (e: Entry) => void;
   onEntryDeleted: (id: string) => void;
   onEntryUpdated: (e: Entry) => void;
@@ -852,11 +870,11 @@ function EntriesView({
       <div style={{ padding: "40px 110px 0" }}>
         <Link href={`/upload/${contractId}`} style={{
           display: "flex", alignItems: "center", gap: "10px",
-          fontFamily: sans, fontSize: "16px", color: "#6a4d7d", textDecoration: "none",
+          fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
           marginBottom: "28px",
         }}>
-          <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
-          Upload hub
+          <span>‹</span>
+          <span>{makerFirstName || "Upload hub"}</span>
         </Link>
 
         {/* Banner card */}
@@ -1135,6 +1153,9 @@ export function DimensionClient() {
   const initial = typeof window !== "undefined"
     ? (sessionStorage.getItem("ovyu_maker_name") ?? "")[0]?.toUpperCase() ?? "?"
     : "?";
+  const makerFirstName = typeof window !== "undefined"
+    ? (sessionStorage.getItem("ovyu_maker_name") ?? "").split(" ")[0]
+    : "";
 
   useEffect(() => {
     if (!dim) { router.replace(`/upload/${contractId}`); return; }
@@ -1194,6 +1215,7 @@ export function DimensionClient() {
             dim={dim}
             formDef={formDef}
             initialStructured={data?.structured ?? null}
+            makerFirstName={makerFirstName}
             onSaved={handleSaved}
           />
         ) : data ? (
@@ -1202,6 +1224,7 @@ export function DimensionClient() {
             dim={dim}
             data={data}
             initial={initial}
+            makerFirstName={makerFirstName}
             onEntryAdded={handleEntryAdded}
             onEntryDeleted={handleEntryDeleted}
             onEntryUpdated={handleEntryUpdated}

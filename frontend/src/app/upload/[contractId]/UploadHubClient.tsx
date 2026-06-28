@@ -112,7 +112,7 @@ export function UploadHubClient() {
 
             {/* Breadcrumb */}
             <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-              <span style={{ fontFamily: sans, fontSize: "16px", color: "#888", display: "inline-block", transform: "scaleX(-1)" }}>›</span>
+              <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>‹</span>
               <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
             </Link>
 
