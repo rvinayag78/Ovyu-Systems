@@ -122,7 +122,7 @@ export function VoiceNameClient() {
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>
-        <div style={{ width: "1800px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "34px" }}>
+        <div style={{ marginLeft: "209px", width: "1500px", display: "flex", flexDirection: "column", gap: "34px" }}>
 
         {/* Back link */}
           <Link href="/contracts" style={{
