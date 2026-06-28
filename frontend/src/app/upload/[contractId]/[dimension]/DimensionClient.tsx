@@ -27,11 +27,106 @@ const DIMENSIONS = [
 
 const PROMPTS: Record<string, string[]> = {
   history: [
-    "What's the earliest memory you can recall?",
-    "What was school like for you?",
-    "Describe the home you grew up in.",
-    "What was the most important turning point in your life?",
-    "Who was your biggest influence growing up?",
+    "How your parents met, the way the story gets told in your family.",
+    "What your family was reaching for in the years before you arrived. Where they were, what they were building.",
+    "The version of your birth that gets retold. The day, the room, who was waiting on the other side of the door.",
+    "Where your name came from, and what whoever chose it was hoping it would carry.",
+    "A name that runs through your family. Who carried it before it reached you.",
+    "What your family had already lived through before you got here.",
+    "The country, city, or street your family came from before you were born.",
+    "A photograph of your parents from before you existed. What you see in their faces.",
+    "What was happening in the world the year you were born.",
+    "Who almost named you something else, and what that name was.",
+    "The family you were born into and the family you would have chosen. Whether they are the same.",
+    "A relative you never met who shaped the family you were born into.",
+    "The house you remember best as a child. Come through the front door and tell me what is there.",
+    "A smell that puts you back in your childhood in one second.",
+    "A sound you could pick out anywhere, left over from when you were small.",
+    "What an ordinary weekend looked like when you were a kid.",
+    "The food that meant home, and whose hands made it.",
+    "A birthday from childhood that landed differently. What made that one matter.",
+    "The friend who was your whole world back then, and where they are now.",
+    "A place you used to disappear to when you needed to be alone.",
+    "The first pet, toy, or object you loved like it was alive.",
+    "A family trip you still measure other trips against.",
+    "The teacher whose name you still remember, and why.",
+    "What you were afraid of as a child, and whether it ever left.",
+    "The first funeral, wedding, or birth you remember being part of.",
+    "A holiday your family did its own particular way.",
+    "The job your parents did, and what you understood about it as a child.",
+    "Where you lived between five and ten, and what that place sounded like at night.",
+    "A rule in your house that you have never questioned until right now.",
+    "The sibling, cousin, or neighbor you measured yourself against.",
+    "The year school stopped feeling small.",
+    "The first time you understood your family was different from someone else's.",
+    "The bedroom you had as a teenager. What was on the walls.",
+    "A song that owns a specific year of your adolescence.",
+    "The first time an adult treated you like one.",
+    "A friendship that ended in those years, and how.",
+    "The first big argument you had with a parent, and what it was really about.",
+    "Where you thought you would be by now, back when you were sixteen.",
+    "The first time you left home overnight on your own terms.",
+    "A teacher or coach who saw something in you before you saw it.",
+    "The job, gig, or hustle that first put money in your hand.",
+    "The first heartbreak, and how long it took to lift.",
+    "The first place you lived that was yours, and what you put on the walls.",
+    "The first answer you ever gave when someone asked what you wanted to be, and how close you got.",
+    "The year that split your life into a before and an after.",
+    "The first time you left home for real.",
+    "A decision you made young that you are still living inside of.",
+    "The friend who carried you through your twenties.",
+    "The first time you held a job that felt like it was yours.",
+    "A city that made you into a slightly different person.",
+    "The night in your twenties you would relive exactly.",
+    "When you stopped being a child, whenever that actually was.",
+    "The first time you paid for something that mattered with your own money.",
+    "A risk you took early that you would never take now, and are glad you did.",
+    "The work you have spent the most hours of your life doing.",
+    "A home you made from nothing, and what it took.",
+    "The person who became family without being born into it.",
+    "A move that you are still not sure was the right one.",
+    "The decade you grew the most, and what did the growing.",
+    "A door that closed, and the one that opened because of it.",
+    "The hardest year, and the thing that got you through it.",
+    "A title, role, or responsibility that changed how you saw yourself.",
+    "The day you became responsible for someone other than yourself.",
+    "A version of your life you almost lived, and the fork where it split off.",
+    "The thing you built that will outlast you.",
+    "A loss that rearranged everything that came after it.",
+    "The longest you have ever lived in one place, and why you stayed.",
+    "The friend you have known the longest, and what has kept it.",
+    "The day you decided this was the person.",
+    "The wedding, the ceremony, or the quiet decision, however it actually happened.",
+    "The day a child arrived, and the first thing you felt.",
+    "What you swore you would do differently from your own parents, and whether you did.",
+    "The name you gave a child, and what you hoped it would carry.",
+    "A tradition you started that did not exist before you.",
+    "Where you live now, and how you ended up here of all places.",
+    "The objects in your home that hold the most history.",
+    "A photograph on your wall and the day behind it.",
+    "The people who are still here, and the ones whose absence you feel daily.",
+    "What an ordinary day looks like now, start to finish.",
+    "The thing you are most proud of having lived through.",
+    "The three places that made you, in order.",
+    "A scar, on your body or otherwise, and the day you got it.",
+    "The repeated mistake you can now see across your whole life.",
+    "The phone call that changed a day, or a decade.",
+    "A stranger who altered your life in five minutes and never knew.",
+    "The thing your family does not talk about.",
+    "The inheritance that was not money. What got passed down.",
+    "A year you would relive, and a year you would not.",
+    "Someone who left before they should have, and what they did not get to see.",
+    "The oldest memory you can actually trust as your own.",
+    "The first death that taught you what death was.",
+    "A promise you kept across decades.",
+    "The map of every place you have ever lived, in order.",
+    "A document, letter, or object you would run back into a fire for.",
+    "The story your family tells about you that you are tired of, and the one they have wrong.",
+    "What you were doing the day you found out the world had changed. Pick the day.",
+    "The reunion you are still waiting for.",
+    "A debt you owe someone who will never know you paid attention.",
+    "The longest journey you ever took, and what you were really traveling toward.",
+    "If your life were divided into chapters, where the breaks would fall, and what you would title them.",
   ],
   relationships: [
     "Who knows you best, and why?",
@@ -531,6 +626,34 @@ function addTagBtnStyle(): CSSProperties {
   return { fontFamily: sans, fontSize: "12px", color: "#bababa", background: "white", border: "0.5px solid #bababa", height: "30px", padding: "0 14px", cursor: "pointer" };
 }
 
+const CAROUSEL_SIZES = [
+  { fontSize: "16.5px", color: "#bababa" },
+  { fontSize: "21.45px", color: "#888" },
+  { fontSize: "26.4px", color: "#1a1a1a" },
+  { fontSize: "21.45px", color: "#888" },
+  { fontSize: "16.5px", color: "#bababa" },
+];
+
+function PromptCarousel({ questions, idx, onRotate }: { questions: string[]; idx: number; onRotate: () => void }) {
+  const n = questions.length;
+  const visible = [-2, -1, 0, 1, 2].map(offset => questions[((idx + offset) % n + n) % n]);
+  return (
+    <div onClick={onRotate} style={{
+      flex: 1, display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      gap: "33px", cursor: "pointer", padding: "0 44px", boxSizing: "border-box",
+    }}>
+      {visible.map((q, i) => (
+        <p key={i} style={{
+          fontFamily: sans, fontStyle: "oblique",
+          fontSize: CAROUSEL_SIZES[i].fontSize, color: CAROUSEL_SIZES[i].color,
+          textAlign: "center", margin: 0, lineHeight: "normal", width: "100%",
+        }}>{q}</p>
+      ))}
+    </div>
+  );
+}
+
 function EntryEditView({
   entry,
   onSave,
@@ -762,7 +885,7 @@ function EntriesView({
 }) {
   const prompts = PROMPTS[dim.slug] ?? [];
   const [promptIdx, setPromptIdx] = useState(0);
-  const [mode, setMode] = useState<"voice" | "text">("text");
+  const [mode, setMode] = useState<"voice" | "text">("voice");
   const [body, setBody] = useState("");
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -867,11 +990,11 @@ function EntriesView({
         }
       `}</style>
 
-      <div style={{ padding: "40px 110px 0" }}>
+      <div style={{ paddingLeft: "108px", paddingTop: "40px" }}>
         <Link href={`/upload/${contractId}`} style={{
           display: "flex", alignItems: "center", gap: "10px",
           fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
-          marginBottom: "28px",
+          marginBottom: "30px",
         }}>
           <span>‹</span>
           <span>{makerFirstName || "Upload hub"}</span>
@@ -880,15 +1003,14 @@ function EntriesView({
         {/* Banner card */}
         <div style={{
           background: "#efeaf2", borderRadius: "20px",
-          padding: "40px 50px",
+          padding: "30px 60px",
           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-          marginBottom: "50px",
+          marginBottom: "28px",
         }}>
-          <div style={{ display: "flex", gap: "30px", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", gap: "28px", alignItems: "flex-start" }}>
             <div style={{
               width: "64px", height: "64px", borderRadius: "50%", background: "#6a4d7d",
               flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
-              marginTop: "10px",
             }}>
               <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "24px", color: "white" }}>{initial}</span>
             </div>
@@ -903,7 +1025,7 @@ function EntriesView({
                 <p style={{
                   fontFamily: sans, fontStyle: "oblique", fontSize: "22px",
                   color: "#888", margin: 0, lineHeight: "1.6",
-                  whiteSpace: "pre-line", maxWidth: "1200px",
+                  whiteSpace: "pre-line", maxWidth: "1180px",
                 }}>
                   {prose}
                 </p>
@@ -912,9 +1034,8 @@ function EntriesView({
           </div>
           {formDef && structured && Object.keys(structured).length > 0 && (
             <button onClick={onEditStructured} style={{
-              fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#6a4d7d",
+              fontFamily: sans, fontSize: "22px", color: "#6a4d7d",
               background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0,
-              marginTop: "10px",
             }}>
               edit
             </button>
@@ -930,10 +1051,10 @@ function EntriesView({
           saving={savingEdit}
         />
       ) : (
-      <div style={{ display: "flex", padding: "0 110px 80px", gap: "60px", alignItems: "flex-start" }}>
+      <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: "space-between", alignItems: "flex-start", width: "1700px" }}>
 
         {/* Left: ENTRIES (800px) */}
-        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "50px" }}>
           <p style={{
             fontFamily: sans, fontWeight: 700, fontSize: "22px",
             color: "#6a4d7d", margin: 0, letterSpacing: "0.03em",
@@ -1003,92 +1124,71 @@ function EntriesView({
         </div>
 
         {/* Right: ADD entry (800px) */}
-        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "24px" }}>
-          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em" }}>
-            {mode === "voice" ? "ADD VOICE ENTRY" : "ADD TEXT ENTRY"}
+        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "27px", height: "695px", alignItems: "flex-end" }}>
+          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
+            ADD AN ENTRY
           </p>
-
-          {/* Rotating questions — click to highlight */}
-          {prompts.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {prompts.map((p, i) => (
-                <button key={i} onClick={() => setPromptIdx(i)} style={{
-                  fontFamily: sans, fontStyle: "oblique",
-                  fontSize: i === promptIdx ? "18px" : "16px",
-                  color: i === promptIdx ? "#6a4d7d" : "#888",
-                  background: i === promptIdx ? "#efeaf2" : "transparent",
-                  border: `1.5px solid ${i === promptIdx ? "#6a4d7d" : "transparent"}`,
-                  borderRadius: "10px", padding: "12px 16px",
-                  cursor: "pointer", textAlign: "left", width: "100%",
-                  transition: "all 0.15s",
-                }}>
-                  {p}
-                </button>
-              ))}
-            </div>
-          )}
 
           {/* Entry input card (433px tall) */}
           <div style={{
             background: "white", border: "1px solid #ddd6c6",
-            borderRadius: "15px", height: "433px",
+            borderRadius: "15px", height: "433px", width: "100%",
             display: "flex", flexDirection: "column", overflow: "hidden",
           }}>
             {mode === "text" ? (
-              <textarea
-                value={body}
-                onChange={e => setBody(e.target.value)}
-                placeholder="Start typing here…"
-                style={{
-                  flex: 1, padding: "24px", border: "none",
-                  fontFamily: sans, fontSize: "18px", resize: "none",
-                  background: "transparent", lineHeight: "1.6",
-                  outline: "none", color: "#1a1a1a",
-                }}
-              />
-            ) : (
+              <>
+                {prompts.length > 0 && (
+                  <PromptCarousel
+                    questions={prompts}
+                    idx={promptIdx}
+                    onRotate={() => setPromptIdx(i => (i + 1) % prompts.length)}
+                  />
+                )}
+                <textarea
+                  value={body}
+                  onChange={e => setBody(e.target.value)}
+                  placeholder="Start typing here…"
+                  style={{
+                    height: "160px", flexShrink: 0, padding: "16px 24px",
+                    border: "none", borderTop: "1px solid #f0ece4",
+                    fontFamily: sans, fontSize: "16px", resize: "none",
+                    background: "transparent", lineHeight: "1.6",
+                    outline: "none", color: "#1a1a1a", boxSizing: "border-box",
+                  }}
+                />
+              </>
+            ) : recording ? (
               <div style={{
                 flex: 1, display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center", gap: "32px",
               }}>
-                {/* Animated waveform */}
                 <div style={{ display: "flex", alignItems: "center", gap: "5px", height: "80px" }}>
                   {Array.from({ length: WAVE_BARS }).map((_, i) => (
                     <div key={i} style={{
-                      width: "7px",
-                      height: "64px",
-                      background: "#6a4d7d",
-                      borderRadius: "4px",
-                      transformOrigin: "center",
-                      transform: recording ? undefined : "scaleY(0.12)",
-                      animation: recording ? `barPulse ${0.4 + (i % 5) * 0.08}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite` : "none",
-                      opacity: recording ? 1 : 0.25,
-                      transition: "opacity 0.3s",
+                      width: "7px", height: "64px", background: "#6a4d7d",
+                      borderRadius: "4px", transformOrigin: "center",
+                      animation: `barPulse ${0.4 + (i % 5) * 0.08}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite`,
                     }} />
                   ))}
                 </div>
-                {recording ? (
-                  <p style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d", margin: 0, fontWeight: 700 }}>
-                    {Math.floor(recordSeconds / 60)}:{String(recordSeconds % 60).padStart(2, "0")}
-                  </p>
-                ) : (
-                  <button onClick={startRecording} style={{
-                    fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "white",
-                    background: "#6a4d7d", border: "none", borderRadius: "10px",
-                    padding: "16px 48px", cursor: "pointer",
-                  }}>
-                    ● Record
-                  </button>
-                )}
+                <p style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d", margin: 0, fontWeight: 700 }}>
+                  {Math.floor(recordSeconds / 60)}:{String(recordSeconds % 60).padStart(2, "0")}
+                </p>
               </div>
+            ) : (
+              <PromptCarousel
+                questions={prompts.length > 0 ? prompts : ["Speak freely — there are no wrong answers."]}
+                idx={promptIdx}
+                onRotate={() => setPromptIdx(prev => (prev + 1) % (prompts.length || 1))}
+              />
             )}
           </div>
 
-          {/* Mode buttons */}
-          <div style={{ display: "flex", gap: "16px" }}>
+          {/* Mode buttons — justify-between, 253×71px each */}
+          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
             {(["voice", "text"] as const).map(m => (
               <button key={m} onClick={() => setMode(m)} style={{
-                width: "253px", height: "70px",
+                width: "253px", height: "71px",
                 background: mode === m ? "#6a4d7d" : "white",
                 border: `1.5px solid ${mode === m ? "#6a4d7d" : "#ddd6c6"}`,
                 borderRadius: "12px", cursor: "pointer",
@@ -1099,7 +1199,7 @@ function EntriesView({
               </button>
             ))}
             <button disabled style={{
-              width: "253px", height: "70px",
+              width: "253px", height: "71px",
               background: "#f7f4ef", border: "1.5px solid #ddd6c6",
               borderRadius: "12px", cursor: "not-allowed",
               fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#bababa",
@@ -1108,22 +1208,21 @@ function EntriesView({
             </button>
           </div>
 
-          {/* Save button */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button
-              onClick={handleSave}
-              disabled={saving || !canSave}
-              style={{
-                width: "255px", height: "71px",
-                background: saving || !canSave ? "#b0a0c0" : "#6a4d7d",
-                border: "none", borderRadius: "8px",
-                fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "white",
-                cursor: saving || !canSave ? "not-allowed" : "pointer",
-              }}
-            >
-              {saving ? "Saving…" : "Save"}
-            </button>
-          </div>
+          {/* Save / Record button */}
+          <button
+            onClick={mode === "voice" && !recording ? startRecording : handleSave}
+            disabled={saving || (mode === "text" && !canSave)}
+            style={{
+              width: "255px", height: "71px",
+              background: "#efeaf2",
+              border: "none", borderRadius: "8px",
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d",
+              cursor: saving || (mode === "text" && !canSave) ? "not-allowed" : "pointer",
+              opacity: saving || (mode === "text" && !canSave) ? 0.5 : 1,
+            }}
+          >
+            {saving ? "Saving…" : mode === "voice" && !recording ? "● Record" : recording ? "■ Stop & Save" : "Save →"}
+          </button>
         </div>
       </div>
       )}
