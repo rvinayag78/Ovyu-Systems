@@ -434,13 +434,13 @@ function DimensionForm({
   return (
     <div style={{ paddingLeft: "108px", paddingTop: "31px", paddingBottom: "60px", width: "1700px" }}>
       {/* Back link */}
-      <Link href="/contracts" style={{
+      <Link href={`/upload/${contractId}`} style={{
         display: "flex", alignItems: "center", gap: "10px",
-        fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
+        fontFamily: sans, fontSize: "16px", color: "#6a4d7d", textDecoration: "none",
         marginBottom: "30px",
       }}>
         <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
-        Your contracts
+        Upload hub
       </Link>
 
       {/* Title + subtitle */}
@@ -1134,19 +1134,20 @@ export function DimensionClient() {
   const [dimensionCounts, setDimensionCounts] = useState<Record<string, number>>({});
 
   const initial = typeof window !== "undefined"
-    ? (sessionStorage.getItem("ovyu_full_name") ?? "")[0]?.toUpperCase() ?? "?"
+    ? (sessionStorage.getItem("ovyu_maker_name") ?? "")[0]?.toUpperCase() ?? "?"
     : "?";
 
   useEffect(() => {
     if (!dim) { router.replace(`/upload/${contractId}`); return; }
-    api.getDimension(contractId, dimension)
-      .then(d => {
-        setData(d as DimData);
-        if (DIMENSION_FORMS[dimension] && !d.structured) setShowForm(true);
-        setDimensionCounts(prev => ({ ...prev, [dimension]: (d as DimData).entries.length }));
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    Promise.all([
+      api.getDimension(contractId, dimension),
+      api.getHub(contractId),
+    ]).then(([d, hub]) => {
+      setData(d as DimData);
+      if (DIMENSION_FORMS[dimension] && !d.structured) setShowForm(true);
+      const hubCounts = (hub as { dimension_counts: Record<string, number> }).dimension_counts ?? {};
+      setDimensionCounts({ ...hubCounts, [dimension]: (d as DimData).entries.length });
+    }).catch(console.error).finally(() => setLoading(false));
   }, [contractId, dimension, dim, router]);
 
   const handleSaved = useCallback((structured: Record<string, unknown>) => {
