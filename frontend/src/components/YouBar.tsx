@@ -2,10 +2,39 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { StatusCircle } from "./StatusCircle";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+
+const CIRCLE_FULL = "#5b4b7a";
+const CIRCLE_EMPTY = "#b9a4cf";
+
+function YouCircle({ count, threshold = 3, voiceRecorded = false }: { count: number; threshold?: number; voiceRecorded?: boolean }) {
+  const isFull = voiceRecorded || count >= threshold;
+  const isEmpty = !voiceRecorded && count <= 0;
+  const pct = isEmpty ? 0 : Math.min(100, Math.round((count / threshold) * 100));
+
+  let circleStyle: React.CSSProperties;
+  if (isFull) {
+    circleStyle = { background: CIRCLE_FULL, borderRadius: "50%", width: "100%", height: "100%" };
+  } else if (isEmpty) {
+    circleStyle = { border: `2px solid ${CIRCLE_EMPTY}`, borderRadius: "50%", width: "100%", height: "100%", boxSizing: "border-box" };
+  } else {
+    circleStyle = {
+      borderRadius: "50%", width: "100%", height: "100%",
+      background: `conic-gradient(${CIRCLE_FULL} ${pct}%, ${CIRCLE_EMPTY} ${pct}% 100%)`,
+      WebkitMask: "radial-gradient(circle 16px at center, transparent 98%, #000 100%)",
+      mask: "radial-gradient(circle 16px at center, transparent 98%, #000 100%)",
+      boxShadow: `inset 0 0 0 1px ${CIRCLE_EMPTY}`,
+    };
+  }
+
+  return (
+    <div style={{ position: "relative", width: "40px", height: "40px", flexShrink: 0 }}>
+      <div style={{ position: "absolute", inset: "-27%", borderRadius: "50%", ...circleStyle }} />
+    </div>
+  );
+}
 
 const DIMENSIONS = [
   { slug: "history",       label: "History",       sub: "Childhood, schools, milestones, the turning points." },
@@ -124,7 +153,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             display: "flex", alignItems: "center",
             padding: "16px 40px", gap: "30px",
           }}>
-            <StatusCircle count={1} threshold={1} voiceRecorded size={62} />
+            <YouCircle count={1} threshold={1} voiceRecorded />
             <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
             <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>
               Facial expressions and video coming soon.
@@ -136,7 +165,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             const inner = (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
-                  <StatusCircle count={dimensionCounts[d.slug] ?? 0} threshold={3} size={62} />
+                  <YouCircle count={dimensionCounts[d.slug] ?? 0} threshold={3} />
                   <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
                   <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
                 </div>

@@ -39,12 +39,14 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
     }}>
       {/* Left — avatar + meta */}
       <div style={{ width: "452px", display: "flex", flexDirection: "row", gap: "40px", alignItems: "center" }}>
-        <div style={{
-          width: "50px", height: "50px",
-          background: "#4b3c5e", borderRadius: "50%",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <span style={{ fontFamily: serif, fontWeight: 400, fontSize: "28px", color: "#fff" }}>M</span>
+        <div style={{ position: "relative", width: "50px", height: "50px", flexShrink: 0 }}>
+          <div style={{
+            position: "absolute", top: "-21.6%", left: "-21.6%", right: "-21.6%", bottom: "-21.6%",
+            background: "#4b3c5e", borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontFamily: serif, fontWeight: 400, fontSize: "32px", color: "#fff" }}>M</span>
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#6a4d7d", margin: 0 }}>MAKER</p>
@@ -64,11 +66,14 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
           </div>
           {voiceComplete && (
             <Link href={`/upload/${c.id}`} style={{
-              display: "flex", alignItems: "center", gap: "8px",
+              display: "flex", alignItems: "center", gap: "10px",
               fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
-              textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.05em",
+              textDecoration: "none", textTransform: "uppercase",
             }}>
-              Upload <span style={{ fontSize: "16px" }}>›</span>
+              Upload
+              <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
+                <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </Link>
           )}
         </>
