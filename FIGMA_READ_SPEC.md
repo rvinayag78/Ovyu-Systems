@@ -156,6 +156,21 @@ Extract every property below for every node. Never skip a category.
 
 ---
 
+### Fixed 1920px frame rule
+**Rule:** Every Figma frame in this project is W Fixed 1920px, H Fixed 1340px.
+
+**Root container must always be:**
+```tsx
+<div style={{ width: "1920px", ... }}>
+```
+**Never** use `minWidth: "1920px"`. `minWidth` allows the root to grow wider than 1920px on large monitors, which causes the Header's `margin: 0 auto` inner content to re-center within the wider root — the logo drifts right while fixed `marginLeft` content stays put.
+
+`width: "1920px"` locks the layout exactly. On narrow viewports the browser adds a horizontal scrollbar; on wide viewports the page stays 1920px with empty space to the right. Both are correct for this fixed-width design.
+
+**Apply to:** every page root div, every prototype page.
+
+---
+
 ## Ovyu Design Tokens (quick reference)
 
 | Token | Value | Used for |
@@ -181,11 +196,15 @@ serif:  "Georgia, serif"
 sans:   "Helvetica Neue, Helvetica, Arial, sans-serif"
 ```
 
-### Fixed component heights
-| Component | Height |
-|-----------|--------|
-| Header | 103px |
-| Footer | 103px |
-| YOU bar | 70px |
-| Dimension row (expanded) | 73px |
-| Contract row | 100px |
+### Fixed component dimensions & alignment
+
+| Component | Figma size | Padding | Notes |
+|-----------|-----------|---------|-------|
+| Page frame | W 1920px × H 1340px | — | Root: `width: "1920px"` never `minWidth` |
+| Header | W 1924px × H 103px | 62px L/R, 26.5px top, 25.5px bottom | Centered in 1920px → logo at x=60px, avatar right at x=1860px |
+| Footer | W 1920px × H 103px | **68px left, 52px right** (asymmetric) | bg `#1a1a1a`; CONTACT/ABOUT left; © COOKIES LEGAL PRIVACY right with `\|` separators |
+| YOU bar (locked) | W 1920px × H 70px | 50px L/R | bg `#f0f0f0`, border-top 3px `#bababa`, lock icon right |
+| YOU bar (unlocked) | W 1920px × H 70px | 50px L/R | bg `#fff`, border-top 3px `#bababa`, `›` arrow right |
+| YOU bar (expanded) | W 1920px, variable H | 50px L/R bar; rows inside | bg `#efeaf2` bar, rows in white panel below |
+| Dimension row (expanded) | H 73px | 40px L/R | bg `#f7f4ef`, border 1.5px `#ddd6c6`, radius 8px |
+| Contract row | H 100px | 55px L/R | |

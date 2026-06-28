@@ -118,7 +118,7 @@ export function VoiceNameClient() {
   const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
-    <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>

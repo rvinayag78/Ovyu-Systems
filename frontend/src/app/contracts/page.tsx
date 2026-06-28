@@ -57,28 +57,40 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
 
       {/* Middle / Right */}
       {isLocked ? (
-        <>
-          {/* Signed date + View Contract — shrink-0 + whitespace-nowrap per Figma 189:2307 */}
-          <div style={{ display: "flex", alignItems: "center", gap: "40px", fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", flexShrink: 0, whiteSpace: "nowrap" }}>
-            <span style={{ color: "#888" }}>Signed on {lockedDate}</span>
-            <Link href={`/keeper/contracts/view?id=${c.id}`} style={{ color: "#1a1a1a", textDecoration: "none" }}>
+        voiceComplete ? (
+          <>
+            {/* Voice complete: Signed on + View Contract grouped center, Upload right */}
+            <div style={{ display: "flex", alignItems: "center", gap: "40px", fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", flexShrink: 0, whiteSpace: "nowrap" }}>
+              <span style={{ color: "#888" }}>Signed on {lockedDate}</span>
+              <Link href={`/keeper/contracts/view?id=${c.id}`} style={{ color: "#1a1a1a", textDecoration: "none" }}>
+                View Contract
+              </Link>
+            </div>
+            <Link href={`/upload/${c.id}`} style={{
+              display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+              textDecoration: "none", textTransform: "uppercase",
+            }}>
+              Upload
+              <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
+                <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </>
+        ) : (
+          <>
+            {/* Voice not complete: Signed on center, View Contract right — 3 separate justify-between items */}
+            <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888", flexShrink: 0, whiteSpace: "nowrap" }}>
+              Signed on {lockedDate}
+            </span>
+            <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
+              fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
+              textDecoration: "none", flexShrink: 0, whiteSpace: "nowrap",
+            }}>
               View Contract
             </Link>
-          </div>
-          {/* Always render Upload to keep 3-column layout stable; hidden until voice complete */}
-          <Link href={voiceComplete ? `/upload/${c.id}` : "#"} style={{
-            display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
-            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
-            textDecoration: "none", textTransform: "uppercase",
-            visibility: voiceComplete ? "visible" : "hidden",
-            pointerEvents: voiceComplete ? "auto" : "none",
-          }}>
-            Upload
-            <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
-              <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </>
+          </>
+        )
       ) : makerSigned ? (
         <>
           <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
@@ -222,7 +234,7 @@ export default function ContractsPage() {
   const lockedContractId = making.find(c => c.status === "LOCKED")?.id;
 
   return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "78px" }}>

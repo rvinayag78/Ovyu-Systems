@@ -114,34 +114,36 @@ export function VoiceProfileClient() {
   const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
-    <div style={{ minWidth: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "30px" }}>
-        <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column", gap: "34px" }}>
+        <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column" }}>
 
-          {/* Back link */}
+          {/* Back link — marginBottom 32px per Figma */}
           <Link href="/contracts" style={{
             display: "flex", alignItems: "center", gap: "10px",
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
+            marginBottom: "32px",
           }}>
             <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
             Your contracts
           </Link>
 
-          {/* Title */}
+          {/* Title — marginBottom 10px per Figma */}
           <h1 style={{
             fontFamily: serif, fontStyle: "italic", fontWeight: 400,
             fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+            marginBottom: "10px",
           }}>
             The sound of you
           </h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — marginBottom 49px per Figma */}
           <p style={{
             fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
             fontSize: "22px", color: "#888", margin: 0, lineHeight: "normal",
-            width: "1256px",
+            width: "1256px", marginBottom: "49px",
           }}>
             Read this aloud. Your voice, saying these words, is what we keep. And as you read, you&apos;ll learn exactly what you&apos;re building here.
             {" "}Speak at the pace you&apos;d use to tell a story to someone you trust. If you slow down, that&apos;s right. If you pause, that&apos;s right too.

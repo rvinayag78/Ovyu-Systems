@@ -102,7 +102,7 @@ export function UploadHubClient() {
   const keeperName = hub?.keeper_name ?? "…";
 
   return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ paddingTop: "31px" }}>

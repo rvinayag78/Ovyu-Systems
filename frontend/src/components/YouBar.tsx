@@ -83,8 +83,8 @@ function ExpandedRows({ contractId, dimensionCounts }: { contractId?: string; di
 
   return (
     <>
-      {/* Voice row — no link */}
-      <div style={{ ...rowBase, gap: "30px" }}>
+      {/* Voice row — no link, 16px T/B per Figma (dimension rows use 15px) */}
+      <div style={{ ...rowBase, padding: "16px 40px", gap: "30px" }}>
         <YouCircle count={1} threshold={1} voiceRecorded />
         <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
         <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>
