@@ -130,9 +130,10 @@ type YouBarProps = {
   dimensionCounts?: Record<string, number>;
   onExpandedChange?: (expanded: boolean) => void;
   overlayTop?: number;
+  activeDimension?: string;
 };
 
-export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, overlayTop = 315 }: YouBarProps) {
+export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, overlayTop = 315, activeDimension }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   function toggle() {
@@ -154,19 +155,30 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
 
   const dimColor = voiceComplete ? "#888" : "#bababa";
   const youColor = voiceComplete ? "#1a1a1a" : "#bababa";
+  // On dimension pages the closed bar background is always lavender
+  const closedBg = activeDimension ? "#efeaf2" : (voiceComplete ? "#fff" : "#f0f0f0");
 
   const barLabel = (
     <div style={{ display: "flex", alignItems: "center" }}>
       <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: youColor, minWidth: "138px", flexShrink: 0 }}>YOU</span>
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {ALL_LABELS.map((label, i) => (
-          <span key={label} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ fontFamily: sans, fontWeight: 400, fontSize: "18px", color: dimColor }}>{label}</span>
-            {i < ALL_LABELS.length - 1 && (
-              <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: dimColor, display: "inline-block", flexShrink: 0 }} />
-            )}
-          </span>
-        ))}
+        {ALL_LABELS.map((label, i) => {
+          const slug = DIMENSIONS[i - 1]?.slug ?? "";
+          const isActive = activeDimension && (
+            label.toLowerCase() === activeDimension.toLowerCase() ||
+            slug === activeDimension
+          );
+          const labelColor = isActive ? "#6a4d7d" : dimColor;
+          const labelWeight = isActive ? 700 : 400;
+          return (
+            <span key={label} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span style={{ fontFamily: sans, fontWeight: labelWeight, fontSize: "18px", color: labelColor }}>{label}</span>
+              {i < ALL_LABELS.length - 1 && (
+                <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: dimColor, display: "inline-block", flexShrink: 0 }} />
+              )}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
@@ -178,7 +190,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
         onClick={toggle}
         style={{
           width: "100%", height: "70px",
-          background: voiceComplete ? "#fff" : "#f0f0f0",
+          background: closedBg,
           borderTop: "3px solid #bababa",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 50px", boxSizing: "border-box",
@@ -189,19 +201,14 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
         {voiceComplete ? <BarArrow expanded={false} /> : <span style={{ fontSize: "22px" }}>🔒</span>}
       </div>
 
-      {/* Fixed overlay — Figma 2005:2161: top:315px, no bg on container (page bg #f8f7f5 fills gap below rows) */}
       {expanded && (
-        <div style={{
-          position: "fixed", top: `${overlayTop}px`, left: 0, width: "1920px", bottom: "103px",
-          zIndex: 50,
-          display: "flex", flexDirection: "column",
-          background: "#fff",
-        }}>
-          {/* Bar strip (click to collapse) — Figma 2005:2212: h:70px bg:#efeaf2 border-top:3px #bababa */}
+        <>
+          {/* Expanded YOU bar — independent fixed div, no flex parent */}
           <div
             onClick={toggle}
             style={{
-              height: "70px", flexShrink: 0,
+              position: "fixed", top: `${overlayTop}px`, left: 0, width: "1920px", height: "70px",
+              zIndex: 50,
               background: "#efeaf2",
               borderTop: "3px solid #bababa",
               display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -212,9 +219,14 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             <BarArrow expanded={true} />
           </div>
 
-          {/* Rows — explicit height fills remaining overlay so border-bottom sits flush with footer */}
+          {/* Rows panel — top pins to bar bottom, bottom pins 103px above viewport bottom (footer) */}
           <div style={{
-            height: `calc(100vh - ${overlayTop}px - 103px - 70px)`,
+            position: "fixed",
+            top: `${overlayTop + 70}px`,
+            left: 0,
+            width: "1920px",
+            bottom: "103px",
+            zIndex: 50,
             overflowY: "auto",
             background: "#fff",
             borderBottom: "0.5px solid #888",
@@ -224,7 +236,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
           }}>
             <ExpandedRows contractId={contractId} dimensionCounts={dimensionCounts} />
           </div>
-        </div>
+        </>
       )}
     </div>
   );

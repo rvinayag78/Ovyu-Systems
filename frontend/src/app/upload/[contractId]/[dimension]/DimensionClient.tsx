@@ -453,7 +453,7 @@ function DimensionForm({
         </h1>
         <p style={{
           fontFamily: sans, fontStyle: "oblique", fontSize: "22px",
-          color: "#888", margin: 0,
+          color: "#1a1a1a", margin: 0,
         }}>
           {formDef.subtitle}
         </p>
@@ -467,7 +467,6 @@ function DimensionForm({
         padding: "40px 60px",
         display: "flex",
         justifyContent: "space-between",
-        gap: "40px",
       }}>
         {allCols.map((fields, colIdx) => (
           fields.length > 0 || colIdx === saveColIdx ? (
@@ -1180,7 +1179,7 @@ export function DimensionClient() {
   const formDef = DIMENSION_FORMS[dimension];
 
   return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingBottom: `${FOOTER_H + BAR_H}px` }}>
@@ -1215,7 +1214,7 @@ export function DimensionClient() {
         )}
       </div>
 
-      <YouBar voiceComplete contractId={contractId} dimensionCounts={dimensionCounts} />
+      <YouBar voiceComplete contractId={contractId} dimensionCounts={dimensionCounts} activeDimension={dimension} />
       <Footer />
     </div>
   );

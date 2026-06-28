@@ -105,41 +105,26 @@ export function UploadHubClient() {
     <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ paddingTop: "31px" }}>
-        <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
+      {/* All content — flex:1 pushes YouBar to bottom; hidden when YOU expanded */}
+      {!youExpanded ? (
+        <div style={{ flex: 1, paddingTop: "31px" }}>
+          <div style={{ marginLeft: "108px", width: "1702px", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
-          {/* Breadcrumb */}
-          <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-            <span style={{ fontFamily: sans, fontSize: "16px", color: "#888", display: "inline-block", transform: "scaleX(-1)" }}>›</span>
-            <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
-          </Link>
+            {/* Breadcrumb */}
+            <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
+              <span style={{ fontFamily: sans, fontSize: "16px", color: "#888", display: "inline-block", transform: "scaleX(-1)" }}>›</span>
+              <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
+            </Link>
 
-          {/* Heading */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
-              For {keeperName}
-            </h1>
-            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
-              A bit of you. Started today.
-            </p>
-          </div>
-
-        </div>
-      </div>
-
-      {/* YOU bar — sits between heading and content; expands to overlay cards below */}
-      <YouBar
-        voiceComplete={voiceComplete}
-        contractId={contractId}
-        dimensionCounts={hub?.dimension_counts ?? {}}
-        onExpandedChange={setYouExpanded}
-
-      />
-
-      {/* Content sections — hidden while YOU is expanded */}
-      {!youExpanded && (
-        <div style={{ flex: 1 }}>
-          <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingTop: "48px", paddingBottom: "40px" }}>
+            {/* Heading */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+                For {keeperName}
+              </h1>
+              <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
+                A bit of you. Started today.
+              </p>
+            </div>
 
             {/* MESSAGES */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -155,7 +140,7 @@ export function UploadHubClient() {
                     <div key={card.type} style={{
                       background: "#f4e8ec", borderRadius: "10px",
                       height: "130px", width: "840px", padding: "20px 30px",
-                      display: "flex", alignItems: "flex-start",
+                      boxSizing: "border-box", display: "flex", alignItems: "flex-start",
                       opacity: 0.4,
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
@@ -169,8 +154,8 @@ export function UploadHubClient() {
                   ) : (
                     <button key={card.type} onClick={() => { setEditMsgType(card.type); setEditMsgText(saved?.body ?? ""); }} style={{
                       background: "#f4e8ec", borderRadius: "10px", border: "none", cursor: "pointer",
-                      height: "130px", width: "840px", padding: "20px 30px", textAlign: "left",
-                      display: "flex", alignItems: "flex-start",
+                      height: "130px", width: "840px", padding: "20px 30px",
+                      boxSizing: "border-box", textAlign: "left", display: "flex", alignItems: "flex-start",
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
@@ -198,8 +183,8 @@ export function UploadHubClient() {
                   return (
                     <button key={card.key} onClick={() => { setEditKeeperKey(card.key); setEditKeeperText(value ?? ""); }} style={{
                       background: "#efeaf2", borderRadius: "10px", border: "none", cursor: "pointer",
-                      height: "130px", width: `${card.width}px`, padding: "20px 30px", textAlign: "left",
-                      display: "flex", alignItems: "flex-start",
+                      height: "130px", width: `${card.width}px`, padding: "20px 30px",
+                      boxSizing: "border-box", textAlign: "left", display: "flex", alignItems: "flex-start",
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "9px", width: `${card.textWidth}px`, flexShrink: 0 }}>
@@ -218,9 +203,25 @@ export function UploadHubClient() {
 
           </div>
         </div>
+      ) : (
+        // Spacer keeps YouBar at bottom while overlay is open
+        <div style={{ flex: 1 }} />
       )}
 
-      <Footer />
+      {/* YOU bar — at bottom of page, above fixed footer */}
+      <YouBar
+        voiceComplete={voiceComplete}
+        contractId={contractId}
+        dimensionCounts={hub?.dimension_counts ?? {}}
+        onExpandedChange={setYouExpanded}
+      />
+
+      {/* Fixed footer */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, width: "1920px", zIndex: 30 }}>
+        <Footer />
+      </div>
+      {/* Spacer so in-flow content isn't hidden under fixed footer */}
+      <div style={{ height: "103px", flexShrink: 0 }} />
 
       {/* Keeper card edit modal */}
       {editKeeperKey && (
