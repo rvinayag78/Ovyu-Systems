@@ -99,7 +99,7 @@ function ContractViewInner() {
             <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px" }}>
               ov<em>yu</em> Agreement
             </h1>
-            <div style={{ display: "flex", gap: "48px", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
               <span style={{ fontFamily: sans, fontSize: "22px", color: "#1a1a1a", fontStyle: "italic" }}>
                 Between {maker} and {keeper}
               </span>
@@ -115,7 +115,7 @@ function ContractViewInner() {
               )}
               <button
                 onClick={() => window.print()}
-                style={{ fontFamily: sans, fontSize: "18px", color: "#1a1a1a", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "auto" }}
+                style={{ fontFamily: sans, fontSize: "18px", color: "#1a1a1a", background: "none", border: "none", cursor: "pointer", padding: 0 }}
               >
                 Download ⤓
               </button>
@@ -123,7 +123,7 @@ function ContractViewInner() {
           </div>
 
           {/* Contract body */}
-          <div style={{ background: "#fff", padding: "40px", display: "flex", gap: "66px", alignItems: "flex-start", borderRadius: "8px" }}>
+          <div style={{ background: "#fff", padding: "40px", display: "flex", gap: "66px", alignItems: "center" }}>
             {/* Left column — 760px */}
             <div style={{ width: "760px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "14px" }}>
               <Section title="What this is">
@@ -171,7 +171,7 @@ function ContractViewInner() {
             </div>
           </div>
 
-          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "14px", color: "#888", margin: 0, textAlign: "right" }}>
+          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, textAlign: "right" }}>
             Your digital signature carries the same intent as a handwritten signature within the Ovyu platform.
           </p>
         </div>

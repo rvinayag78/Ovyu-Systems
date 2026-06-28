@@ -163,6 +163,7 @@ export function VoiceNameClient() {
               border: "1px solid #bababa",
               borderRadius: "15px",
               padding: "50px",
+              height: "327px",
               marginBottom: "20px",
               display: "flex",
               flexDirection: "column",
@@ -233,7 +234,7 @@ export function VoiceNameClient() {
             {/* Confirm checkbox */}
             <label style={{
               display: "flex", alignItems: "center", gap: "12px",
-              cursor: meetsMinDuration ? "pointer" : "default", marginBottom: "24px",
+              cursor: meetsMinDuration ? "pointer" : "default", marginBottom: "19px",
             }}>
               <input
                 type="checkbox"
