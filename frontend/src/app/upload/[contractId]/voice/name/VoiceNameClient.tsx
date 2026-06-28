@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
+import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
@@ -41,6 +42,12 @@ export function VoiceNameClient() {
     setInitial(name[0]?.toUpperCase() ?? "?");
     if (name) setMakerFullName(name);
     if (preferred) setMakerPreferred(preferred);
+
+    if (contractId) {
+      api.getVoiceStatus(contractId).then(status => {
+        if (status.name === "complete") router.replace(`/upload/${contractId}/voice/profile`);
+      }).catch(() => {});
+    }
   }, []);
 
   function fmtTime(ms: number) {

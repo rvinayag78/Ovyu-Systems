@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
+import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
@@ -36,6 +37,13 @@ export function VoiceProfileClient() {
   useEffect(() => {
     const name = sessionStorage.getItem("ovyu_full_name") ?? sessionStorage.getItem("ovyu_maker_name") ?? "";
     setInitial(name[0]?.toUpperCase() ?? "?");
+
+    if (contractId) {
+      api.getVoiceStatus(contractId).then(status => {
+        if (status.profile === "complete") router.replace(`/upload/${contractId}`);
+        else if (status.name !== "complete") router.replace(`/upload/${contractId}/voice/name`);
+      }).catch(() => {});
+    }
   }, []);
 
   function fmtTime(ms: number) {

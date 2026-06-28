@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
@@ -179,6 +180,7 @@ function TcRow({ c }: { c: ContractRow }) {
 }
 
 export default function ContractsPage() {
+  const router = useRouter();
   const [contracts, setContracts] = useState<ContractRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -268,16 +270,30 @@ export default function ContractsPage() {
                   if (!locked) return null;
                   return (
                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                      <Link href="/upload/_/voice/name" onClick={() => sessionStorage.setItem("ovyu_contract_id", locked.id)} style={{
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        width: "345px", height: "48px",
-                        background: "#1a1a1a", borderRadius: "8px",
-                        fontFamily: sans, fontSize: "16px", color: "#f5f0e8",
-                        textDecoration: "none",
-                      }}>
+                      <button
+                        onClick={async () => {
+                          sessionStorage.setItem("ovyu_contract_id", locked.id);
+                          try {
+                            const status = await api.getVoiceStatus(locked.id);
+                            const target = status.name !== "complete"
+                              ? `/upload/${locked.id}/voice/name`
+                              : `/upload/${locked.id}/voice/profile`;
+                            router.push(target);
+                          } catch {
+                            router.push(`/upload/${locked.id}/voice/name`);
+                          }
+                        }}
+                        style={{
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          width: "345px", height: "48px",
+                          background: "#1a1a1a", borderRadius: "8px",
+                          border: "none", cursor: "pointer",
+                          fontFamily: sans, fontSize: "16px", color: "#f5f0e8",
+                        }}
+                      >
                         <em style={{ fontWeight: 300, fontStyle: "italic" }}>Ready to begin?</em>
                         &nbsp;Start with your voice →
-                      </Link>
+                      </button>
                     </div>
                   );
                 })()}
