@@ -237,6 +237,7 @@ export function VoiceProfileClient() {
                 <span style={{
                   fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
                   color: meetsMinDuration ? "#888" : "#bababa",
+                  whiteSpace: "nowrap",
                 }}>
                   I confirm this is my voice
                 </span>

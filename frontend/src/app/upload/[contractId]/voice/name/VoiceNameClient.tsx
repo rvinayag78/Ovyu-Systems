@@ -259,6 +259,7 @@ export function VoiceNameClient() {
               <span style={{
                 fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
                 color: meetsMinDuration ? "#888" : "#bababa",
+                whiteSpace: "nowrap",
               }}>
                 I confirm this is my voice
               </span>
@@ -288,6 +289,12 @@ export function VoiceNameClient() {
           </div>{/* end right column */}
         </div>{/* end two-column */}
         </div>{/* end 1500px container */}
+      </div>
+
+      <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
+        <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal" }}>
+          Complete your voice recording to unlock your profile.
+        </p>
       </div>
 
       <YouBar voiceComplete={false} />
