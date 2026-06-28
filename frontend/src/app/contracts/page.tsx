@@ -65,18 +65,19 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
               View Contract
             </Link>
           </div>
-          {voiceComplete && (
-            <Link href={`/upload/${c.id}`} style={{
-              display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
-              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
-              textDecoration: "none", textTransform: "uppercase",
-            }}>
-              Upload
-              <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
-                <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-          )}
+          {/* Always render Upload to keep 3-column layout stable; hidden until voice complete */}
+          <Link href={voiceComplete ? `/upload/${c.id}` : "#"} style={{
+            display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
+            fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+            textDecoration: "none", textTransform: "uppercase",
+            visibility: voiceComplete ? "visible" : "hidden",
+            pointerEvents: voiceComplete ? "auto" : "none",
+          }}>
+            Upload
+            <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
+              <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
         </>
       ) : makerSigned ? (
         <>
