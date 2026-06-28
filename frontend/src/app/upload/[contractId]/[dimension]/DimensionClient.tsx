@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { YouBar } from "@/components/YouBar";
 import { Typeahead } from "@/components/Typeahead";
 import type { EntryTags } from "@/components/EntryEditor";
 import { LANGUAGES, PLACES, isValidMMDDYYYY, maskMMDDYYYY } from "@/lib/refdata";
@@ -222,132 +223,6 @@ type DimData = { id: string; slug: string; structured: Record<string, unknown> |
 
 const FOOTER_H = 103;
 const BAR_H = 70;
-
-const DIM_SUBTITLES: Record<string, string> = {
-  history:        "Childhood, schools, milestones, the turning points.",
-  relationships:  "The people who shaped you, how you love, how you fight.",
-  "how-you-think":"How you decide, process, land on answers.",
-  "how-you-talk": "Catchphrases, inside jokes, the way you say things.",
-  "how-you-live": "Habits, rituals, the texture of your daily life.",
-  beliefs:        "What you believe, what you'd stand up for.",
-  heart:          "What moves you. What you love, what lights you up.",
-};
-
-function YouBar({ contractId, current, voiceDone, entryCounts }: {
-  contractId: string;
-  current: string;
-  voiceDone?: boolean;
-  entryCounts?: Record<string, number>;
-}) {
-  const [open, setOpen] = useState(false);
-
-  const dimNames = DIMENSIONS.map(d => d.label).join(" · ");
-  const collapsedLabel = `Voice · ${dimNames}`;
-
-  return (
-    <>
-      {/* Fixed bar */}
-      <div style={{
-        position: "fixed",
-        bottom: FOOTER_H,
-        left: 0,
-        width: "100%",
-        minWidth: "1920px",
-        height: BAR_H,
-        background: "#efeaf2",
-        borderTop: "1.5px solid #bababa",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 50px",
-        boxSizing: "border-box",
-        zIndex: 110,
-        cursor: "pointer",
-      }} onClick={() => setOpen(o => !o)}>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textTransform: "uppercase", marginRight: "24px" }}>YOU</span>
-          <span style={{ fontFamily: sans, fontSize: "16px", color: "#bababa" }}>{collapsedLabel}</span>
-        </div>
-        <span style={{ fontFamily: sans, fontSize: "22px", color: "#1a1a1a", transform: open ? "rotate(90deg)" : "none", display: "inline-block", transition: "transform 0.2s" }}>›</span>
-      </div>
-
-      {/* Expanded overlay panel — sits above the bar, below the header */}
-      {open && (
-        <>
-          {/* Backdrop */}
-          <div onClick={() => setOpen(false)} style={{
-            position: "fixed", inset: 0, zIndex: 108,
-          }} />
-
-          {/* Panel */}
-          <div style={{
-            position: "fixed",
-            bottom: FOOTER_H + BAR_H,
-            left: 0,
-            width: "100%",
-            minWidth: "1920px",
-            background: "#efeaf2",
-            zIndex: 109,
-            padding: "20px 50px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
-            borderTop: "1.5px solid #bababa",
-          }}>
-            {/* Voice row */}
-            <div style={{
-              background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-              height: "73px", padding: "0 40px",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "50%",
-                  background: voiceDone ? "#5b4b7a" : "#e9e2f2",
-                  flexShrink: 0,
-                }} />
-                <div>
-                  <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#1a1a1a" }}>Voice</span>
-                  <span style={{ fontFamily: sans, fontSize: "14px", color: "#888", marginLeft: "16px" }}>Facial expressions and video coming soon.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Dimension rows */}
-            {DIMENSIONS.map(d => {
-              const count = entryCounts?.[d.slug] ?? 0;
-              const isCurrent = d.slug === current;
-              const circleFill = count === 0 ? "#e9e2f2" : count >= 3 ? "#5b4b7a" : "#9b7fbf";
-              return (
-                <Link key={d.slug} href={`/upload/${contractId}/${d.slug}`} onClick={() => setOpen(false)}
-                  style={{ textDecoration: "none" }}>
-                  <div style={{
-                    background: "#f7f4ef", border: `1.5px solid ${isCurrent ? "#6a4d7d" : "#ddd6c6"}`, borderRadius: "8px",
-                    height: "73px", padding: "0 40px",
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                      <div style={{
-                        width: "40px", height: "40px", borderRadius: "50%",
-                        background: circleFill, flexShrink: 0,
-                      }} />
-                      <div>
-                        <span style={{ fontFamily: sans, fontWeight: isCurrent ? 700 : 400, fontSize: "16px", color: isCurrent ? "#6a4d7d" : "#1a1a1a" }}>{d.label}</span>
-                        <span style={{ fontFamily: sans, fontSize: "14px", color: "#888", marginLeft: "16px" }}>{DIM_SUBTITLES[d.slug]}</span>
-                      </div>
-                    </div>
-                    <span style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>›</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </>
-  );
-}
 
 function FieldInput({
   field,
@@ -1256,6 +1131,7 @@ export function DimensionClient() {
   const [data, setData] = useState<DimData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [dimensionCounts, setDimensionCounts] = useState<Record<string, number>>({});
 
   const initial = typeof window !== "undefined"
     ? (sessionStorage.getItem("ovyu_full_name") ?? "")[0]?.toUpperCase() ?? "?"
@@ -1267,6 +1143,7 @@ export function DimensionClient() {
       .then(d => {
         setData(d as DimData);
         if (DIMENSION_FORMS[dimension] && !d.structured) setShowForm(true);
+        setDimensionCounts(prev => ({ ...prev, [dimension]: (d as DimData).entries.length }));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -1278,11 +1155,21 @@ export function DimensionClient() {
   }, []);
 
   const handleEntryAdded = useCallback((e: Entry) => {
-    setData(prev => prev ? { ...prev, entries: [e, ...prev.entries] } : null);
-  }, []);
+    setData(prev => {
+      if (!prev) return null;
+      const entries = [e, ...prev.entries];
+      setDimensionCounts(c => ({ ...c, [dimension]: entries.length }));
+      return { ...prev, entries };
+    });
+  }, [dimension]);
   const handleEntryDeleted = useCallback((id: string) => {
-    setData(prev => prev ? { ...prev, entries: prev.entries.filter(e => e.id !== id) } : null);
-  }, []);
+    setData(prev => {
+      if (!prev) return null;
+      const entries = prev.entries.filter(e => e.id !== id);
+      setDimensionCounts(c => ({ ...c, [dimension]: entries.length }));
+      return { ...prev, entries };
+    });
+  }, [dimension]);
   const handleEntryUpdated = useCallback((updated: Entry) => {
     setData(prev => prev ? { ...prev, entries: prev.entries.map(e => e.id === updated.id ? updated : e) } : null);
   }, []);
@@ -1290,8 +1177,6 @@ export function DimensionClient() {
   if (!dim) return null;
 
   const formDef = DIMENSION_FORMS[dimension];
-
-  const entryCounts = data ? { [dimension]: data.entries.length } : {};
 
   return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -1329,7 +1214,7 @@ export function DimensionClient() {
         )}
       </div>
 
-      <YouBar contractId={contractId} current={dimension} voiceDone entryCounts={entryCounts} />
+      <YouBar voiceComplete contractId={contractId} dimensionCounts={dimensionCounts} />
       <Footer />
     </div>
   );

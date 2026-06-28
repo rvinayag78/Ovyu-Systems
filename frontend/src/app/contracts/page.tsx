@@ -254,12 +254,16 @@ export default function ContractsPage() {
                   width: "1700px", height: "100px",
                   border: "1px solid #888", borderRadius: "8px",
                   display: "flex", alignItems: "center", gap: "57px",
-                  paddingLeft: "55px", boxSizing: "border-box",
+                  paddingLeft: "55px", paddingRight: "55px", boxSizing: "border-box",
                 }}>
-                  <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#888" }}>+</span>
+                  {/* 40px cross icon per Figma 2004:1572 */}
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
+                    <line x1="20" y1="0" x2="20" y2="40" stroke="#888" strokeWidth="2.5"/>
+                    <line x1="0" y1="20" x2="40" y2="20" stroke="#888" strokeWidth="2.5"/>
+                  </svg>
                   <Link href="/signup" style={{
                     fontFamily: sans, fontWeight: 700, fontSize: "22px",
-                    color: "#888", textDecoration: "none",
+                    color: "#888", textDecoration: "none", whiteSpace: "nowrap",
                   }}>
                     Start a new contract
                   </Link>

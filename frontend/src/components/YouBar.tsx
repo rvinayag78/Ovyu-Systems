@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const serif = "Georgia, serif";
 const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
@@ -58,7 +58,7 @@ function DimArrow() {
 
 function BarArrow({ expanded }: { expanded: boolean }) {
   return (
-    <div style={{ width: "26px", height: "15px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div style={{ width: "15px", height: "26px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
       <div style={{ transform: expanded ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
         <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
           <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -69,13 +69,18 @@ function BarArrow({ expanded }: { expanded: boolean }) {
 }
 
 function ExpandedRows({ contractId, dimensionCounts }: { contractId?: string; dimensionCounts: Record<string, number> }) {
+  const router = useRouter();
+
+  const rowBase: React.CSSProperties = {
+    background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
+    height: "73px", display: "flex", alignItems: "center",
+    padding: "15px 40px", boxSizing: "border-box",
+  };
+
   return (
     <>
       {/* Voice row — no link */}
-      <div style={{
-        background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-        display: "flex", alignItems: "center", padding: "16px 40px", gap: "30px",
-      }}>
+      <div style={{ ...rowBase, gap: "30px" }}>
         <YouCircle count={1} threshold={1} voiceRecorded />
         <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
         <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>
@@ -95,17 +100,21 @@ function ExpandedRows({ contractId, dimensionCounts }: { contractId?: string; di
           </div>
         );
 
-        const rowStyle: React.CSSProperties = {
-          background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
-          height: "73px", display: "flex", alignItems: "center",
-          padding: "15px 40px", boxSizing: "border-box", textDecoration: "none",
-        };
-
-        return contractId ? (
-          <Link key={d.slug} href={`/upload/${contractId}/${d.slug}`} style={rowStyle}>{inner}</Link>
-        ) : (
-          <div key={d.slug} style={{ ...rowStyle, cursor: "default" }}>{inner}</div>
-        );
+        if (contractId) {
+          return (
+            <div
+              key={d.slug}
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push(`/upload/${contractId}/${d.slug}`)}
+              onKeyDown={e => e.key === "Enter" && router.push(`/upload/${contractId}/${d.slug}`)}
+              style={{ ...rowBase, cursor: "pointer" }}
+            >
+              {inner}
+            </div>
+          );
+        }
+        return <div key={d.slug} style={{ ...rowBase, cursor: "default" }}>{inner}</div>;
       })}
     </>
   );
