@@ -58,8 +58,8 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
       {/* Middle / Right */}
       {isLocked ? (
         <>
-          {/* Signed date + View Contract grouped together with gap 40px per Figma 2024:756 */}
-          <div style={{ display: "flex", alignItems: "center", gap: "40px", fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px" }}>
+          {/* Signed date + View Contract — shrink-0 + whitespace-nowrap per Figma 189:2307 */}
+          <div style={{ display: "flex", alignItems: "center", gap: "40px", fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", flexShrink: 0, whiteSpace: "nowrap" }}>
             <span style={{ color: "#888" }}>Signed on {lockedDate}</span>
             <Link href={`/keeper/contracts/view?id=${c.id}`} style={{ color: "#1a1a1a", textDecoration: "none" }}>
               View Contract
@@ -67,7 +67,7 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
           </div>
           {voiceComplete && (
             <Link href={`/upload/${c.id}`} style={{
-              display: "flex", alignItems: "center", gap: "10px",
+              display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
               fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
               textDecoration: "none", textTransform: "uppercase",
             }}>
