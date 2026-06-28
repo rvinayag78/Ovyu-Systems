@@ -123,10 +123,13 @@ Extract every property below for every node. Never skip a category.
 
 1. **Fetch** the Figma frame with `get_design_context`
 2. **Extract** every property above for every node
-3. **Build a spec table** — one row per element, columns: node name | property | Figma value
+3. **Output the spec table** — write it in the response, do NOT keep it mental. One row per element: `node name | property | Figma value`. If you skip this step and go straight to code, you WILL miss values.
 4. **Read the existing code** for the page being changed
-5. **List ALL discrepancies** between spec and code
+5. **Output the discrepancy table** — write it in the response before touching any file. Columns: `element | property | Figma value | current code value | match?`. Mark each row ✓ or ✗.
 6. **Fix everything in one pass** — no incremental patching
+7. **Completion gate** — do NOT report done until every ✗ row in the discrepancy table has been resolved and re-marked ✓. A task is not done because the code was written; it is done when all discrepancies are closed.
+
+> **Why steps 3 and 5 must be written out:** Mental spec tables get skipped under time pressure. A written table is the only proof the check happened. If it is not in the response, it did not happen.
 
 ---
 
@@ -153,6 +156,29 @@ Extract every property below for every node. Never skip a category.
 ```
 
 **When to apply:** Any time you write `{condition && <El />}` and the parent has `justifyContent: "space-between"` (or Figma class `justify-between`), stop and use `visibility` instead.
+
+---
+
+### Form card save-column height
+**Rule:** In a 3-column form card that uses `justify-content: space-between`, the save-button column MUST have an explicit `height` equal to the Figma-specified column height. Without it, `justify-between` has nothing to push against and the save button floats up next to the fields instead of pinning to the bottom.
+
+**Always read the Figma column height** for the save column (col3) — it is specified per dimension and differs (e.g. history/beliefs/heart = 667px, how-you-live = 619px, how-you-think = 521px, how-you-talk = 376px).
+
+```tsx
+// WRONG — save button floats, not pinned to bottom
+<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+  <div>...fields...</div>
+  <button>Save →</button>
+</div>
+
+// CORRECT — explicit height from Figma locks the column so save button pins to bottom
+<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "667px" }}>
+  <div>...fields...</div>
+  <button>Save →</button>
+</div>
+```
+
+**When to apply:** Every time you write a form card with a save button in the rightmost column.
 
 ---
 
