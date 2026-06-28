@@ -1005,7 +1005,7 @@ function EntriesView({
           background: "#efeaf2", borderRadius: "20px",
           padding: "30px 60px",
           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-          marginBottom: "28px",
+          marginBottom: "50px",
         }}>
           <div style={{ display: "flex", gap: "28px", alignItems: "flex-start" }}>
             <div style={{
@@ -1054,7 +1054,7 @@ function EntriesView({
       <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: "space-between", alignItems: "flex-start", width: "1700px" }}>
 
         {/* Left: ENTRIES (800px) */}
-        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "50px" }}>
+        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "15px" }}>
           <p style={{
             fontFamily: sans, fontWeight: 700, fontSize: "22px",
             color: "#6a4d7d", margin: 0, letterSpacing: "0.03em",
@@ -1092,10 +1092,10 @@ function EntriesView({
                       background: "#f0f0f0", color: "#bababa", fontStyle: "italic",
                     }}>transcribing…</span>
                   ) : allTags.length > 0 ? (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
                       {allTags.map((c, i) => (
                         <span key={i} style={{
-                          fontFamily: sans, fontSize: "13px", padding: "5px 12px", borderRadius: "999px",
+                          fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px",
                           background: "#efeaf2", color: "#6a4d7d",
                         }}>{c}</span>
                       ))}
@@ -1126,7 +1126,7 @@ function EntriesView({
         {/* Right: ADD entry (800px) */}
         <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "27px", height: "695px", alignItems: "flex-end" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
-            ADD AN ENTRY
+            {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
           </p>
 
           {/* Entry input card (433px tall) */}
@@ -1136,27 +1136,18 @@ function EntriesView({
             display: "flex", flexDirection: "column", overflow: "hidden",
           }}>
             {mode === "text" ? (
-              <>
-                {prompts.length > 0 && (
-                  <PromptCarousel
-                    questions={prompts}
-                    idx={promptIdx}
-                    onRotate={() => setPromptIdx(i => (i + 1) % prompts.length)}
-                  />
-                )}
-                <textarea
-                  value={body}
-                  onChange={e => setBody(e.target.value)}
-                  placeholder="Start typing here…"
-                  style={{
-                    height: "160px", flexShrink: 0, padding: "16px 24px",
-                    border: "none", borderTop: "1px solid #f0ece4",
-                    fontFamily: sans, fontSize: "16px", resize: "none",
-                    background: "transparent", lineHeight: "1.6",
-                    outline: "none", color: "#1a1a1a", boxSizing: "border-box",
-                  }}
-                />
-              </>
+              <textarea
+                value={body}
+                onChange={e => setBody(e.target.value)}
+                placeholder="Start typing here…"
+                style={{
+                  flex: 1, padding: "24px 42px",
+                  border: "none",
+                  fontFamily: sans, fontSize: "22px", resize: "none",
+                  background: "transparent", lineHeight: "1.6",
+                  outline: "none", color: "#1a1a1a", boxSizing: "border-box",
+                }}
+              />
             ) : recording ? (
               <div style={{
                 flex: 1, display: "flex", flexDirection: "column",
@@ -1208,20 +1199,21 @@ function EntriesView({
             </button>
           </div>
 
-          {/* Save / Record button */}
+          {/* Save button */}
           <button
             onClick={mode === "voice" && !recording ? startRecording : handleSave}
             disabled={saving || (mode === "text" && !canSave)}
             style={{
               width: "255px", height: "71px",
-              background: "#efeaf2",
+              background: mode === "text" ? "#1a1a1a" : "#efeaf2",
               border: "none", borderRadius: "8px",
-              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d",
+              fontFamily: sans, fontWeight: 700, fontSize: "18px",
+              color: mode === "text" ? "white" : "#6a4d7d",
               cursor: saving || (mode === "text" && !canSave) ? "not-allowed" : "pointer",
               opacity: saving || (mode === "text" && !canSave) ? 0.5 : 1,
             }}
           >
-            {saving ? "Saving…" : mode === "voice" && !recording ? "● Record" : recording ? "■ Stop & Save" : "Save →"}
+            {saving ? "Saving…" : recording ? "■ Stop & Save" : "Save"}
           </button>
         </div>
       </div>
