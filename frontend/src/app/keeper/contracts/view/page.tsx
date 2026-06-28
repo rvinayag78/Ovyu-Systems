@@ -27,7 +27,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#c9a84c", textTransform: "uppercase", marginBottom: "10px", margin: "0 0 10px" }}>
         {title}
       </p>
-      <p style={{ fontFamily: sans, fontSize: "16px", color: "#444", lineHeight: "1.5", margin: 0 }}>{children}</p>
+      <p style={{ fontFamily: sans, fontSize: "16px", color: "#444", lineHeight: "normal", margin: 0 }}>{children}</p>
     </div>
   );
 }

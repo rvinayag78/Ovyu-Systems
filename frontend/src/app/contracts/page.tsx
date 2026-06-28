@@ -55,15 +55,13 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
       {/* Middle / Right */}
       {isLocked ? (
         <>
-          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
-            Signed on {lockedDate}
-          </span>
-          <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
-            fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
-            textDecoration: "none",
-          }}>
-            View Contract
-          </Link>
+          {/* Signed date + View Contract grouped together with gap 40px per Figma 2024:756 */}
+          <div style={{ display: "flex", alignItems: "center", gap: "40px", fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px" }}>
+            <span style={{ color: "#888" }}>Signed on {lockedDate}</span>
+            <Link href={`/keeper/contracts/view?id=${c.id}`} style={{ color: "#1a1a1a", textDecoration: "none" }}>
+              View Contract
+            </Link>
+          </div>
           {voiceComplete && (
             <Link href={`/upload/${c.id}`} style={{
               display: "flex", alignItems: "center", gap: "8px",
@@ -248,7 +246,7 @@ export default function ContractsPage() {
                 <div style={{
                   width: "1700px", height: "100px",
                   border: "1px solid #888", borderRadius: "8px",
-                  display: "flex", alignItems: "center", gap: "20px",
+                  display: "flex", alignItems: "center", gap: "57px",
                   paddingLeft: "55px", boxSizing: "border-box",
                 }}>
                   <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#888" }}>+</span>

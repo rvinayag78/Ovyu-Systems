@@ -143,8 +143,8 @@ export function VoiceNameClient() {
             </p>
           </div>
 
-          {/* Two-column content */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+          {/* Two-column content — 413px height, items-start, justify-between */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", height: "413px" }}>
           {/* Left — before you begin */}
           <div style={{ width: "432px", flexShrink: 0 }}>
             <p style={{
@@ -155,20 +155,23 @@ export function VoiceNameClient() {
             </p>
           </div>
 
-          {/* Right — script card + controls */}
-          <div style={{ width: "554px", flexShrink: 0 }}>
-            {/* Script card */}
+          {/* Right — script card + controls, items-center */}
+          <div style={{ width: "554px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "20px", alignItems: "center" }}>
+            {/* Script card — justify-center so content is vertically centered in 327px */}
             <div style={{
               background: "#fff",
               border: "1px solid #bababa",
               borderRadius: "15px",
               padding: "50px",
               height: "327px",
-              marginBottom: "20px",
+              width: "100%",
+              boxSizing: "border-box",
               display: "flex",
               flexDirection: "column",
-              gap: "19px",
+              justifyContent: "center",
             }}>
+              {/* Inner content wrapper — gap 19px per Figma 2026:685 */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "19px" }}>
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0 }}>
                 READ THIS ALOUD
               </p>
@@ -228,13 +231,16 @@ export function VoiceNameClient() {
                   </span>
                 )}
               </div>
-            </div>
+              </div>{/* end inner gap-19px wrapper */}
+            </div>{/* end script card */}
 
-
+            {/* Checkbox + save group — gap 19px, items-center per Figma 2026:693 */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "19px", alignItems: "center" }}>
             {/* Confirm checkbox */}
             <label style={{
               display: "flex", alignItems: "center", gap: "12px",
-              cursor: meetsMinDuration ? "pointer" : "default", marginBottom: "19px",
+              cursor: meetsMinDuration ? "pointer" : "default",
+              width: "209px", height: "24px",
             }}>
               <input
                 type="checkbox"
@@ -271,7 +277,8 @@ export function VoiceNameClient() {
                 {saving ? "Saving…" : "Save and continue →"}
               </span>
             </button>
-          </div>
+            </div>{/* end checkbox+save group */}
+          </div>{/* end right column */}
         </div>{/* end two-column */}
         </div>{/* end 1500px container */}
       </div>
