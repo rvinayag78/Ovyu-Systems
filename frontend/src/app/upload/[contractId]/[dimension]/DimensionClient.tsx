@@ -703,49 +703,45 @@ function EntryEditView({
   ];
 
   return (
-    <div style={{ padding: "0 110px 80px" }}>
-      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: "0 0 20px", letterSpacing: "0.03em" }}>ENTRY</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+      {/* ENTRY label */}
+      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em" }}>ENTRY</p>
 
       {/* Entry card */}
-      <div style={{ background: "white", border: "1px solid #ddd6c6", borderRadius: "15px", padding: "30px 50px 36px", marginBottom: "40px", position: "relative" }}>
-        {/* Circle × close */}
-        <button onClick={onClose} style={{
-          position: "absolute", top: "20px", right: "20px",
-          width: "42px", height: "42px", borderRadius: "50%",
-          border: "1.5px solid #c9a8d0", background: "white",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer", fontSize: "20px", color: "#6a4d7d", fontFamily: sans, lineHeight: 1,
-        }}>×</button>
-
-        {/* Title */}
-        {isVoice ? (
-          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#1a1a1a", margin: "0 0 6px", paddingRight: "60px" }}>{title || "Untitled"}</p>
-        ) : (
-          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
-            fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#1a1a1a",
-            border: "none", background: "transparent", outline: "none",
-            width: "calc(100% - 60px)", padding: 0, marginBottom: "6px", display: "block",
-          }} />
-        )}
-
-        {/* Meta */}
-        <p style={{ fontFamily: sans, fontSize: "16px", color: "#888", margin: "0 0 14px" }}>
-          {isVoice ? "Voice" : "Text"} · {created}
-        </p>
-
-        {/* Tags */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
-          {allTags.length > 0
-            ? allTags.map((t, i) => <TagChip key={i} label={t.label} onRemove={t.remove} />)
-            : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: "#bababa" }}>No tags yet — add them below.</span>
-          }
-        </div>
-
-        {/* Quick-add tag buttons */}
-        <div style={{ display: "flex", gap: "0", marginBottom: "24px" }}>
-          <button onClick={() => document.getElementById("edit-call-them")?.focus()} style={addTagBtnStyle()}>+ Add Person</button>
-          <button onClick={() => { const y = prompt("Year (e.g. 2013):"); if (y) setYear(y.trim()); }} style={addTagBtnStyle()}>+ Add Year</button>
-          <button onClick={() => { const p = prompt("Place (City, Country):"); if (p) setPlace(p.trim()); }} style={addTagBtnStyle()}>+ Add Place</button>
+      <div style={{ background: "white", border: "1px solid #ddd6c6", borderRadius: "15px", padding: "30px 50px 36px", position: "relative" }}>
+        {/* Header row: title/meta/tags + close */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+          <div style={{ flex: 1, paddingRight: "24px" }}>
+            {isVoice ? (
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#1a1a1a", margin: "0 0 6px" }}>{title || "Untitled"}</p>
+            ) : (
+              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
+                fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#1a1a1a",
+                border: "none", background: "transparent", outline: "none",
+                width: "100%", padding: 0, marginBottom: "6px", display: "block",
+              }} />
+            )}
+            <p style={{ fontFamily: sans, fontSize: "16px", color: "#888", margin: "0 0 12px" }}>
+              {isVoice ? "Voice" : "Text"} · {created}
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginBottom: "10px" }}>
+              {allTags.length > 0
+                ? allTags.map((t, i) => <TagChip key={i} label={t.label} onRemove={t.remove} />)
+                : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: "#bababa" }}>No tags yet — add them below.</span>
+              }
+            </div>
+            <div style={{ display: "flex", gap: "0" }}>
+              <button onClick={() => document.getElementById("edit-call-them")?.focus()} style={addTagBtnStyle()}>+ Add Person</button>
+              <button onClick={() => { const y = prompt("Year (e.g. 2013):"); if (y) setYear(y.trim()); }} style={addTagBtnStyle()}>+ Add Year</button>
+              <button onClick={() => { const p = prompt("Place (City, Country):"); if (p) setPlace(p.trim()); }} style={addTagBtnStyle()}>+ Add Place</button>
+            </div>
+          </div>
+          {/* Small × close */}
+          <button onClick={onClose} style={{
+            background: "none", border: "none", cursor: "pointer",
+            fontFamily: sans, fontSize: "22px", color: "#888", lineHeight: 1,
+            padding: "0 4px", flexShrink: 0,
+          }}>×</button>
         </div>
 
         {/* Body / Waveform */}
@@ -762,21 +758,20 @@ function EntryEditView({
             </p>
           </div>
         ) : (
-          <div style={{ position: "relative", background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px", minHeight: "140px" }}>
+          <div style={{ position: "relative", background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px", minHeight: "120px" }}>
             <button onClick={() => setEditingBody(b => !b)} style={{
-              position: "absolute", top: "14px", right: "14px", width: "32px", height: "32px", borderRadius: "50%",
-              border: "1.5px solid #c9a8d0", background: "white",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", color: "#6a4d7d", fontSize: "15px",
+              position: "absolute", top: "12px", right: "12px",
+              background: "none", border: "none", cursor: "pointer",
+              color: "#6a4d7d", fontSize: "17px", lineHeight: 1, padding: "2px",
             }}>✎</button>
             {editingBody ? (
               <textarea value={body} onChange={e => setBody(e.target.value)} autoFocus style={{
-                width: "100%", minHeight: "120px", border: "none", background: "transparent",
+                width: "100%", minHeight: "100px", border: "none", background: "transparent",
                 fontFamily: sans, fontSize: "14px", lineHeight: "1.7", resize: "vertical",
                 outline: "none", boxSizing: "border-box", color: "#1a1a1a",
               }} />
             ) : (
-              <p style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a", lineHeight: "1.7", margin: 0, whiteSpace: "pre-wrap", paddingRight: "40px" }}>
+              <p style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a", lineHeight: "1.7", margin: 0, whiteSpace: "pre-wrap", paddingRight: "28px" }}>
                 {body || <span style={{ color: "#bababa", fontStyle: "oblique" }}>Click ✎ to edit</span>}
               </p>
             )}
@@ -785,9 +780,9 @@ function EntryEditView({
       </div>
 
       {/* Structured forms */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: "#1a1a1a", margin: "0 0 12px" }}>Someone worth naming?</p>
-        <div style={{ display: "flex", gap: "20px", alignItems: "flex-end", marginBottom: "20px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: "#1a1a1a", margin: 0 }}>Someone worth naming?</p>
+        <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
           <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
           <SField label="FULL NAME" value={fullName} onChange={setFullName} hint="First and last, if you know it." />
           <button onClick={addPersonFromForm} style={{
@@ -797,7 +792,7 @@ function EntryEditView({
           }}>+ Add person</button>
         </div>
 
-        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: "#1a1a1a", margin: "0 0 12px" }}>A time that mattered?</p>
+        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: "#1a1a1a", margin: 0 }}>A time that mattered?</p>
         <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
           <SField label="WHAT HAPPENED" value={whatHappened} onChange={setWhatHappened} hint="Born · Moved · Married · A child arrived · Someone left" />
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -934,6 +929,7 @@ function EntriesView({
         const e = await api.addDimensionEntry(contractId, dim.slug, { body: body.trim(), entry_type: "text" });
         onEntryAdded(e as Entry);
         setBody("");
+        setEditing(e as Entry);
       } finally { setSaving(false); }
     } else {
       if (!recording) return;
@@ -1043,87 +1039,90 @@ function EntriesView({
         </div>
       </div>
 
-      {editing ? (
-        <EntryEditView
-          entry={editing}
-          onSave={saveEdit}
-          onClose={() => setEditing(null)}
-          saving={savingEdit}
-        />
-      ) : (
-      <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: "space-between", alignItems: "flex-start", width: "1700px" }}>
+      <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: editing ? undefined : "space-between", alignItems: "flex-start", width: editing ? undefined : "1700px", gap: editing ? "60px" : undefined }}>
 
-        {/* Left: ENTRIES (800px) */}
-        <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "15px" }}>
-          <p style={{
-            fontFamily: sans, fontWeight: 700, fontSize: "22px",
-            color: "#6a4d7d", margin: 0, letterSpacing: "0.03em",
-          }}>ENTRIES</p>
-
-          {data.entries.length === 0 ? (
-            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#888", margin: 0, lineHeight: "1.5" }}>
-              Your stories live here. Add your first entry.
-            </p>
+        {/* Left: ENTRIES list or inline EntryEditView */}
+        <div style={{ flex: editing ? 1 : undefined, width: editing ? undefined : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "15px" }}>
+          {editing ? (
+            <EntryEditView
+              entry={editing}
+              onSave={saveEdit}
+              onClose={() => setEditing(null)}
+              saving={savingEdit}
+            />
           ) : (
-            data.entries.map(entry => {
-              const tags = entry.tags ?? {};
-              const peopleTags: string[] = tags.people?.length ? tags.people : [];
-              const yearTag = tags.year ?? null;
-              const placeTag = tags.place ?? null;
-              const allTags = [...peopleTags, ...(yearTag ? [yearTag] : []), ...(placeTag ? [placeTag] : [])];
-              const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} · ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
-              return (
-                <div key={entry.id} style={{
-                  background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "12px",
-                  padding: "24px 28px", position: "relative",
-                }}>
-                  <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", margin: "0 0 6px", paddingRight: "40px" }}>
-                    {entry.title || (entry.body ? `${entry.body.slice(0, 80)}${entry.body.length > 80 ? "…" : ""}` : "Untitled entry")}
-                  </p>
-                  <p style={{ fontFamily: sans, fontSize: "13px", color: "#bababa", margin: "0 0 12px" }}>{meta}</p>
-                  {entry.entry_type !== "voice" && entry.body && (
-                    <p style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", margin: "0 0 12px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
-                      {entry.body.length > 240 ? entry.body.slice(0, 240) + "…" : entry.body}
-                    </p>
-                  )}
-                  {entry.entry_type === "voice" && !entry.body ? (
-                    <span style={{
-                      fontFamily: sans, fontSize: "13px", padding: "5px 12px", borderRadius: "999px",
-                      background: "#f0f0f0", color: "#bababa", fontStyle: "italic",
-                    }}>transcribing…</span>
-                  ) : allTags.length > 0 ? (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
-                      {allTags.map((c, i) => (
-                        <span key={i} style={{
-                          fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px",
-                          background: "#efeaf2", color: "#6a4d7d",
-                        }}>{c}</span>
-                      ))}
-                    </div>
-                  ) : null}
-                  <div style={{ position: "absolute", top: "18px", right: "18px" }}>
-                    <button onClick={() => setMenuOpenId(menuOpenId === entry.id ? null : entry.id)} style={{
-                      fontFamily: sans, fontSize: "20px", color: "#888", letterSpacing: "1px",
-                      background: "none", border: "none", cursor: "pointer", padding: "0 6px", lineHeight: 1,
-                    }}>⋯</button>
-                    {menuOpenId === entry.id && (
-                      <div style={{
-                        position: "absolute", top: "26px", right: 0, zIndex: 30, background: "white",
-                        border: "1px solid #e6e0d6", borderRadius: "10px",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.12)", padding: "6px", minWidth: "130px",
-                      }}>
-                        <button onClick={() => { setEditing(entry); setMenuOpenId(null); }} style={menuItem()}>✎ edit</button>
-                        <button onClick={() => deleteEntry(entry.id)} disabled={deletingId === entry.id} style={{ ...menuItem(), color: "#c0392b", opacity: deletingId === entry.id ? 0.5 : 1 }}>× delete</button>
+            <>
+              <p style={{
+                fontFamily: sans, fontWeight: 700, fontSize: "22px",
+                color: "#6a4d7d", margin: 0, letterSpacing: "0.03em",
+              }}>ENTRIES</p>
+
+              {data.entries.length === 0 ? (
+                <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#888", margin: 0, lineHeight: "1.5" }}>
+                  Your stories live here. Add your first entry.
+                </p>
+              ) : (
+                data.entries.map(entry => {
+                  const tags = entry.tags ?? {};
+                  const peopleTags: string[] = tags.people?.length ? tags.people : [];
+                  const yearTag = tags.year ?? null;
+                  const placeTag = tags.place ?? null;
+                  const allTags = [...peopleTags, ...(yearTag ? [yearTag] : []), ...(placeTag ? [placeTag] : [])];
+                  const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} · ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+                  return (
+                    <div key={entry.id} style={{
+                      background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "12px",
+                      padding: "24px 28px", position: "relative",
+                    }}>
+                      <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", margin: "0 0 6px", paddingRight: "40px" }}>
+                        {entry.title || (entry.body ? `${entry.body.slice(0, 80)}${entry.body.length > 80 ? "…" : ""}` : "Untitled entry")}
+                      </p>
+                      <p style={{ fontFamily: sans, fontSize: "13px", color: "#bababa", margin: "0 0 12px" }}>{meta}</p>
+                      {entry.entry_type !== "voice" && entry.body && (
+                        <p style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", margin: "0 0 12px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                          {entry.body.length > 240 ? entry.body.slice(0, 240) + "…" : entry.body}
+                        </p>
+                      )}
+                      {entry.entry_type === "voice" && !entry.body ? (
+                        <span style={{
+                          fontFamily: sans, fontSize: "13px", padding: "5px 12px", borderRadius: "999px",
+                          background: "#f0f0f0", color: "#bababa", fontStyle: "italic",
+                        }}>transcribing…</span>
+                      ) : allTags.length > 0 ? (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
+                          {allTags.map((c, i) => (
+                            <span key={i} style={{
+                              fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px",
+                              background: "#efeaf2", color: "#6a4d7d",
+                            }}>{c}</span>
+                          ))}
+                        </div>
+                      ) : null}
+                      <div style={{ position: "absolute", top: "18px", right: "18px" }}>
+                        <button onClick={() => setMenuOpenId(menuOpenId === entry.id ? null : entry.id)} style={{
+                          fontFamily: sans, fontSize: "20px", color: "#888", letterSpacing: "1px",
+                          background: "none", border: "none", cursor: "pointer", padding: "0 6px", lineHeight: 1,
+                        }}>⋯</button>
+                        {menuOpenId === entry.id && (
+                          <div style={{
+                            position: "absolute", top: "26px", right: 0, zIndex: 30, background: "white",
+                            border: "1px solid #e6e0d6", borderRadius: "10px",
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.12)", padding: "6px", minWidth: "130px",
+                          }}>
+                            <button onClick={() => { setEditing(entry); setMenuOpenId(null); }} style={menuItem()}>✎ edit</button>
+                            <button onClick={() => deleteEntry(entry.id)} disabled={deletingId === entry.id} style={{ ...menuItem(), color: "#c0392b", opacity: deletingId === entry.id ? 0.5 : 1 }}>× delete</button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })
+                    </div>
+                  );
+                })
+              )}
+            </>
           )}
         </div>
 
-        {/* Right: ADD entry (800px) */}
+        {/* Right: ADD entry (800px) — always visible */}
         <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "27px", height: "695px", alignItems: "flex-end" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
             {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
@@ -1217,7 +1216,6 @@ function EntriesView({
           </button>
         </div>
       </div>
-      )}
     </>
   );
 }
