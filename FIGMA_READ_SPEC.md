@@ -130,6 +130,32 @@ Extract every property below for every node. Never skip a category.
 
 ---
 
+## Layout Rules (catch before shipping)
+
+### justify-between + conditional children
+**Rule:** Never conditionally remove (`{condition && <El />}`) a flex child inside a `justify-between` container.
+
+**Why:** A Figma frame typically shows one state (e.g. voice-complete). The layout looks balanced with N items. When a child is hidden via conditional render in another state, N−1 items remain and `justify-between` redistributes space — the remaining items shift to the wrong positions.
+
+**Fix:** Always render the element; use `visibility: hidden` + `pointerEvents: "none"` to hide it without removing it from the layout. This preserves the item count and spacing across all states.
+
+```tsx
+// WRONG — breaks justify-between when voiceComplete is false
+{voiceComplete && <Link href="...">Upload</Link>}
+
+// CORRECT — layout stable in all states
+<Link
+  href={voiceComplete ? `/upload/${id}` : "#"}
+  style={{ visibility: voiceComplete ? "visible" : "hidden", pointerEvents: voiceComplete ? "auto" : "none" }}
+>
+  Upload
+</Link>
+```
+
+**When to apply:** Any time you write `{condition && <El />}` and the parent has `justifyContent: "space-between"` (or Figma class `justify-between`), stop and use `visibility` instead.
+
+---
+
 ## Ovyu Design Tokens (quick reference)
 
 | Token | Value | Used for |
