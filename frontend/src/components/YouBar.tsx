@@ -178,7 +178,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
       {/* Fixed overlay — covers all page content between header and footer, consistent across every page */}
       {expanded && (
         <div style={{
-          position: "fixed", top: "103px", left: 0, right: 0, bottom: "103px",
+          position: "fixed", top: "226px", left: 0, right: 0, bottom: "103px",
           zIndex: 50,
           display: "flex", flexDirection: "column",
         }}>
