@@ -35,7 +35,7 @@ export default function YourNamePrototype() {
             display: "flex", alignItems: "center", gap: "10px",
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
           }}>
-            <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
+            <span>‹</span>
             Your contracts
           </Link>
 

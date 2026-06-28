@@ -72,7 +72,7 @@ export default function VoiceProfilePrototype() {
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
             marginBottom: "32px",
           }}>
-            <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
+            <span>‹</span>
             Your contracts
           </Link>
 
