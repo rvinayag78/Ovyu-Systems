@@ -32,7 +32,7 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
 
   return (
     <div style={{
-      width: "1700px", height: "100px",
+      width: "1800px", height: "100px",
       background: "#efeaf2",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       paddingLeft: "55px", paddingRight: "55px",
@@ -111,7 +111,7 @@ function KeeperRow({ c }: { c: ContractRow }) {
 
   return (
     <div style={{
-      width: "1700px", height: "100px",
+      width: "1800px", height: "100px",
       background: "#eceee5",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       paddingLeft: "55px", paddingRight: "55px",
@@ -163,7 +163,7 @@ function TcRow({ c }: { c: ContractRow }) {
 
   return (
     <div style={{
-      width: "1700px", height: "100px",
+      width: "1800px", height: "100px",
       background: "#f5f0e8",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       paddingLeft: "55px", paddingRight: "55px",
@@ -227,7 +227,7 @@ export default function ContractsPage() {
 
       <div style={{ flex: 1, paddingTop: "78px" }}>
         <div style={{
-          width: "1700px",
+          width: "1800px",
           margin: "0 auto",
           display: "flex",
           flexDirection: "column",
@@ -252,7 +252,7 @@ export default function ContractsPage() {
                 {making.map(c => <MakerRow key={c.id} c={c} voiceComplete={voiceCompleteMap[c.id]} />)}
                 {/* "Start a new contract" row — always shown */}
                 <div style={{
-                  width: "1700px", height: "100px",
+                  width: "1800px", height: "100px",
                   border: "1px solid #888", borderRadius: "8px",
                   display: "flex", alignItems: "center", gap: "57px",
                   paddingLeft: "55px", paddingRight: "55px", boxSizing: "border-box",

@@ -106,7 +106,7 @@ export function UploadHubClient() {
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ paddingTop: "31px" }}>
-        <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
+        <div style={{ width: "1800px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
           {/* Breadcrumb */}
           <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
@@ -139,12 +139,12 @@ export function UploadHubClient() {
       {/* Content sections — hidden while YOU is expanded */}
       {!youExpanded && (
         <div style={{ flex: 1 }}>
-          <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingTop: "48px", paddingBottom: "40px" }}>
+          <div style={{ width: "1800px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingTop: "48px", paddingBottom: "40px" }}>
 
             {/* MESSAGES */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#8e5e6e", margin: 0 }}>MESSAGES</p>
-              <div style={{ display: "flex", justifyContent: "space-between", width: "1700px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                 {[
                   { type: "welcome", label: "Welcome", sub: "The first thing received upon transfer." },
                   { type: "for_when", label: "For when", sub: "Messages for specific moments.\nScheduled delivery coming soon.", disabled: true },
@@ -192,7 +192,7 @@ export function UploadHubClient() {
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d", margin: 0 }}>
                 {keeperName.toUpperCase()}
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", columnGap: "22px", alignContent: "space-between", alignItems: "center", height: "286px", width: "1700px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", columnGap: "22px", alignContent: "space-between", alignItems: "center", height: "286px", width: "100%" }}>
                 {KEEPER_CARDS.map(card => {
                   const value = (profile as Record<string, string | undefined>)[card.key];
                   return (

@@ -122,8 +122,7 @@ export function VoiceNameClient() {
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>
-        {/* 1500px container at left 209px */}
-        <div style={{ marginLeft: "209px", width: "1500px", display: "flex", flexDirection: "column", gap: "34px" }}>
+        <div style={{ width: "1800px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "34px" }}>
 
         {/* Back link */}
           <Link href="/contracts" style={{
@@ -151,7 +150,7 @@ export function VoiceNameClient() {
           </div>
 
           {/* Two-column content — 413px height, items-start, justify-between */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "1500px", flexShrink: 0, height: "413px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", height: "413px" }}>
           {/* Left — before you begin */}
           <div style={{ width: "432px", flexShrink: 0 }}>
             <p style={{

@@ -181,7 +181,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
           background: voiceComplete ? "#fff" : "#f0f0f0",
           borderTop: "3px solid #bababa",
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 50px", boxSizing: "border-box",
+          padding: "0 60px", boxSizing: "border-box",
           cursor: voiceComplete ? "pointer" : "default",
           visibility: expanded ? "hidden" : "visible",
         }}>
@@ -204,7 +204,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
               background: "#efeaf2",
               borderTop: "3px solid #bababa",
               display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "0 50px", boxSizing: "border-box",
+              padding: "0 60px", boxSizing: "border-box",
               cursor: "pointer",
             }}>
             {barLabel}
@@ -217,7 +217,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             background: "#fff",
             borderBottom: "0.5px solid #888",
             display: "flex", flexDirection: "column",
-            gap: "10px", padding: "13px 88px",
+            gap: "10px", padding: "13px 60px",
             boxSizing: "border-box",
           }}>
             <ExpandedRows contractId={contractId} dimensionCounts={dimensionCounts} />
