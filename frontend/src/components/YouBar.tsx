@@ -132,7 +132,7 @@ type YouBarProps = {
   overlayTop?: number;
 };
 
-export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, overlayTop = 226 }: YouBarProps) {
+export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, overlayTop = 315 }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
 
   function toggle() {
@@ -189,14 +189,15 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
         {voiceComplete ? <BarArrow expanded={false} /> : <span style={{ fontSize: "22px" }}>🔒</span>}
       </div>
 
-      {/* Fixed overlay — covers all page content between header and footer, consistent across every page */}
+      {/* Fixed overlay — Figma 2005:2161: top:315px, no bg on container (page bg #f8f7f5 fills gap below rows) */}
       {expanded && (
         <div style={{
-          position: "fixed", top: `${overlayTop}px`, left: 0, right: 0, bottom: "103px",
+          position: "fixed", top: `${overlayTop}px`, left: 0, width: "1920px", bottom: "103px",
           zIndex: 50,
           display: "flex", flexDirection: "column",
+          background: "#fff",
         }}>
-          {/* Bar strip (click to collapse) */}
+          {/* Bar strip (click to collapse) — Figma 2005:2212: h:70px bg:#efeaf2 border-top:3px #bababa */}
           <div
             onClick={toggle}
             style={{
@@ -211,9 +212,10 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             <BarArrow expanded={true} />
           </div>
 
-          {/* Dimension rows — scrollable if they exceed available height */}
+          {/* Rows — explicit height fills remaining overlay so border-bottom sits flush with footer */}
           <div style={{
-            flex: 1, overflowY: "auto",
+            height: `calc(100vh - ${overlayTop}px - 103px - 70px)`,
+            overflowY: "auto",
             background: "#fff",
             borderBottom: "0.5px solid #888",
             display: "flex", flexDirection: "column",

@@ -133,7 +133,7 @@ export function UploadHubClient() {
         contractId={contractId}
         dimensionCounts={hub?.dimension_counts ?? {}}
         onExpandedChange={setYouExpanded}
-        overlayTop={315}
+
       />
 
       {/* Content sections — hidden while YOU is expanded */}
