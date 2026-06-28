@@ -51,6 +51,7 @@ export function UploadHubClient() {
   const [editMsgType, setEditMsgType] = useState<string | null>(null);
   const [editMsgText, setEditMsgText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [youExpanded, setYouExpanded] = useState(false);
 
   const initial = typeof window !== "undefined"
     ? (sessionStorage.getItem("ovyu_maker_name") ?? "")[0]?.toUpperCase() ?? "?"
@@ -104,7 +105,7 @@ export function UploadHubClient() {
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
-      <div style={{ flex: 1, paddingTop: "31px", display: "flex", flexDirection: "column" }}>
+      <div style={{ paddingTop: "31px" }}>
         <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
           {/* Breadcrumb */}
@@ -113,18 +114,31 @@ export function UploadHubClient() {
             <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
           </Link>
 
-          {/* Inner content — gap 50px between heading, messages, keeper */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "50px", width: "100%" }}>
+          {/* Heading */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+              For {keeperName}
+            </h1>
+            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
+              A bit of you. Started today.
+            </p>
+          </div>
 
-            {/* Heading */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
-                For {keeperName}.
-              </h1>
-              <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
-                A bit of you. Started today.
-              </p>
-            </div>
+        </div>
+      </div>
+
+      {/* YOU bar — sits between heading and content; expands to overlay cards below */}
+      <YouBar
+        voiceComplete={voiceComplete}
+        contractId={contractId}
+        dimensionCounts={hub?.dimension_counts ?? {}}
+        onExpandedChange={setYouExpanded}
+      />
+
+      {/* Content sections — hidden while YOU is expanded */}
+      {!youExpanded && (
+        <div style={{ flex: 1 }}>
+          <div style={{ width: "1702px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "50px", paddingTop: "48px", paddingBottom: "40px" }}>
 
             {/* MESSAGES */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -132,10 +146,26 @@ export function UploadHubClient() {
               <div style={{ display: "flex", justifyContent: "space-between", width: "1700px" }}>
                 {[
                   { type: "welcome", label: "Welcome", sub: "The first thing received upon transfer." },
-                  { type: "for_when", label: "For when", sub: "Messages for specific moments.\nScheduled delivery coming soon." },
+                  { type: "for_when", label: "For when", sub: "Messages for specific moments.\nScheduled delivery coming soon.", disabled: true },
                 ].map(card => {
                   const saved = messages.find(m => m.type === card.type);
-                  return (
+                  const isDisabled = (card as { disabled?: boolean }).disabled;
+                  return isDisabled ? (
+                    <div key={card.type} style={{
+                      background: "#f4e8ec", borderRadius: "10px",
+                      height: "130px", width: "840px", padding: "20px 30px",
+                      display: "flex", alignItems: "flex-start",
+                      opacity: 0.4,
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
+                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
+                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, whiteSpace: "pre-line" }}>{card.sub}</p>
+                        </div>
+                        <Dot filled={false} />
+                      </div>
+                    </div>
+                  ) : (
                     <button key={card.type} onClick={() => { setEditMsgType(card.type); setEditMsgText(saved?.body ?? ""); }} style={{
                       background: "#f4e8ec", borderRadius: "10px", border: "none", cursor: "pointer",
                       height: "130px", width: "840px", padding: "20px 30px", textAlign: "left",
@@ -161,7 +191,7 @@ export function UploadHubClient() {
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d", margin: 0 }}>
                 {keeperName.toUpperCase()}
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "22px", width: "1700px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", columnGap: "22px", alignContent: "space-between", height: "286px", width: "1700px" }}>
                 {KEEPER_CARDS.map(card => {
                   const value = (profile as Record<string, string | undefined>)[card.key];
                   return (
@@ -185,16 +215,9 @@ export function UploadHubClient() {
               </div>
             </div>
 
-          </div>{/* end inner content */}
+          </div>
         </div>
-      </div>
-
-      {/* YOU bar */}
-      <YouBar
-        voiceComplete={voiceComplete}
-        contractId={contractId}
-        dimensionCounts={hub?.dimension_counts ?? {}}
-      />
+      )}
 
       <Footer />
 

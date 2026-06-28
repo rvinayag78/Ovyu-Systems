@@ -78,10 +78,18 @@ type YouBarProps = {
   voiceComplete?: boolean;
   contractId?: string;
   dimensionCounts?: Record<string, number>;
+  onExpandedChange?: (expanded: boolean) => void;
 };
 
-export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {} }: YouBarProps) {
+export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
+
+  function toggle() {
+    if (!voiceComplete) return;
+    const next = !expanded;
+    setExpanded(next);
+    onExpandedChange?.(next);
+  }
 
   const dimColor = voiceComplete ? "#888" : "#bababa";
   const youColor = voiceComplete ? "#1a1a1a" : "#bababa";
@@ -90,7 +98,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
     <div style={{ width: "100%" }}>
       {/* YOU bar */}
       <div
-        onClick={() => voiceComplete && setExpanded(!expanded)}
+        onClick={toggle}
         style={{
           width: "100%",
           height: "70px",
