@@ -151,7 +151,7 @@ export function VoiceNameClient() {
           </div>
 
           {/* Two-column content — 413px height, items-start, justify-between */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", height: "413px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "1500px", flexShrink: 0, height: "413px" }}>
           {/* Left — before you begin */}
           <div style={{ width: "432px", flexShrink: 0 }}>
             <p style={{
