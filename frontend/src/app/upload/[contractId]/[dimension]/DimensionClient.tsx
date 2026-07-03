@@ -1230,7 +1230,17 @@ function menuItem(): CSSProperties {
 }
 
 export function DimensionClient() {
-  const { contractId, dimension } = useParams<{ contractId: string; dimension: string }>();
+  const { contractId: rawId, dimension: rawDim } = useParams<{ contractId: string; dimension: string }>();
+  const contractId = (() => {
+    if (rawId !== "_") return rawId;
+    if (typeof window === "undefined") return rawId;
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    if (parts[1] && parts[1] !== "_") return parts[1];
+    return sessionStorage.getItem("ovyu_contract_id") ?? rawId;
+  })();
+  const dimension = rawDim === "_" && typeof window !== "undefined"
+    ? (window.location.pathname.split("/").filter(Boolean)[2] ?? rawDim)
+    : rawDim;
   const dim = DIMENSIONS.find(d => d.slug === dimension);
   const router = useRouter();
 

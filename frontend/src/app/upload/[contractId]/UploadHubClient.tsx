@@ -40,7 +40,16 @@ function Dot({ filled }: { filled: boolean }) {
 }
 
 export function UploadHubClient() {
-  const { contractId } = useParams<{ contractId: string }>();
+  const { contractId: rawId } = useParams<{ contractId: string }>();
+  // Next.js static export may resolve the param to the SSG placeholder "_".
+  // Recover the real ID from the actual URL path or sessionStorage fallback.
+  const contractId = (() => {
+    if (rawId !== "_") return rawId;
+    if (typeof window === "undefined") return rawId;
+    const seg = window.location.pathname.split("/").filter(Boolean)[1];
+    if (seg && seg !== "_") return seg;
+    return sessionStorage.getItem("ovyu_contract_id") ?? rawId;
+  })();
   const [hub, setHub] = useState<HubData | null>(null);
   const [profile, setProfile] = useState<KeeperProfile>({});
   const [messages, setMessages] = useState<Msg[]>([]);

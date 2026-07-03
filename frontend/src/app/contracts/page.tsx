@@ -66,7 +66,7 @@ function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolea
                 View Contract
               </Link>
             </div>
-            <Link href={`/upload/${c.id}`} style={{
+            <Link href={`/upload/${c.id}`} prefetch={false} onClick={() => sessionStorage.setItem('ovyu_contract_id', c.id)} style={{
               display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
               fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
               textDecoration: "none", textTransform: "uppercase",
