@@ -75,15 +75,11 @@ export function UploadHubClient() {
     : "?";
 
   useEffect(() => {
-    Promise.all([
-      api.getHub(contractId),
-      api.getKeeperProfile(contractId),
-      api.listMessages(contractId),
-      api.getVoiceStatus(contractId),
-    ]).then(([h, p, m, vs]) => {
-      setHub(h as HubData);
-      setProfile(p);
-      setMessages(m);
+    // Fetched independently of hub/profile/messages below — bundling it into
+    // one Promise.all meant the YOU bar stayed locked until the slowest of
+    // those unrelated calls finished, even when voice status itself (and
+    // therefore the unlock) was already known.
+    api.getVoiceStatus(contractId).then(vs => {
       const status = vs as { name: string; profile: string };
       const complete = status.name === "complete" && status.profile === "complete";
       setVoiceComplete(complete);
@@ -94,6 +90,16 @@ export function UploadHubClient() {
             : `/upload/${contractId}/voice/profile`
         );
       }
+    }).catch(console.error);
+
+    Promise.all([
+      api.getHub(contractId),
+      api.getKeeperProfile(contractId),
+      api.listMessages(contractId),
+    ]).then(([h, p, m]) => {
+      setHub(h as HubData);
+      setProfile(p);
+      setMessages(m);
     }).catch(console.error).finally(() => setLoading(false));
   }, [contractId]);
 

@@ -203,25 +203,44 @@ export default function ContractsPage() {
     setInitial(name[0]?.toUpperCase() ?? "?");
 
     api.listMyContracts()
-      .then(async (cs) => {
-        setContracts(cs);
-
-        // Fetch voice status for locked maker contracts
-        const makerContracts = cs.filter(c => c.my_role === "maker" && c.status === "LOCKED");
-        const voiceMap: Record<string, boolean> = {};
-        for (const c of makerContracts) {
-          try {
-            const status = await api.getVoiceStatus(c.id);
-            voiceMap[c.id] = status.name === "complete" && status.profile === "complete";
-          } catch {
-            voiceMap[c.id] = false;
-          }
-        }
-        setVoiceCompleteMap(voiceMap);
-      })
+      .then(cs => setContracts(cs))
       .catch(() => setError("Could not load contracts."))
       .finally(() => setLoading(false));
   }, []);
+
+  // Voice recording happens on a separate route (voice/name, voice/profile);
+  // this page only learns it finished by asking again. A one-time fetch on
+  // mount left the YOU bar showing stale "locked" state whenever the user
+  // returned here via back-navigation or a cached route instead of a fresh
+  // load. Poll while locked; stop once voice recording completes.
+  useEffect(() => {
+    const makerContracts = contracts.filter(c => c.my_role === "maker" && c.status === "LOCKED");
+    if (makerContracts.length === 0) return;
+
+    let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | undefined;
+
+    async function refresh() {
+      const voiceMap: Record<string, boolean> = {};
+      for (const c of makerContracts) {
+        try {
+          const status = await api.getVoiceStatus(c.id);
+          voiceMap[c.id] = status.name === "complete" && status.profile === "complete";
+        } catch {
+          voiceMap[c.id] = false;
+        }
+      }
+      if (cancelled) return;
+      setVoiceCompleteMap(voiceMap);
+      if (Object.values(voiceMap).some(Boolean) && interval) {
+        clearInterval(interval);
+      }
+    }
+
+    refresh();
+    interval = setInterval(refresh, 5000);
+    return () => { cancelled = true; if (interval) clearInterval(interval); };
+  }, [contracts]);
 
   const making = contracts.filter(c => c.my_role === "maker");
   const receiving = contracts.filter(c => c.my_role === "keeper");
