@@ -113,6 +113,20 @@
 - [ ] Verify GitHub Actions CI runs on first PR to `staging`
 - [ ] Confirm Amplify staging auto-deploy wired to `staging` branch
 - [ ] Production custom domain — add in Amplify Domain Management when domain is ready
+- [ ] **Fix Bedrock IAM policy for entry auto-tagging** — `ovyu-lambda-exec-dev` role's
+      `ovyu-transcribe-bedrock-sqs` inline policy only grants `bedrock:InvokeModel` on the
+      `foundation-model` ARN, but the code invokes Claude Haiku via its cross-region
+      `inference-profile` ARN (`us.anthropic.claude-haiku-4-5-...`) — a different IAM
+      resource type. Confirmed live in staging logs: every text entry's auto-tagging call
+      fails with `AccessDeniedException` and silently falls back to empty tags. Fix:
+      add `arn:aws:bedrock:us-west-2:860350045111:inference-profile/us.anthropic.claude-haiku-*`
+      to the `BedrockHaikuTagging` statement's `Resource` array, then:
+      ```
+      aws --profile ovyu iam put-role-policy \
+        --role-name ovyu-lambda-exec-dev \
+        --policy-name ovyu-transcribe-bedrock-sqs \
+        --policy-document file://updated-policy.json
+      ```
 
 ---
 
