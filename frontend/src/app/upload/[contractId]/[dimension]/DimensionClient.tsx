@@ -1061,16 +1061,16 @@ function EntriesView({
                   const yearTag = tags.year ?? null;
                   const placeTag = tags.place ?? null;
                   const allTags = [...peopleTags, ...(yearTag ? [yearTag] : []), ...(placeTag ? [placeTag] : [])];
-                  const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} · ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+                  const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} • ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
                   return (
                     <div key={entry.id} style={{
-                      background: CREAM_FILL, border: `1.5px solid ${CREAM_STROKE}`, borderRadius: "12px",
-                      padding: "24px 28px", position: "relative",
+                      background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px",
+                      padding: "30px 30px 20px", position: "relative",
                     }}>
-                      <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: BLACK, margin: "0 0 6px", paddingRight: "40px" }}>
+                      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK, margin: "0 0 6px", paddingRight: "40px" }}>
                         {entry.title || (entry.body ? `${entry.body.slice(0, 80)}${entry.body.length > 80 ? "…" : ""}` : "Untitled entry")}
                       </p>
-                      <p style={{ fontFamily: sans, fontSize: "13px", color: LIGHT_GREY, margin: "0 0 12px" }}>{meta}</p>
+                      <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>{meta}</p>
                       {entry.entry_type !== "voice" && entry.body && (
                         <p style={{ fontFamily: sans, fontSize: "16px", color: BLACK, margin: "0 0 12px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
                           {entry.body.length > 240 ? entry.body.slice(0, 240) + "…" : entry.body}
@@ -1197,7 +1197,7 @@ function EntriesView({
             disabled={saving || (mode === "text" && !canSave)}
             style={{
               width: "255px", height: "71px",
-              background: mode === "text" ? BLACK : LAVENDER_FILL,
+              background: mode === "text" ? LAVENDER : LAVENDER_FILL,
               border: "none", borderRadius: "8px",
               fontFamily: sans, fontWeight: 700, fontSize: "18px",
               color: mode === "text" ? "white" : LAVENDER,
