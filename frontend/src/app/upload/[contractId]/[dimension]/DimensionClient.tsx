@@ -679,20 +679,20 @@ function EntryEditView({
   const isVoice = entry.entry_type === "voice";
   const created = new Date(entry.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-  function addPersonFromForm() {
-    const name = (fullName || callThem).trim();
-    if (name && !people.some(p => p.toLowerCase() === name.toLowerCase())) {
-      setPeople(prev => [...prev, name]);
-    }
-    setCallThem(""); setFullName("");
-  }
-
+  // Both structured-prompt rows save the whole entry (per Figma 2182:7663,
+  // each row ends in the same "Save" button, not a separate "add" step) —
+  // so a name typed into "Someone worth naming?" must be captured here
+  // directly rather than via a stale `people` state read.
   function handleSave() {
+    const name = (fullName || callThem).trim();
+    const finalPeople = name && !people.some(p => p.toLowerCase() === name.toLowerCase())
+      ? [...people, name]
+      : people;
     const y = /\b(\d{4})\b/.exec(when)?.[1] ?? year;
     onSave({
       title: (title.trim() || whatHappened.trim()),
       body,
-      tags: { people, year: y || null, place: place.trim() || null },
+      tags: { people: finalPeople, year: y || null, place: place.trim() || null },
     });
   }
 
@@ -785,11 +785,12 @@ function EntryEditView({
         <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
           <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
           <SField label="FULL NAME" value={fullName} onChange={setFullName} hint="First and last, if you know it." />
-          <button onClick={addPersonFromForm} style={{
+          <button onClick={handleSave} disabled={saving} style={{
             width: "204px", height: "57px", flexShrink: 0,
-            background: LAVENDER, border: "none", borderRadius: "8px",
-            fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "white", cursor: "pointer",
-          }}>+ Add person</button>
+            background: saving ? "#b0a0c0" : LAVENDER, border: "none", borderRadius: "8px",
+            fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "white",
+            cursor: saving ? "not-allowed" : "pointer",
+          }}>{saving ? "Saving…" : "Save"}</button>
         </div>
 
         <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>A time that mattered?</p>
@@ -1115,7 +1116,9 @@ function EntriesView({
           )}
         </div>
 
-        {/* Right: ADD entry (800px) — always visible */}
+        {/* Right: ADD entry (800px) — hidden while editing an existing entry;
+            per Figma (2182:7663) the editor takes the full row, no second column */}
+        {!editing && (
         <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "27px", height: "695px", alignItems: "flex-end" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
             {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
@@ -1208,6 +1211,7 @@ function EntriesView({
             {saving ? "Saving…" : recording ? "■ Stop & Save" : "Save"}
           </button>
         </div>
+        )}
       </div>
     </>
   );
