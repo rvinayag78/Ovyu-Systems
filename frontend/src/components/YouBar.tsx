@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { tokens } from "@/styles/tokens";
 
@@ -140,19 +140,26 @@ type YouBarProps = {
   activeDimension?: string;
 };
 
+// Per Figma (2003:922, 2005:1923), the expanded panel always covers the full
+// content area between the Header and the Footer — it does not start from
+// wherever the collapsed bar happens to sit. Anchoring to the bar's dynamic
+// on-screen position meant that on any page where the bar sits near the
+// bottom of the viewport (the common case, since it's the last thing before
+// the footer), the panel rendered starting at or past the bottom edge —
+// effectively invisible, "below the page" instead of over it.
+const HEADER_H = tokens.space.headerHeight;
+const FOOTER_H = tokens.space.footerHeight;
+
 export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, activeDimension }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
-  const barRef = useRef<HTMLDivElement>(null);
-  // Measured from the in-flow bar itself at the moment it opens, rather than a
-  // hardcoded per-page guess — page content height above the bar varies, so a
-  // fixed number was only ever correct for one page/state.
-  const [overlayTop, setOverlayTop] = useState(0);
 
   function toggle() {
     if (!voiceComplete) return;
     const next = !expanded;
-    if (next && barRef.current) {
-      setOverlayTop(barRef.current.getBoundingClientRect().top);
+    if (next && typeof window !== "undefined") {
+      // Scroll to top so the Header is back in view and the panel sits
+      // directly beneath it, matching the Figma mock exactly.
+      window.scrollTo(0, 0);
     }
     setExpanded(next);
     onExpandedChange?.(next);
@@ -202,7 +209,6 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
     <div style={{ width: "100%" }}>
       {/* In-flow bar — holds layout space; hidden (not removed) when expanded so page height stays stable */}
       <div
-        ref={barRef}
         onClick={toggle}
         style={{
           width: "100%", height: "70px",
@@ -219,11 +225,11 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
 
       {expanded && (
         <>
-          {/* Expanded YOU bar — independent fixed div, no flex parent */}
+          {/* Expanded YOU bar — pinned right below the Header, independent fixed div, no flex parent */}
           <div
             onClick={toggle}
             style={{
-              position: "fixed", top: `${overlayTop}px`, left: 0, width: "1920px", height: "70px",
+              position: "fixed", top: `${HEADER_H}px`, left: 0, width: "1920px", height: "70px",
               zIndex: 50,
               background: LAVENDER_FILL,
               borderTop: `3px solid ${LIGHT_GREY}`,
@@ -235,13 +241,13 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             <BarArrow expanded={true} />
           </div>
 
-          {/* Rows panel — top pins to bar bottom, bottom pins 103px above viewport bottom (footer) */}
+          {/* Rows panel — fills the rest of the viewport between the bar and the Footer */}
           <div style={{
             position: "fixed",
-            top: `${overlayTop + 70}px`,
+            top: `${HEADER_H + 70}px`,
             left: 0,
             width: "1920px",
-            bottom: "103px",
+            bottom: `${FOOTER_H}px`,
             zIndex: 50,
             overflowY: "auto",
             background: "#fff",
