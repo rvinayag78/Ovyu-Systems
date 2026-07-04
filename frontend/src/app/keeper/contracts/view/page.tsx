@@ -21,13 +21,13 @@ function fmt(iso?: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, bodyWidth }: { title: string; children: React.ReactNode; bodyWidth?: string }) {
   return (
     <div>
       <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#c9a84c", textTransform: "uppercase", marginBottom: "10px", margin: "0 0 10px" }}>
         {title}
       </p>
-      <p style={{ fontFamily: sans, fontSize: "16px", color: "#444", lineHeight: "normal", margin: 0 }}>{children}</p>
+      <p style={{ fontFamily: sans, fontSize: "16px", color: "#444", lineHeight: "normal", margin: 0, ...(bodyWidth ? { width: bodyWidth } : {}) }}>{children}</p>
     </div>
   );
 }
@@ -98,23 +98,25 @@ function ContractViewInner() {
 
           {/* Title row */}
           <div>
-            <h1 style={{ fontFamily: serif, fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px" }}>
-              ov<em>yu</em> Agreement
+            <h1 style={{ fontFamily: serif, fontWeight: 400, fontStyle: "normal", fontSize: "64px", color: "#1a1a1a", margin: "0 0 8px" }}>
+              ov<em style={{ fontStyle: "italic" }}>yu</em> Agreement
             </h1>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
               <span style={{ fontFamily: sans, fontSize: "22px", color: "#1a1a1a", fontStyle: "italic" }}>
                 Between {maker} and {keeper}
               </span>
-              {makerSigned && (
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#888", fontStyle: "italic" }}>
-                  Signed by {maker} on {makerSigned}
-                </span>
-              )}
-              {keeperSigned && (
-                <span style={{ fontFamily: sans, fontSize: "18px", color: "#888", fontStyle: "italic" }}>
-                  Signed by {keeper} on {keeperSigned}
-                </span>
-              )}
+              <span style={{
+                fontFamily: sans, fontSize: "18px", color: "#888", fontStyle: "italic",
+                visibility: makerSigned ? "visible" : "hidden", pointerEvents: makerSigned ? "auto" : "none",
+              }}>
+                Signed by {maker} on {makerSigned || "—"}
+              </span>
+              <span style={{
+                fontFamily: sans, fontSize: "18px", color: "#888", fontStyle: "italic",
+                visibility: keeperSigned ? "visible" : "hidden", pointerEvents: keeperSigned ? "auto" : "none",
+              }}>
+                Signed by {keeper} on {keeperSigned || "—"}
+              </span>
               <button
                 onClick={() => window.print()}
                 style={{ fontFamily: sans, fontSize: "18px", color: "#1a1a1a", background: "none", border: "none", cursor: "pointer", padding: 0 }}
@@ -158,14 +160,14 @@ function ContractViewInner() {
                 After the transfer is activated, the upload belongs to {keeper}. They can stop using it at any time and can ask Ovyu to delete it.
               </Section>
 
-              <Section title="What Ovyu does.">
+              <Section title="What Ovyu does." bodyWidth="855px">
                 Stores the upload, the voice clone, and this agreement, securely.<br /><br />
                 Delivers the upload to {keeper} when the transfer is activated, and not before.<br /><br />
                 Does not share, sell, or retain personal data beyond what is required to operate this service.<br /><br />
                 Does not access the contents of the upload except as required to deliver it.
               </Section>
 
-              <Section title="What Ovyu does not do.">
+              <Section title="What Ovyu does not do." bodyWidth="815px">
                 Notify anyone of {maker}&apos;s passing. That is the Transfer Contact&apos;s role.<br /><br />
                 Verify the death of the Maker. Ovyu acts on the Transfer Contact&apos;s notification.<br /><br />
                 Hold the upload indefinitely if the service ends. If Ovyu shuts down, both parties will be notified, and the upload will be made available for export before deletion.
@@ -173,7 +175,7 @@ function ContractViewInner() {
             </div>
           </div>
 
-          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, textAlign: "right" }}>
+          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, textAlign: "right", whiteSpace: "nowrap" }}>
             Your digital signature carries the same intent as a handwritten signature within the Ovyu platform.
           </p>
         </div>
