@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { YouBar } from "@/components/YouBar";
+import { PageShell } from "@/components/ui/PageShell";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
@@ -234,10 +232,11 @@ export default function ContractsPage() {
   const lockedContractId = making.find(c => c.status === "LOCKED")?.id;
 
   return (
-    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header variant="loggedIn" initial={initial} />
-
-      <div style={{ flex: 1, paddingTop: "78px" }}>
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingTop: "78px" }}
+      youBar={{ voiceComplete: voiceIsComplete, contractId: lockedContractId }}
+    >
         <div style={{
           width: "1700px",
           margin: "0 auto",
@@ -334,7 +333,6 @@ export default function ContractsPage() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Hint text above locked YOU bar — only show when voice not complete */}
       {!voiceIsComplete && (
@@ -346,14 +344,6 @@ export default function ContractsPage() {
           </p>
         </div>
       )}
-
-      <YouBar
-        voiceComplete={voiceIsComplete}
-        contractId={lockedContractId}
-        overlayTop={226}
-      />
-
-      <Footer />
-    </div>
+    </PageShell>
   );
 }

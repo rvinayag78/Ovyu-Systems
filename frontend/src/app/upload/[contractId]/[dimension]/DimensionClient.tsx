@@ -3,11 +3,9 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { CSSProperties } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { YouBar } from "@/components/YouBar";
 import { Typeahead } from "@/components/Typeahead";
 import { BackLink } from "@/components/ui/BackLink";
+import { PageShell } from "@/components/ui/PageShell";
 import type { EntryTags } from "@/components/EntryEditor";
 import { LANGUAGES, PLACES, isValidMMDDYYYY, maskMMDDYYYY } from "@/lib/refdata";
 import { api } from "@/lib/api";
@@ -23,7 +21,6 @@ const LIGHT_GREY = tokens.color.lightGrey;
 const CREAM_FILL = tokens.color.cream;
 const CREAM_STROKE = tokens.color.creamStroke;
 const FOOTER_TEXT = tokens.color.footerText;
-const PAGE_BG = tokens.color.pageBg;
 
 const DIMENSIONS = [
   { slug: "history",       label: "History",       sub: "Childhood, schools, milestones, the turning points." },
@@ -1295,10 +1292,11 @@ export function DimensionClient() {
   const formDef = DIMENSION_FORMS[dimension];
 
   return (
-    <div style={{ width: "1920px", background: PAGE_BG, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header variant="loggedIn" initial={initial} />
-
-      <div style={{ flex: 1, paddingBottom: `${FOOTER_H + BAR_H}px` }}>
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingBottom: `${FOOTER_H + BAR_H}px` }}
+      youBar={{ voiceComplete: true, contractId, dimensionCounts, activeDimension: dimension }}
+    >
         {loading ? (
           <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
             <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Loading…</p>
@@ -1330,10 +1328,6 @@ export function DimensionClient() {
             <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Could not load dimension.</p>
           </div>
         )}
-      </div>
-
-      <YouBar voiceComplete contractId={contractId} dimensionCounts={dimensionCounts} activeDimension={dimension} />
-      <Footer />
-    </div>
+    </PageShell>
   );
 }

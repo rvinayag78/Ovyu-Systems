@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { tokens } from "@/styles/tokens";
 
@@ -137,16 +137,23 @@ type YouBarProps = {
   contractId?: string;
   dimensionCounts?: Record<string, number>;
   onExpandedChange?: (expanded: boolean) => void;
-  overlayTop?: number;
   activeDimension?: string;
 };
 
-export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, overlayTop = 315, activeDimension }: YouBarProps) {
+export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, activeDimension }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
+  // Measured from the in-flow bar itself at the moment it opens, rather than a
+  // hardcoded per-page guess — page content height above the bar varies, so a
+  // fixed number was only ever correct for one page/state.
+  const [overlayTop, setOverlayTop] = useState(0);
 
   function toggle() {
     if (!voiceComplete) return;
     const next = !expanded;
+    if (next && barRef.current) {
+      setOverlayTop(barRef.current.getBoundingClientRect().top);
+    }
     setExpanded(next);
     onExpandedChange?.(next);
   }
@@ -195,6 +202,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
     <div style={{ width: "100%" }}>
       {/* In-flow bar — holds layout space; hidden (not removed) when expanded so page height stays stable */}
       <div
+        ref={barRef}
         onClick={toggle}
         style={{
           width: "100%", height: "70px",

@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { YouBar } from "@/components/YouBar";
 import { BackLink } from "@/components/ui/BackLink";
+import { PageShell } from "@/components/ui/PageShell";
 import { api } from "@/lib/api";
 import { tokens } from "@/styles/tokens";
 
@@ -17,7 +15,6 @@ const LAVENDER_FILL = tokens.color.lavenderFill;
 const DARK_GREY = tokens.color.darkGrey;
 const LIGHT_GREY = tokens.color.lightGrey;
 const FOOTER_TEXT = tokens.color.footerText;
-const PAGE_BG = tokens.color.pageBg;
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -122,10 +119,11 @@ export function VoiceProfileClient() {
   const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
-    <div style={{ width: "1920px", minHeight: "100vh", background: PAGE_BG, display: "flex", flexDirection: "column" }}>
-      <Header variant="loggedIn" initial={initial} />
-
-      <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "30px" }}>
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingTop: "31px", paddingBottom: "30px" }}
+      youBar={{ voiceComplete: false }}
+    >
         <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column" }}>
 
           {/* Back link — marginBottom 32px per Figma */}
@@ -269,11 +267,6 @@ export function VoiceProfileClient() {
 
           </div>{/* end 697px content area */}
         </div>{/* end 1673px container */}
-      </div>
-
-      <YouBar voiceComplete={false} />
-
-      <Footer />
-    </div>
+    </PageShell>
   );
 }

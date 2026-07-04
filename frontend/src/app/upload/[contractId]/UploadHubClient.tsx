@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { YouBar } from "@/components/YouBar";
 import { BackLink } from "@/components/ui/BackLink";
+import { PageShell } from "@/components/ui/PageShell";
 import { api } from "@/lib/api";
 import { tokens } from "@/styles/tokens";
 
@@ -19,7 +17,6 @@ const LIGHT_GREY = tokens.color.lightGrey;
 const PINK = tokens.color.pink;
 const PINK_FILL = tokens.color.pinkFill;
 const FOOTER_TEXT = tokens.color.footerText;
-const PAGE_BG = tokens.color.pageBg;
 
 const KEEPER_CARDS = [
   { key: "who_they_are", label: "Who they are", sub: "Their story, history, birth dates, context. Your relationship to them.", width: 555, textWidth: 465 },
@@ -130,12 +127,18 @@ export function UploadHubClient() {
   const keeperName = hub?.keeper_name ?? "…";
 
   return (
-    <div style={{ width: "1920px", background: PAGE_BG, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header variant="loggedIn" initial={initial} />
-
-      {/* All content — flex:1 pushes YouBar to bottom; hidden when YOU expanded */}
-      {!youExpanded ? (
-        <div style={{ flex: 1, paddingTop: "31px" }}>
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingTop: "31px" }}
+      youBar={{
+        voiceComplete,
+        contractId,
+        dimensionCounts: hub?.dimension_counts ?? {},
+        onExpandedChange: setYouExpanded,
+      }}
+    >
+      {/* Hidden (not removed) when YOU expanded, so PageShell's content slot still reserves its space */}
+      {!youExpanded && (
           <div style={{ marginLeft: "108px", width: "1702px", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
             {/* Breadcrumb */}
@@ -231,26 +234,7 @@ export function UploadHubClient() {
 
             </div>{/* end heading + sections container */}
           </div>
-        </div>
-      ) : (
-        // Spacer keeps YouBar at bottom while overlay is open
-        <div style={{ flex: 1 }} />
       )}
-
-      {/* YOU bar — at bottom of page, above fixed footer */}
-      <YouBar
-        voiceComplete={voiceComplete}
-        contractId={contractId}
-        dimensionCounts={hub?.dimension_counts ?? {}}
-        onExpandedChange={setYouExpanded}
-      />
-
-      {/* Fixed footer */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, width: "1920px", zIndex: 30 }}>
-        <Footer />
-      </div>
-      {/* Spacer so in-flow content isn't hidden under fixed footer */}
-      <div style={{ height: "103px", flexShrink: 0 }} />
 
       {/* Keeper card edit modal */}
       {editKeeperKey && (
@@ -293,6 +277,6 @@ export function UploadHubClient() {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { YouBar } from "@/components/YouBar";
 import { BackLink } from "@/components/ui/BackLink";
+import { PageShell } from "@/components/ui/PageShell";
 import { api } from "@/lib/api";
 import { tokens } from "@/styles/tokens";
 
@@ -17,7 +15,6 @@ const LAVENDER_FILL = tokens.color.lavenderFill;
 const DARK_GREY = tokens.color.darkGrey;
 const LIGHT_GREY = tokens.color.lightGrey;
 const FOOTER_TEXT = tokens.color.footerText;
-const PAGE_BG = tokens.color.pageBg;
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -126,10 +123,11 @@ export function VoiceNameClient() {
   const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
-    <div style={{ width: "1920px", minHeight: "100vh", background: PAGE_BG, display: "flex", flexDirection: "column" }}>
-      <Header variant="loggedIn" initial={initial} />
-
-      <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingTop: "31px", paddingBottom: "50px" }}
+      youBar={{ voiceComplete: false }}
+    >
         <div style={{ marginLeft: "209px", width: "1500px", display: "flex", flexDirection: "column", gap: "34px" }}>
 
         {/* Back link */}
@@ -290,17 +288,12 @@ export function VoiceNameClient() {
           </div>{/* end right column */}
         </div>{/* end two-column */}
         </div>{/* end 1500px container */}
-      </div>
 
       <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
         <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: DARK_GREY, margin: 0, lineHeight: "normal" }}>
           Complete your voice recording to unlock your profile.
         </p>
       </div>
-
-      <YouBar voiceComplete={false} />
-
-      <Footer />
-    </div>
+    </PageShell>
   );
 }
