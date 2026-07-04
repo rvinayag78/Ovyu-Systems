@@ -67,7 +67,10 @@ function SignInner() {
       <Header variant="loggedIn" initial={initial} />
       <div style={{ flex: 1, padding: "40px 58px" }}>
         <Link href="/contracts" style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none" }}>
-          <span style={{ fontSize: "18px", lineHeight: 1 }}>‹</span>Your contracts
+          <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Your contracts
         </Link>
         <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", marginTop: "40px" }}>{error}</p>
       </div>
@@ -86,7 +89,9 @@ function SignInner() {
             fontFamily: sans, fontSize: "16px", color: "#888",
             textDecoration: "none",
           }}>
-            <span style={{ fontSize: "18px", lineHeight: 1 }}>‹</span>
+            <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             Your contracts
           </Link>
         </div>

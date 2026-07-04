@@ -549,8 +549,10 @@ function DimensionForm({
         fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
         marginBottom: "30px",
       }}>
-        <span>‹</span>
-        <span>{makerFirstName || "Upload hub"}</span>
+        <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Upload hub
       </Link>
 
       {/* Title + subtitle */}
@@ -992,8 +994,10 @@ function EntriesView({
           fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
           marginBottom: "30px",
         }}>
-          <span>‹</span>
-          <span>{makerFirstName || "Upload hub"}</span>
+          <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Upload hub
         </Link>
 
         {/* Banner card */}

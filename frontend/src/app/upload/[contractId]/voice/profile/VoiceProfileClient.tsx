@@ -126,8 +126,10 @@ export function VoiceProfileClient() {
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
             marginBottom: "32px",
           }}>
-            <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
-            Your contracts
+              <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Your contracts
           </Link>
 
           {/* Title — marginBottom 10px per Figma */}

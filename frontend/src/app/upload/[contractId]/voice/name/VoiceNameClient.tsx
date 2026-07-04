@@ -129,8 +129,10 @@ export function VoiceNameClient() {
             display: "flex", alignItems: "center", gap: "10px",
             fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
           }}>
-            <span style={{ display: "inline-block", transform: "scaleX(-1)" }}>›</span>
-            Your contracts
+              <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Your contracts
           </Link>
 
           {/* Title + subtitle */}
