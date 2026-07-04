@@ -350,6 +350,7 @@ export default function ContractsPage() {
       <YouBar
         voiceComplete={voiceIsComplete}
         contractId={lockedContractId}
+        overlayTop={226}
       />
 
       <Footer />

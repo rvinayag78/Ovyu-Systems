@@ -132,6 +132,39 @@ npm run dev
 
 ---
 
+## Testing — DB Reset Commands
+
+**Staging RDS** (publicly accessible, used frequently during testing):
+
+- Host: `ovyu-dev.c76g48wwy9cb.us-west-2.rds.amazonaws.com`
+- Database: `ovyu_staging`
+- Username: `ovyu`
+- Password: in staging Lambda env var `RDS_PASSWORD` (retrieve with `aws --profile ovyu lambda get-function-configuration --function-name ovyu-api-staging`)
+
+### Reset voice recordings (most common)
+
+Deletes all rows from `voice_recordings` and resets `voice_status = 'pending'` on all uploads, so the Maker is redirected back to the voice name page:
+
+```bash
+PGPASSWORD=<password> psql -h ovyu-dev.c76g48wwy9cb.us-west-2.rds.amazonaws.com -U ovyu -d ovyu_staging \
+  -c "DELETE FROM voice_recordings; UPDATE uploads SET voice_status = 'pending';"
+```
+
+### Other useful resets
+
+```bash
+# Inspect current upload + voice state
+PGPASSWORD=<password> psql ... -c "SELECT u.id, u.voice_status, vr.type, vr.status FROM uploads u LEFT JOIN voice_recordings vr ON vr.upload_id = u.id;"
+
+# Wipe everything (contracts, users, tokens) — full re-test from scratch
+# Use the /test/wipe endpoint instead (requires TESTING=true on Lambda), or:
+PGPASSWORD=<password> psql ... -c "DELETE FROM signatures; DELETE FROM invitation_tokens; DELETE FROM magic_link_tokens; DELETE FROM contracts; DELETE FROM users;"
+```
+
+> The `/test/reset-voice-all` API endpoint does the same as the voice reset above but requires `TESTING=true` set on the Lambda env — not currently enabled on staging.
+
+---
+
 ## Flows
 
 ### Flow 1 — The Contract (current)

@@ -56,7 +56,7 @@ function ContractViewInner() {
   }, [autoPrint, contract]);
 
   if (error) return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C" }}>{error}</p>
@@ -66,7 +66,7 @@ function ContractViewInner() {
   );
 
   if (!contract) return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Loading…</p>
@@ -83,14 +83,16 @@ function ContractViewInner() {
   const keeperSigned = fmt(contract.locked_at);
 
   return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "40px", paddingBottom: "40px" }}>
         <div style={{ margin: "0 auto", width: "1804px", display: "flex", flexDirection: "column", gap: "23px" }}>
           {/* Back link */}
           <Link href="/contracts" style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none" }}>
-            <span style={{ fontSize: "18px", lineHeight: 1 }}>‹</span>
+            <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             Your contracts
           </Link>
 
@@ -185,7 +187,7 @@ function ContractViewInner() {
 export default function KeeperContractViewPage() {
   return (
     <Suspense fallback={
-      <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         <Header variant="loggedIn" initial="?" />
         <div style={{ flex: 1 }} />
         <Footer />

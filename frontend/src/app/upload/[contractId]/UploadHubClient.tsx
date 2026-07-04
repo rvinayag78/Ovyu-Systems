@@ -136,6 +136,9 @@ export function UploadHubClient() {
               <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
             </Link>
 
+            {/* Heading + sections container */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "50px" }}>
+
             {/* Heading */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
@@ -221,6 +224,7 @@ export function UploadHubClient() {
               </div>
             </div>
 
+            </div>{/* end heading + sections container */}
           </div>
         </div>
       ) : (
