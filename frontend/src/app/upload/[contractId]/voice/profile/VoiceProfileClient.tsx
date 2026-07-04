@@ -2,14 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
+import { BackLink } from "@/components/ui/BackLink";
 import { api } from "@/lib/api";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
+const BLACK = tokens.color.black;
+const LAVENDER = tokens.color.lavender;
+const LAVENDER_FILL = tokens.color.lavenderFill;
+const DARK_GREY = tokens.color.darkGrey;
+const LIGHT_GREY = tokens.color.lightGrey;
+const FOOTER_TEXT = tokens.color.footerText;
+const PAGE_BG = tokens.color.pageBg;
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -114,28 +122,19 @@ export function VoiceProfileClient() {
   const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
-    <div style={{ width: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "1920px", minHeight: "100vh", background: PAGE_BG, display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "30px" }}>
         <div style={{ marginLeft: "110px", width: "1673px", display: "flex", flexDirection: "column" }}>
 
           {/* Back link — marginBottom 32px per Figma */}
-          <Link href="/contracts" style={{
-            display: "flex", alignItems: "center", gap: "10px",
-            fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
-            marginBottom: "32px",
-          }}>
-              <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Your contracts
-          </Link>
+          <BackLink href="/contracts" label="Your contracts" marginBottom="32px" />
 
           {/* Title — marginBottom 10px per Figma */}
           <h1 style={{
             fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-            fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+            fontSize: "64px", color: BLACK, margin: 0, lineHeight: "normal",
             marginBottom: "10px",
           }}>
             The sound of you
@@ -144,7 +143,7 @@ export function VoiceProfileClient() {
           {/* Subtitle — marginBottom 49px per Figma */}
           <p style={{
             fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
-            fontSize: "22px", color: "#888", margin: 0, lineHeight: "normal",
+            fontSize: "22px", color: DARK_GREY, margin: 0, lineHeight: "normal",
             width: "1256px", marginBottom: "49px",
           }}>
             Read this aloud. Your voice, saying these words, is what we keep. And as you read, you&apos;ll learn exactly what you&apos;re building here.
@@ -158,10 +157,10 @@ export function VoiceProfileClient() {
             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
               {/* Left — label + script text */}
               <div style={{ width: "760px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, whiteSpace: "nowrap" }}>
+                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, whiteSpace: "nowrap" }}>
                   READ THIS ALOUD
                 </p>
-                <div style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", lineHeight: 1.3 }}>
+                <div style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: BLACK, lineHeight: 1.3 }}>
                   {[
                     "My name is [name]. I am recording this because I have chosen to leave a piece of myself behind for someone I love. When I pass, that person will be able to come here and have a conversation with what I have left: my voice, my stories, my memories, the way I think and talk and see the world. Ovyu holds all of it securely and delivers it to them when the time comes. Only they will ever have access to it.",
                     "Once this recording is done, my full profile unlocks. And before I go further: I am just going to talk the way I normally talk. The more like myself I sound now, the more like myself I will sound to them later. So this is me, ordinary voice, no performance.",
@@ -174,7 +173,7 @@ export function VoiceProfileClient() {
               </div>
 
               {/* Right — continuation */}
-              <div style={{ width: "800px", fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#1a1a1a", lineHeight: 1.3 }}>
+              <div style={{ width: "800px", fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: BLACK, lineHeight: 1.3 }}>
                 {[
                   "As I go, Ovyu will ask me small things: who was in this story, where it happened, when it was. All of it is optional, but the more I share, the fuller the picture becomes, and the more of me there is to find later. All of that is me, the eight dimensions, and that is what every person I leave something for will meet.",
                   "Then there is the part I build for one person in particular. This works the same way, my own questions to answer, my own entries to add, the same small tags for the people and places and times that come up, but all of it is turned toward them. Everything I know and notice about who they are, and who they are becoming. A welcome, for the moment they arrive. Messages for the moments still ahead of them, the ones I will not be there for. What I want for them. What I want them to know. And my advice, for the times they will need it. This part is as deep as everything else, and it is built for them alone.",
@@ -194,16 +193,16 @@ export function VoiceProfileClient() {
                   onClick={startRecording}
                   style={{
                     width: "214px", height: "49px",
-                    background: "#efeaf2",
-                    border: "1px solid #6a4d7d",
+                    background: LAVENDER_FILL,
+                    border: `1px solid ${LAVENDER}`,
                     borderRadius: "15px",
                     boxSizing: "border-box",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
                     cursor: "pointer",
                   }}
                 >
-                  <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
-                  <span style={{ fontFamily: sans, fontSize: "22px", color: "#6a4d7d" }}>Start recording</span>
+                  <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: LAVENDER, display: "inline-block", flexShrink: 0 }} />
+                  <span style={{ fontFamily: sans, fontSize: "22px", color: LAVENDER }}>Start recording</span>
                 </button>
               ) : (
                 <button
@@ -222,7 +221,7 @@ export function VoiceProfileClient() {
                 </button>
               )}
               {isRecording && (
-                <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums", paddingLeft: "4px" }}>
+                <span style={{ fontFamily: sans, fontSize: "13px", color: DARK_GREY, fontVariantNumeric: "tabular-nums", paddingLeft: "4px" }}>
                   {fmtTime(recordingMs)}
                 </span>
               )}
@@ -240,7 +239,7 @@ export function VoiceProfileClient() {
                 />
                 <span style={{
                   fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
-                  color: meetsMinDuration ? "#888" : "#bababa",
+                  color: meetsMinDuration ? DARK_GREY : LIGHT_GREY,
                   whiteSpace: "nowrap",
                 }}>
                   I confirm this is my voice
@@ -252,7 +251,7 @@ export function VoiceProfileClient() {
                 disabled={!canSave}
                 style={{
                   width: "304px", height: "48px",
-                  background: canSave ? "#1a1a1a" : "#efeaf2",
+                  background: canSave ? BLACK : LAVENDER_FILL,
                   borderRadius: "8px",
                   border: "none",
                   cursor: canSave ? "pointer" : "not-allowed",
@@ -261,7 +260,7 @@ export function VoiceProfileClient() {
               >
                 <span style={{
                   fontFamily: sans, fontSize: "16px", fontWeight: 700,
-                  color: canSave ? "#f5f0e8" : "#bababa",
+                  color: canSave ? FOOTER_TEXT : LIGHT_GREY,
                 }}>
                   {saving ? "Saving…" : "Save and continue →"}
                 </span>

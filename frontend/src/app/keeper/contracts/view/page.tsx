@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { BackLink } from "@/components/ui/BackLink";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
@@ -89,12 +89,7 @@ function ContractViewInner() {
       <div style={{ flex: 1, paddingTop: "40px", paddingBottom: "40px" }}>
         <div style={{ margin: "0 auto", width: "1804px", display: "flex", flexDirection: "column", gap: "23px" }}>
           {/* Back link */}
-          <Link href="/contracts" style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none" }}>
-            <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-              <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Your contracts
-          </Link>
+          <BackLink href="/contracts" label="Your contracts" />
 
           {/* Title row */}
           <div>

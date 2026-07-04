@@ -28,6 +28,11 @@ export const tokens = {
     footerText: "#f5f0e8",
     divider: "#d9d9d9",
     white: "#ffffff",
+
+    // YOU-bar progress circle (not a named Figma variable — read directly
+    // from the YouBar frame; only used by components/YouBar.tsx)
+    circleFull: "#5b4b7a",
+    circleEmptyRing: "#b9a4cf",
   },
 
   // Spacing — plain numbers (React turns them into px automatically)
@@ -70,10 +75,15 @@ export const tokens = {
 
   // Canvas width — all pages extend to this
   canvasWidth: 1920,
+
+  font: {
+    sans: "Helvetica Neue, Helvetica, Arial, sans-serif",
+    serif: "Georgia, serif",
+  },
 } as const;
 
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-const serif = "Georgia, serif";
+const sans = tokens.font.sans;
+const serif = tokens.font.serif;
 
 // Text styles — spread directly into style objects
 // e.g. <h1 style={{ ...textStyles.pageTitle, color: tokens.color.black }}>

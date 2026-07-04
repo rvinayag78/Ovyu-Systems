@@ -3,17 +3,27 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { CSSProperties } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
 import { Typeahead } from "@/components/Typeahead";
+import { BackLink } from "@/components/ui/BackLink";
 import type { EntryTags } from "@/components/EntryEditor";
 import { LANGUAGES, PLACES, isValidMMDDYYYY, maskMMDDYYYY } from "@/lib/refdata";
 import { api } from "@/lib/api";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
+const BLACK = tokens.color.black;
+const LAVENDER = tokens.color.lavender;
+const LAVENDER_FILL = tokens.color.lavenderFill;
+const DARK_GREY = tokens.color.darkGrey;
+const LIGHT_GREY = tokens.color.lightGrey;
+const CREAM_FILL = tokens.color.cream;
+const CREAM_STROKE = tokens.color.creamStroke;
+const FOOTER_TEXT = tokens.color.footerText;
+const PAGE_BG = tokens.color.pageBg;
 
 const DIMENSIONS = [
   { slug: "history",       label: "History",       sub: "Childhood, schools, milestones, the turning points." },
@@ -355,9 +365,9 @@ function FieldInput({
           placeholder={field.placeholder}
           style={{
             width: "100%", height: "57px", padding: "0 10px",
-            borderRadius: "10px", border: `1px solid ${invalid ? "#c0392b" : "#888"}`,
+            borderRadius: "10px", border: `1px solid ${invalid ? "#c0392b" : DARK_GREY}`,
             fontFamily: sans, fontSize: "14px", boxSizing: "border-box",
-            background: "white", color: "#1a1a1a",
+            background: "white", color: BLACK,
           }}
         />
         {invalid && <span style={{ fontFamily: sans, fontSize: "12px", color: "#c0392b", fontStyle: "oblique" }}>Use MM/DD/YYYY (e.g. 04/14/1990).</span>}
@@ -371,9 +381,9 @@ function FieldInput({
       placeholder={field.placeholder}
       style={{
         width: "100%", height: "57px", padding: "0 10px",
-        borderRadius: "10px", border: "1px solid #888",
+        borderRadius: "10px", border: `1px solid ${DARK_GREY}`,
         fontFamily: sans, fontSize: "14px", boxSizing: "border-box",
-        background: "white", color: "#1a1a1a",
+        background: "white", color: BLACK,
       }}
     />
   );
@@ -443,8 +453,8 @@ function FormColumn({
                     padding: "0 10px",
                   }}
                 >
-                  <span style={{ fontFamily: sans, fontSize: "22px", color: "#1a1a1a", lineHeight: 1 }}>+</span>
-                  <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Add more</span>
+                  <span style={{ fontFamily: sans, fontSize: "22px", color: BLACK, lineHeight: 1 }}>+</span>
+                  <span style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY }}>Add more</span>
                 </button>
               </div>
             );
@@ -471,10 +481,10 @@ function FormColumn({
           disabled={saving}
           style={{
             width: "304px", height: "48px",
-            background: "#1a1a1a",
+            background: BLACK,
             borderRadius: "8px", border: "none",
             fontFamily: sans, fontWeight: 700, fontSize: "16px",
-            color: "#f5f0e8",
+            color: FOOTER_TEXT,
             cursor: saving ? "not-allowed" : "pointer",
             opacity: saving ? 0.6 : 1,
             alignSelf: "flex-end",
@@ -544,28 +554,19 @@ function DimensionForm({
   return (
     <div style={{ paddingLeft: "108px", paddingTop: "31px", paddingBottom: "60px", width: "1700px" }}>
       {/* Back link */}
-      <Link href={`/upload/${contractId}`} style={{
-        display: "flex", alignItems: "center", gap: "10px",
-        fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
-        marginBottom: "30px",
-      }}>
-        <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-          <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        Upload hub
-      </Link>
+      <BackLink href={`/upload/${contractId}`} label="Upload hub" marginBottom="30px" />
 
       {/* Title + subtitle */}
       <div style={{ marginBottom: `${formDef.formGap ?? 50}px` }}>
         <h1 style={{
           fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-          fontSize: "64px", color: "#1a1a1a", margin: "0 0 10px",
+          fontSize: "64px", color: BLACK, margin: "0 0 10px",
         }}>
           {dim.label}
         </h1>
         <p style={{
           fontFamily: sans, fontStyle: "oblique", fontSize: "22px",
-          color: "#1a1a1a", margin: 0,
+          color: BLACK, margin: 0,
         }}>
           {formDef.subtitle}
         </p>
@@ -574,7 +575,7 @@ function DimensionForm({
       {/* Form card */}
       <div style={{
         background: "white",
-        border: "1px solid #ddd6c6",
+        border: `1px solid ${CREAM_STROKE}`,
         borderRadius: "20px",
         padding: "40px 60px",
         display: "flex",
@@ -605,11 +606,11 @@ function TagChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: "6px",
-      background: "#efeaf2", color: "#6a4d7d",
+      background: LAVENDER_FILL, color: LAVENDER,
       fontFamily: sans, fontSize: "14px", padding: "5px 14px", borderRadius: "999px",
     }}>
       {label}
-      <button onClick={onRemove} style={{ background: "none", border: "none", color: "#6a4d7d", cursor: "pointer", fontSize: "15px", lineHeight: 1, padding: 0, display: "flex", alignItems: "center" }}>×</button>
+      <button onClick={onRemove} style={{ background: "none", border: "none", color: LAVENDER, cursor: "pointer", fontSize: "15px", lineHeight: 1, padding: 0, display: "flex", alignItems: "center" }}>×</button>
     </span>
   );
 }
@@ -617,23 +618,23 @@ function TagChip({ label, onRemove }: { label: string; onRemove: () => void }) {
 function SField({ label, value, onChange, hint, id }: { label: string; value: string; onChange: (v: string) => void; hint: string; id?: string }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
-      <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: "#888", textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</label>
-      <input id={id} value={value} onChange={e => onChange(e.target.value)} style={{ height: "57px", padding: "0 12px", border: "1px solid #888", borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
-      <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: "#888" }}>{hint}</span>
+      <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: DARK_GREY, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</label>
+      <input id={id} value={value} onChange={e => onChange(e.target.value)} style={{ height: "57px", padding: "0 12px", border: `1px solid ${DARK_GREY}`, borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
+      <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: DARK_GREY }}>{hint}</span>
     </div>
   );
 }
 
 function addTagBtnStyle(): CSSProperties {
-  return { fontFamily: sans, fontSize: "12px", color: "#bababa", background: "white", border: "0.5px solid #bababa", height: "30px", padding: "0 14px", cursor: "pointer" };
+  return { fontFamily: sans, fontSize: "12px", color: LIGHT_GREY, background: "white", border: `0.5px solid ${LIGHT_GREY}`, height: "30px", padding: "0 14px", cursor: "pointer" };
 }
 
 const CAROUSEL_SIZES = [
-  { fontSize: "16.5px", color: "#bababa" },
-  { fontSize: "21.45px", color: "#888" },
-  { fontSize: "26.4px", color: "#1a1a1a" },
-  { fontSize: "21.45px", color: "#888" },
-  { fontSize: "16.5px", color: "#bababa" },
+  { fontSize: "16.5px", color: LIGHT_GREY },
+  { fontSize: "21.45px", color: DARK_GREY },
+  { fontSize: "26.4px", color: BLACK },
+  { fontSize: "21.45px", color: DARK_GREY },
+  { fontSize: "16.5px", color: LIGHT_GREY },
 ];
 
 function PromptCarousel({ questions, idx, onRotate }: { questions: string[]; idx: number; onRotate: () => void }) {
@@ -707,29 +708,29 @@ function EntryEditView({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
       {/* ENTRY label */}
-      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em" }}>ENTRY</p>
+      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em" }}>ENTRY</p>
 
       {/* Entry card */}
-      <div style={{ background: "white", border: "1px solid #ddd6c6", borderRadius: "15px", padding: "30px 50px 36px", position: "relative" }}>
+      <div style={{ background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px", padding: "30px 50px 36px", position: "relative" }}>
         {/* Header row: title/meta/tags + close */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
           <div style={{ flex: 1, paddingRight: "24px" }}>
             {isVoice ? (
-              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#1a1a1a", margin: "0 0 6px" }}>{title || "Untitled"}</p>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK, margin: "0 0 6px" }}>{title || "Untitled"}</p>
             ) : (
               <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
-                fontFamily: sans, fontWeight: 700, fontSize: "20px", color: "#1a1a1a",
+                fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK,
                 border: "none", background: "transparent", outline: "none",
                 width: "100%", padding: 0, marginBottom: "6px", display: "block",
               }} />
             )}
-            <p style={{ fontFamily: sans, fontSize: "16px", color: "#888", margin: "0 0 12px" }}>
+            <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>
               {isVoice ? "Voice" : "Text"} · {created}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginBottom: "10px" }}>
               {allTags.length > 0
                 ? allTags.map((t, i) => <TagChip key={i} label={t.label} onRemove={t.remove} />)
-                : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: "#bababa" }}>No tags yet — add them below.</span>
+                : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: LIGHT_GREY }}>No tags yet — add them below.</span>
               }
             </div>
             <div style={{ display: "flex", gap: "0" }}>
@@ -741,7 +742,7 @@ function EntryEditView({
           {/* Small × close */}
           <button onClick={onClose} style={{
             background: "none", border: "none", cursor: "pointer",
-            fontFamily: sans, fontSize: "22px", color: "#888", lineHeight: 1,
+            fontFamily: sans, fontSize: "22px", color: DARK_GREY, lineHeight: 1,
             padding: "0 4px", flexShrink: 0,
           }}>×</button>
         </div>
@@ -755,7 +756,7 @@ function EntryEditView({
                 return <div key={i} style={{ width: "5px", height: `${h}px`, background: `rgba(106,77,125,${0.2 + Math.abs(Math.sin(i * 0.4)) * 0.5})`, borderRadius: "2px", flexShrink: 0 }} />;
               })}
             </div>
-            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: "#888", margin: 0 }}>
+            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: DARK_GREY, margin: 0 }}>
               Voice recording — to change this entry, delete it and re-record.
             </p>
           </div>
@@ -764,17 +765,17 @@ function EntryEditView({
             <button onClick={() => setEditingBody(b => !b)} style={{
               position: "absolute", top: "12px", right: "12px",
               background: "none", border: "none", cursor: "pointer",
-              color: "#6a4d7d", fontSize: "17px", lineHeight: 1, padding: "2px",
+              color: LAVENDER, fontSize: "17px", lineHeight: 1, padding: "2px",
             }}>✎</button>
             {editingBody ? (
               <textarea value={body} onChange={e => setBody(e.target.value)} autoFocus style={{
                 width: "100%", minHeight: "100px", border: "none", background: "transparent",
                 fontFamily: sans, fontSize: "14px", lineHeight: "1.7", resize: "vertical",
-                outline: "none", boxSizing: "border-box", color: "#1a1a1a",
+                outline: "none", boxSizing: "border-box", color: BLACK,
               }} />
             ) : (
-              <p style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a", lineHeight: "1.7", margin: 0, whiteSpace: "pre-wrap", paddingRight: "28px" }}>
-                {body || <span style={{ color: "#bababa", fontStyle: "oblique" }}>Click ✎ to edit</span>}
+              <p style={{ fontFamily: sans, fontSize: "14px", color: BLACK, lineHeight: "1.7", margin: 0, whiteSpace: "pre-wrap", paddingRight: "28px" }}>
+                {body || <span style={{ color: LIGHT_GREY, fontStyle: "oblique" }}>Click ✎ to edit</span>}
               </p>
             )}
           </div>
@@ -783,28 +784,28 @@ function EntryEditView({
 
       {/* Structured forms */}
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: "#1a1a1a", margin: 0 }}>Someone worth naming?</p>
+        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>Someone worth naming?</p>
         <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
           <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
           <SField label="FULL NAME" value={fullName} onChange={setFullName} hint="First and last, if you know it." />
           <button onClick={addPersonFromForm} style={{
             width: "204px", height: "57px", flexShrink: 0,
-            background: "#6a4d7d", border: "none", borderRadius: "8px",
+            background: LAVENDER, border: "none", borderRadius: "8px",
             fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "white", cursor: "pointer",
           }}>+ Add person</button>
         </div>
 
-        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: "#1a1a1a", margin: 0 }}>A time that mattered?</p>
+        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>A time that mattered?</p>
         <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
           <SField label="WHAT HAPPENED" value={whatHappened} onChange={setWhatHappened} hint="Born · Moved · Married · A child arrived · Someone left" />
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: "#888", textTransform: "uppercase", letterSpacing: "0.04em" }}>WHEN</label>
-            <input value={when} onChange={e => { setWhen(e.target.value); const y = /\b(\d{4})\b/.exec(e.target.value)?.[1]; if (y) setYear(y); }} style={{ height: "57px", padding: "0 12px", border: "1px solid #888", borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
-            <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: "#888" }}>A day, a month, a year, or a span. e.g. 2003 · 2015 to 2019</span>
+            <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: DARK_GREY, textTransform: "uppercase", letterSpacing: "0.04em" }}>WHEN</label>
+            <input value={when} onChange={e => { setWhen(e.target.value); const y = /\b(\d{4})\b/.exec(e.target.value)?.[1]; if (y) setYear(y); }} style={{ height: "57px", padding: "0 12px", border: `1px solid ${DARK_GREY}`, borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
+            <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: DARK_GREY }}>A day, a month, a year, or a span. e.g. 2003 · 2015 to 2019</span>
           </div>
           <button onClick={handleSave} disabled={saving} style={{
             width: "204px", height: "57px", flexShrink: 0,
-            background: saving ? "#b0a0c0" : "#6a4d7d", border: "none", borderRadius: "8px",
+            background: saving ? "#b0a0c0" : LAVENDER, border: "none", borderRadius: "8px",
             fontFamily: sans, fontWeight: 700, fontSize: "17px", color: "white",
             cursor: saving ? "not-allowed" : "pointer",
           }}>
@@ -989,27 +990,18 @@ function EntriesView({
       `}</style>
 
       <div style={{ paddingLeft: "108px", paddingTop: "40px" }}>
-        <Link href={`/upload/${contractId}`} style={{
-          display: "flex", alignItems: "center", gap: "10px",
-          fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
-          marginBottom: "30px",
-        }}>
-          <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-            <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Upload hub
-        </Link>
+        <BackLink href={`/upload/${contractId}`} label="Upload hub" marginBottom="30px" />
 
         {/* Banner card */}
         <div style={{
-          background: "#efeaf2", borderRadius: "20px",
+          background: LAVENDER_FILL, borderRadius: "20px",
           padding: "30px 60px",
           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
           marginBottom: "50px",
         }}>
           <div style={{ display: "flex", gap: "28px", alignItems: "flex-start" }}>
             <div style={{
-              width: "64px", height: "64px", borderRadius: "50%", background: "#6a4d7d",
+              width: "64px", height: "64px", borderRadius: "50%", background: LAVENDER,
               flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "24px", color: "white" }}>{initial}</span>
@@ -1017,14 +1009,14 @@ function EntriesView({
             <div>
               <h1 style={{
                 fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-                fontSize: "64px", color: "#1a1a1a", margin: "0 0 16px", lineHeight: 1.1,
+                fontSize: "64px", color: BLACK, margin: "0 0 16px", lineHeight: 1.1,
               }}>
                 {dim.label}
               </h1>
               {prose && (
                 <p style={{
                   fontFamily: sans, fontStyle: "oblique", fontSize: "22px",
-                  color: "#888", margin: 0, lineHeight: "1.6",
+                  color: DARK_GREY, margin: 0, lineHeight: "1.6",
                   whiteSpace: "pre-line", maxWidth: "1180px",
                 }}>
                   {prose}
@@ -1034,7 +1026,7 @@ function EntriesView({
           </div>
           {formDef && structured && Object.keys(structured).length > 0 && (
             <button onClick={onEditStructured} style={{
-              fontFamily: sans, fontSize: "22px", color: "#6a4d7d",
+              fontFamily: sans, fontSize: "22px", color: LAVENDER,
               background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0,
             }}>
               edit
@@ -1058,11 +1050,11 @@ function EntriesView({
             <>
               <p style={{
                 fontFamily: sans, fontWeight: 700, fontSize: "22px",
-                color: "#6a4d7d", margin: 0, letterSpacing: "0.03em",
+                color: LAVENDER, margin: 0, letterSpacing: "0.03em",
               }}>ENTRIES</p>
 
               {data.entries.length === 0 ? (
-                <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#888", margin: 0, lineHeight: "1.5" }}>
+                <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: DARK_GREY, margin: 0, lineHeight: "1.5" }}>
                   Your stories live here. Add your first entry.
                 </p>
               ) : (
@@ -1075,36 +1067,36 @@ function EntriesView({
                   const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} · ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
                   return (
                     <div key={entry.id} style={{
-                      background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "12px",
+                      background: CREAM_FILL, border: `1.5px solid ${CREAM_STROKE}`, borderRadius: "12px",
                       padding: "24px 28px", position: "relative",
                     }}>
-                      <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", margin: "0 0 6px", paddingRight: "40px" }}>
+                      <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: BLACK, margin: "0 0 6px", paddingRight: "40px" }}>
                         {entry.title || (entry.body ? `${entry.body.slice(0, 80)}${entry.body.length > 80 ? "…" : ""}` : "Untitled entry")}
                       </p>
-                      <p style={{ fontFamily: sans, fontSize: "13px", color: "#bababa", margin: "0 0 12px" }}>{meta}</p>
+                      <p style={{ fontFamily: sans, fontSize: "13px", color: LIGHT_GREY, margin: "0 0 12px" }}>{meta}</p>
                       {entry.entry_type !== "voice" && entry.body && (
-                        <p style={{ fontFamily: sans, fontSize: "16px", color: "#1a1a1a", margin: "0 0 12px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                        <p style={{ fontFamily: sans, fontSize: "16px", color: BLACK, margin: "0 0 12px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
                           {entry.body.length > 240 ? entry.body.slice(0, 240) + "…" : entry.body}
                         </p>
                       )}
                       {entry.entry_type === "voice" && !entry.body ? (
                         <span style={{
                           fontFamily: sans, fontSize: "13px", padding: "5px 12px", borderRadius: "999px",
-                          background: "#f0f0f0", color: "#bababa", fontStyle: "italic",
+                          background: "#f0f0f0", color: LIGHT_GREY, fontStyle: "italic",
                         }}>transcribing…</span>
                       ) : allTags.length > 0 ? (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
                           {allTags.map((c, i) => (
                             <span key={i} style={{
                               fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px",
-                              background: "#efeaf2", color: "#6a4d7d",
+                              background: LAVENDER_FILL, color: LAVENDER,
                             }}>{c}</span>
                           ))}
                         </div>
                       ) : null}
                       <div style={{ position: "absolute", top: "18px", right: "18px" }}>
                         <button onClick={() => setMenuOpenId(menuOpenId === entry.id ? null : entry.id)} style={{
-                          fontFamily: sans, fontSize: "20px", color: "#888", letterSpacing: "1px",
+                          fontFamily: sans, fontSize: "20px", color: DARK_GREY, letterSpacing: "1px",
                           background: "none", border: "none", cursor: "pointer", padding: "0 6px", lineHeight: 1,
                         }}>⋯</button>
                         {menuOpenId === entry.id && (
@@ -1128,13 +1120,13 @@ function EntriesView({
 
         {/* Right: ADD entry (800px) — always visible */}
         <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "27px", height: "695px", alignItems: "flex-end" }}>
-          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
+          <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
             {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
           </p>
 
           {/* Entry input card (433px tall) */}
           <div style={{
-            background: "white", border: "1px solid #ddd6c6",
+            background: "white", border: `1px solid ${CREAM_STROKE}`,
             borderRadius: "15px", height: "433px", width: "100%",
             display: "flex", flexDirection: "column", overflow: "hidden",
           }}>
@@ -1148,7 +1140,7 @@ function EntriesView({
                   border: "none",
                   fontFamily: sans, fontSize: "22px", resize: "none",
                   background: "transparent", lineHeight: "1.6",
-                  outline: "none", color: "#1a1a1a", boxSizing: "border-box",
+                  outline: "none", color: BLACK, boxSizing: "border-box",
                 }}
               />
             ) : recording ? (
@@ -1159,13 +1151,13 @@ function EntriesView({
                 <div style={{ display: "flex", alignItems: "center", gap: "5px", height: "80px" }}>
                   {Array.from({ length: WAVE_BARS }).map((_, i) => (
                     <div key={i} style={{
-                      width: "7px", height: "64px", background: "#6a4d7d",
+                      width: "7px", height: "64px", background: LAVENDER,
                       borderRadius: "4px", transformOrigin: "center",
                       animation: `barPulse ${0.4 + (i % 5) * 0.08}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite`,
                     }} />
                   ))}
                 </div>
-                <p style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d", margin: 0, fontWeight: 700 }}>
+                <p style={{ fontFamily: sans, fontSize: "18px", color: LAVENDER, margin: 0, fontWeight: 700 }}>
                   {Math.floor(recordSeconds / 60)}:{String(recordSeconds % 60).padStart(2, "0")}
                 </p>
               </div>
@@ -1183,20 +1175,20 @@ function EntriesView({
             {(["voice", "text"] as const).map(m => (
               <button key={m} onClick={() => setMode(m)} style={{
                 width: "253px", height: "71px",
-                background: mode === m ? "#6a4d7d" : "white",
-                border: `1.5px solid ${mode === m ? "#6a4d7d" : "#ddd6c6"}`,
+                background: mode === m ? LAVENDER : "white",
+                border: `1.5px solid ${mode === m ? LAVENDER : CREAM_STROKE}`,
                 borderRadius: "12px", cursor: "pointer",
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
-                color: mode === m ? "white" : "#6a4d7d",
+                color: mode === m ? "white" : LAVENDER,
               }}>
                 {m === "voice" ? "♪ Voice" : "✎ Text"}
               </button>
             ))}
             <button disabled style={{
               width: "253px", height: "71px",
-              background: "#f7f4ef", border: "1.5px solid #ddd6c6",
+              background: CREAM_FILL, border: `1.5px solid ${CREAM_STROKE}`,
               borderRadius: "12px", cursor: "not-allowed",
-              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#bababa",
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: LIGHT_GREY,
             }}>
               ● Video (soon)
             </button>
@@ -1208,10 +1200,10 @@ function EntriesView({
             disabled={saving || (mode === "text" && !canSave)}
             style={{
               width: "255px", height: "71px",
-              background: mode === "text" ? "#1a1a1a" : "#efeaf2",
+              background: mode === "text" ? BLACK : LAVENDER_FILL,
               border: "none", borderRadius: "8px",
               fontFamily: sans, fontWeight: 700, fontSize: "18px",
-              color: mode === "text" ? "white" : "#6a4d7d",
+              color: mode === "text" ? "white" : LAVENDER,
               cursor: saving || (mode === "text" && !canSave) ? "not-allowed" : "pointer",
               opacity: saving || (mode === "text" && !canSave) ? 0.5 : 1,
             }}
@@ -1227,7 +1219,7 @@ function EntriesView({
 function menuItem(): CSSProperties {
   return {
     display: "block", width: "100%", textAlign: "left",
-    fontFamily: sans, fontSize: "15px", color: "#1a1a1a",
+    fontFamily: sans, fontSize: "15px", color: BLACK,
     background: "none", border: "none", cursor: "pointer",
     padding: "8px 12px", borderRadius: "6px",
   };
@@ -1303,13 +1295,13 @@ export function DimensionClient() {
   const formDef = DIMENSION_FORMS[dimension];
 
   return (
-    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: PAGE_BG, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingBottom: `${FOOTER_H + BAR_H}px` }}>
         {loading ? (
           <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
-            <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Loading…</p>
+            <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Loading…</p>
           </div>
         ) : showForm && formDef ? (
           <DimensionForm
@@ -1335,7 +1327,7 @@ export function DimensionClient() {
           />
         ) : (
           <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
-            <p style={{ fontFamily: sans, fontSize: "18px", color: "#888" }}>Could not load dimension.</p>
+            <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Could not load dimension.</p>
           </div>
         )}
       </div>

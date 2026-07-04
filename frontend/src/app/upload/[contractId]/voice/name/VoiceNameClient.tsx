@@ -2,14 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
+import { BackLink } from "@/components/ui/BackLink";
 import { api } from "@/lib/api";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
+const BLACK = tokens.color.black;
+const LAVENDER = tokens.color.lavender;
+const LAVENDER_FILL = tokens.color.lavenderFill;
+const DARK_GREY = tokens.color.darkGrey;
+const LIGHT_GREY = tokens.color.lightGrey;
+const FOOTER_TEXT = tokens.color.footerText;
+const PAGE_BG = tokens.color.pageBg;
 
 const BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -118,34 +126,26 @@ export function VoiceNameClient() {
   const canSave = confirmed && recorded && meetsMinDuration && !saving;
 
   return (
-    <div style={{ width: "1920px", minHeight: "100vh", background: "#f8f7f5", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "1920px", minHeight: "100vh", background: PAGE_BG, display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1, paddingTop: "31px", paddingBottom: "50px" }}>
         <div style={{ marginLeft: "209px", width: "1500px", display: "flex", flexDirection: "column", gap: "34px" }}>
 
         {/* Back link */}
-          <Link href="/contracts" style={{
-            display: "flex", alignItems: "center", gap: "10px",
-            fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none",
-          }}>
-              <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Your contracts
-          </Link>
+          <BackLink href="/contracts" label="Your contracts" />
 
           {/* Title + subtitle */}
           <div style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
             <h1 style={{
               fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-              fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal",
+              fontSize: "64px", color: BLACK, margin: 0, lineHeight: "normal",
             }}>
               Your name
             </h1>
             <p style={{
               fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
-              fontSize: "22px", color: "#888", margin: 0, lineHeight: "normal",
+              fontSize: "22px", color: DARK_GREY, margin: 0, lineHeight: "normal",
             }}>
               Say it the way the people who love you say it.
             </p>
@@ -157,7 +157,7 @@ export function VoiceNameClient() {
           <div style={{ width: "432px", flexShrink: 0 }}>
             <p style={{
               fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-              fontSize: "22px", color: "#1a1a1a", lineHeight: "44px", margin: 0,
+              fontSize: "22px", color: BLACK, lineHeight: "44px", margin: 0,
             }}>
               Before you begin, we need to hear your name. Not performed. Not spelled out. Just said, the way you actually say it. Read each line aloud, naturally, at your own pace.
             </p>
@@ -168,7 +168,7 @@ export function VoiceNameClient() {
             {/* Script card — justify-center so content is vertically centered in 327px */}
             <div style={{
               background: "#fff",
-              border: "1px solid #bababa",
+              border: `1px solid ${LIGHT_GREY}`,
               borderRadius: "15px",
               padding: "50px",
               height: "327px",
@@ -180,7 +180,7 @@ export function VoiceNameClient() {
             }}>
               {/* Inner content wrapper — gap 19px per Figma 2026:685 */}
               <div style={{ display: "flex", flexDirection: "column", gap: "19px" }}>
-              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: "#6a4d7d", margin: 0 }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0 }}>
                 READ THIS ALOUD
               </p>
               <div>
@@ -192,7 +192,7 @@ export function VoiceNameClient() {
                 ].map((line, i) => (
                   <p key={i} style={{
                     fontFamily: sans, fontStyle: "oblique", fontWeight: 400,
-                    fontSize: "16px", color: "#1a1a1a", margin: 0, lineHeight: 2,
+                    fontSize: "16px", color: BLACK, margin: 0, lineHeight: 2,
                   }}>
                     {line}
                   </p>
@@ -206,16 +206,16 @@ export function VoiceNameClient() {
                     onClick={startRecording}
                     style={{
                       width: "214px", height: "49px",
-                      background: "#efeaf2",
-                      border: "1px solid #6a4d7d",
+                      background: LAVENDER_FILL,
+                      border: `1px solid ${LAVENDER}`,
                       borderRadius: "15px",
                       boxSizing: "border-box",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
                       cursor: "pointer",
                     }}
                   >
-                    <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: "#6a4d7d", display: "inline-block", flexShrink: 0 }} />
-                    <span style={{ fontFamily: sans, fontSize: "22px", color: "#6a4d7d" }}>Start recording</span>
+                    <span style={{ width: "13px", height: "13px", borderRadius: "50%", background: LAVENDER, display: "inline-block", flexShrink: 0 }} />
+                    <span style={{ fontFamily: sans, fontSize: "22px", color: LAVENDER }}>Start recording</span>
                   </button>
                 ) : (
                   <button
@@ -234,7 +234,7 @@ export function VoiceNameClient() {
                   </button>
                 )}
                 {isRecording && (
-                  <span style={{ fontFamily: sans, fontSize: "13px", color: "#888", fontVariantNumeric: "tabular-nums", paddingLeft: "4px" }}>
+                  <span style={{ fontFamily: sans, fontSize: "13px", color: DARK_GREY, fontVariantNumeric: "tabular-nums", paddingLeft: "4px" }}>
                     {fmtTime(recordingMs)}
                   </span>
                 )}
@@ -259,7 +259,7 @@ export function VoiceNameClient() {
               />
               <span style={{
                 fontFamily: sans, fontStyle: "oblique", fontSize: "16px",
-                color: meetsMinDuration ? "#888" : "#bababa",
+                color: meetsMinDuration ? DARK_GREY : LIGHT_GREY,
                 whiteSpace: "nowrap",
               }}>
                 I confirm this is my voice
@@ -272,7 +272,7 @@ export function VoiceNameClient() {
               disabled={!canSave}
               style={{
                 width: "304px", height: "48px",
-                background: canSave ? "#1a1a1a" : "#efeaf2",
+                background: canSave ? BLACK : LAVENDER_FILL,
                 borderRadius: "8px",
                 border: "none",
                 cursor: canSave ? "pointer" : "not-allowed",
@@ -281,7 +281,7 @@ export function VoiceNameClient() {
             >
               <span style={{
                 fontFamily: sans, fontSize: "16px", fontWeight: 700,
-                color: canSave ? "#f5f0e8" : "#bababa",
+                color: canSave ? FOOTER_TEXT : LIGHT_GREY,
               }}>
                 {saving ? "Saving…" : "Save and continue →"}
               </span>
@@ -293,7 +293,7 @@ export function VoiceNameClient() {
       </div>
 
       <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
-        <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal" }}>
+        <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: DARK_GREY, margin: 0, lineHeight: "normal" }}>
           Complete your voice recording to unlock your profile.
         </p>
       </div>

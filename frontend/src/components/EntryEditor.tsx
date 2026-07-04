@@ -2,11 +2,12 @@
 
 import type { CSSProperties } from "react";
 import { useState } from "react";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-const PURPLE = "#6a4d7d";
-const LILAC = "#efeaf2";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
+const PURPLE = tokens.color.lavender;
+const LILAC = tokens.color.lavenderFill;
 
 export type EntryTags = { people?: string[]; year?: string | null; place?: string | null };
 export type EditableEntry = {

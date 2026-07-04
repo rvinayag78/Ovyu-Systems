@@ -2,14 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { YouBar } from "@/components/YouBar";
+import { BackLink } from "@/components/ui/BackLink";
 import { api } from "@/lib/api";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
+const BLACK = tokens.color.black;
+const LAVENDER = tokens.color.lavender;
+const LAVENDER_FILL = tokens.color.lavenderFill;
+const DARK_GREY = tokens.color.darkGrey;
+const LIGHT_GREY = tokens.color.lightGrey;
+const PINK = tokens.color.pink;
+const PINK_FILL = tokens.color.pinkFill;
+const FOOTER_TEXT = tokens.color.footerText;
+const PAGE_BG = tokens.color.pageBg;
 
 const KEEPER_CARDS = [
   { key: "who_they_are", label: "Who they are", sub: "Their story, history, birth dates, context. Your relationship to them.", width: 555, textWidth: 465 },
@@ -32,8 +42,8 @@ function Dot({ filled }: { filled: boolean }) {
       <div style={{
         position: "absolute", top: "-6px", left: "-6px",
         width: "37px", height: "37px", borderRadius: "50%",
-        border: `1.5px solid ${filled ? "#6a4d7d" : "#bababa"}`,
-        background: filled ? "#6a4d7d" : "transparent",
+        border: `1.5px solid ${filled ? LAVENDER : LIGHT_GREY}`,
+        background: filled ? LAVENDER : "transparent",
       }} />
     </div>
   );
@@ -120,7 +130,7 @@ export function UploadHubClient() {
   const keeperName = hub?.keeper_name ?? "…";
 
   return (
-    <div style={{ width: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div style={{ width: "1920px", background: PAGE_BG, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
 
       {/* All content — flex:1 pushes YouBar to bottom; hidden when YOU expanded */}
@@ -129,29 +139,24 @@ export function UploadHubClient() {
           <div style={{ marginLeft: "108px", width: "1702px", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
             {/* Breadcrumb */}
-            <Link href="/contracts" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}>
-              <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span style={{ fontFamily: sans, fontSize: "16px", color: "#888" }}>Your contracts</span>
-            </Link>
+            <BackLink href="/contracts" label="Your contracts" />
 
             {/* Heading + sections container */}
             <div style={{ display: "flex", flexDirection: "column", gap: "50px" }}>
 
             {/* Heading */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: "#1a1a1a", margin: 0, lineHeight: "normal" }}>
+              <h1 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "64px", color: BLACK, margin: 0, lineHeight: "normal" }}>
                 For {keeperName}
               </h1>
-              <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: "#1a1a1a", margin: 0 }}>
+              <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "22px", color: BLACK, margin: 0 }}>
                 A bit of you. Started today.
               </p>
             </div>
 
             {/* MESSAGES */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#8e5e6e", margin: 0 }}>MESSAGES</p>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: PINK, margin: 0 }}>MESSAGES</p>
               <div style={{ display: "flex", justifyContent: "space-between", width: "1700px" }}>
                 {[
                   { type: "welcome", label: "Welcome", sub: "The first thing received upon transfer." },
@@ -161,29 +166,29 @@ export function UploadHubClient() {
                   const isDisabled = (card as { disabled?: boolean }).disabled;
                   return isDisabled ? (
                     <div key={card.type} style={{
-                      background: "#f4e8ec", borderRadius: "10px",
+                      background: PINK_FILL, borderRadius: "10px",
                       height: "130px", width: "840px", padding: "20px 30px",
                       boxSizing: "border-box", display: "flex", alignItems: "flex-start",
                       opacity: 0.4,
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
-                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
-                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, whiteSpace: "pre-line" }}>{card.sub}</p>
+                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: BLACK, margin: 0 }}>{card.label}</p>
+                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: DARK_GREY, margin: 0, whiteSpace: "pre-line" }}>{card.sub}</p>
                         </div>
                         <Dot filled={false} />
                       </div>
                     </div>
                   ) : (
                     <button key={card.type} onClick={() => { setEditMsgType(card.type); setEditMsgText(saved?.body ?? ""); }} style={{
-                      background: "#f4e8ec", borderRadius: "10px", border: "none", cursor: "pointer",
+                      background: PINK_FILL, borderRadius: "10px", border: "none", cursor: "pointer",
                       height: "130px", width: "840px", padding: "20px 30px",
                       boxSizing: "border-box", textAlign: "left", display: "flex", alignItems: "flex-start",
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
-                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
-                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0, whiteSpace: "pre-line" }}>
+                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: BLACK, margin: 0 }}>{card.label}</p>
+                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: DARK_GREY, margin: 0, whiteSpace: "pre-line" }}>
                             {saved ? saved.body.slice(0, 70) + (saved.body.length > 70 ? "…" : "") : card.sub}
                           </p>
                         </div>
@@ -197,7 +202,7 @@ export function UploadHubClient() {
 
             {/* KEEPER section */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#6a4d7d", margin: 0 }}>
+              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: LAVENDER, margin: 0 }}>
                 {keeperName.toUpperCase()}
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", columnGap: "22px", alignContent: "space-between", alignItems: "center", height: "286px", width: "1700px" }}>
@@ -205,14 +210,14 @@ export function UploadHubClient() {
                   const value = (profile as Record<string, string | undefined>)[card.key];
                   return (
                     <button key={card.key} onClick={() => { setEditKeeperKey(card.key); setEditKeeperText(value ?? ""); }} style={{
-                      background: "#efeaf2", borderRadius: "10px", border: "none", cursor: "pointer",
+                      background: LAVENDER_FILL, borderRadius: "10px", border: "none", cursor: "pointer",
                       height: "130px", width: `${card.width}px`, padding: "20px 30px",
                       boxSizing: "border-box", textAlign: "left", display: "flex", alignItems: "flex-start",
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "flex-start" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "9px", width: `${card.textWidth}px`, flexShrink: 0 }}>
-                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: "#1a1a1a", margin: 0 }}>{card.label}</p>
-                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
+                          <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: BLACK, margin: 0 }}>{card.label}</p>
+                          <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: DARK_GREY, margin: 0 }}>
                             {value ? value.slice(0, 70) + (value.length > 70 ? "…" : "") : card.sub}
                           </p>
                         </div>
@@ -251,18 +256,18 @@ export function UploadHubClient() {
       {editKeeperKey && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
           <div style={{ background: "white", borderRadius: "20px", padding: "40px", width: "700px", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "36px", color: "#1a1a1a", margin: 0 }}>
+            <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "36px", color: BLACK, margin: 0 }}>
               {KEEPER_CARDS.find(c => c.key === editKeeperKey)?.label}
             </h2>
-            <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
+            <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: DARK_GREY, margin: 0 }}>
               {KEEPER_CARDS.find(c => c.key === editKeeperKey)?.sub}
             </p>
             <textarea value={editKeeperText} onChange={e => setEditKeeperText(e.target.value)}
-              style={{ width: "100%", minHeight: "180px", padding: "16px", borderRadius: "10px", border: "1px solid #888", fontFamily: sans, fontSize: "16px", resize: "vertical", boxSizing: "border-box" }}
+              style={{ width: "100%", minHeight: "180px", padding: "16px", borderRadius: "10px", border: `1px solid ${DARK_GREY}`, fontFamily: sans, fontSize: "16px", resize: "vertical", boxSizing: "border-box" }}
               placeholder="Write here…" autoFocus />
             <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
-              <button onClick={() => setEditKeeperKey(null)} style={{ fontFamily: sans, fontSize: "16px", color: "#888", background: "none", border: "none", cursor: "pointer" }}>Cancel</button>
-              <button onClick={saveKeeperCard} disabled={saving} style={{ background: "#1a1a1a", color: "#f5f0e8", fontFamily: sans, fontWeight: 700, fontSize: "16px", padding: "12px 32px", borderRadius: "8px", border: "none", cursor: "pointer", opacity: saving ? 0.6 : 1 }}>Save</button>
+              <button onClick={() => setEditKeeperKey(null)} style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, background: "none", border: "none", cursor: "pointer" }}>Cancel</button>
+              <button onClick={saveKeeperCard} disabled={saving} style={{ background: BLACK, color: FOOTER_TEXT, fontFamily: sans, fontWeight: 700, fontSize: "16px", padding: "12px 32px", borderRadius: "8px", border: "none", cursor: "pointer", opacity: saving ? 0.6 : 1 }}>Save</button>
             </div>
           </div>
         </div>
@@ -272,18 +277,18 @@ export function UploadHubClient() {
       {editMsgType && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
           <div style={{ background: "white", borderRadius: "20px", padding: "40px", width: "700px", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "36px", color: "#1a1a1a", margin: 0 }}>
+            <h2 style={{ fontFamily: serif, fontStyle: "italic", fontWeight: 400, fontSize: "36px", color: BLACK, margin: 0 }}>
               {editMsgType === "welcome" ? "Welcome" : "For when"}
             </h2>
-            <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
+            <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: DARK_GREY, margin: 0 }}>
               {editMsgType === "welcome" ? "The first thing your Keeper receives upon transfer." : "A message for a specific moment. Scheduled delivery coming soon."}
             </p>
             <textarea value={editMsgText} onChange={e => setEditMsgText(e.target.value)}
-              style={{ width: "100%", minHeight: "180px", padding: "16px", borderRadius: "10px", border: "1px solid #888", fontFamily: sans, fontSize: "16px", resize: "vertical", boxSizing: "border-box" }}
+              style={{ width: "100%", minHeight: "180px", padding: "16px", borderRadius: "10px", border: `1px solid ${DARK_GREY}`, fontFamily: sans, fontSize: "16px", resize: "vertical", boxSizing: "border-box" }}
               placeholder="Write here…" autoFocus />
             <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
-              <button onClick={() => setEditMsgType(null)} style={{ fontFamily: sans, fontSize: "16px", color: "#888", background: "none", border: "none", cursor: "pointer" }}>Cancel</button>
-              <button onClick={saveMessage} disabled={saving} style={{ background: "#1a1a1a", color: "#f5f0e8", fontFamily: sans, fontWeight: 700, fontSize: "16px", padding: "12px 32px", borderRadius: "8px", border: "none", cursor: "pointer", opacity: saving ? 0.6 : 1 }}>Save</button>
+              <button onClick={() => setEditMsgType(null)} style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, background: "none", border: "none", cursor: "pointer" }}>Cancel</button>
+              <button onClick={saveMessage} disabled={saving} style={{ background: BLACK, color: FOOTER_TEXT, fontFamily: sans, fontWeight: 700, fontSize: "16px", padding: "12px 32px", borderRadius: "8px", border: "none", cursor: "pointer", opacity: saving ? 0.6 : 1 }}>Save</button>
             </div>
           </div>
         </div>

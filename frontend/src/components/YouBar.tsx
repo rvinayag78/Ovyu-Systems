@@ -2,12 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
 
-const CIRCLE_FULL = "#5b4b7a";
-const CIRCLE_EMPTY = "#b9a4cf";
+const BLACK = tokens.color.black;
+const DARK_GREY = tokens.color.darkGrey;
+const LIGHT_GREY = tokens.color.lightGrey;
+const LAVENDER = tokens.color.lavender;
+const LAVENDER_FILL = tokens.color.lavenderFill;
+const CREAM_FILL = tokens.color.cream;
+const CREAM_STROKE = tokens.color.creamStroke;
+const CIRCLE_FULL = tokens.color.circleFull;
+const CIRCLE_EMPTY = tokens.color.circleEmptyRing;
 
 function YouCircle({ count, threshold = 3, voiceRecorded = false }: { count: number; threshold?: number; voiceRecorded?: boolean }) {
   const isFull = voiceRecorded || count >= threshold;
@@ -51,7 +59,7 @@ const ALL_LABELS = ["Voice", ...DIMENSIONS.map(d => d.label)];
 function DimArrow() {
   return (
     <svg width="9" height="16" viewBox="0 0 9 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M1 1L8 8L1 15" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M1 1L8 8L1 15" stroke={DARK_GREY} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -65,7 +73,7 @@ function BarArrow({ expanded }: { expanded: boolean }) {
     }}>
       <div style={{ transform: expanded ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
         <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
-          <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M1 1L14 13L1 25" stroke={BLACK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
     </div>
@@ -76,7 +84,7 @@ function ExpandedRows({ contractId, dimensionCounts }: { contractId?: string; di
   const router = useRouter();
 
   const rowBase: React.CSSProperties = {
-    background: "#f7f4ef", border: "1.5px solid #ddd6c6", borderRadius: "8px",
+    background: CREAM_FILL, border: `1.5px solid ${CREAM_STROKE}`, borderRadius: "8px",
     height: "73px", display: "flex", alignItems: "center",
     padding: "15px 40px", boxSizing: "border-box",
   };
@@ -86,8 +94,8 @@ function ExpandedRows({ contractId, dimensionCounts }: { contractId?: string; di
       {/* Voice row — no link, 16px T/B per Figma (dimension rows use 15px) */}
       <div style={{ ...rowBase, padding: "16px 40px", gap: "30px" }}>
         <YouCircle count={1} threshold={1} voiceRecorded />
-        <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>Voice</span>
-        <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>
+        <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: BLACK }}>Voice</span>
+        <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: DARK_GREY }}>
           Facial expressions and video coming soon.
         </span>
       </div>
@@ -97,8 +105,8 @@ function ExpandedRows({ contractId, dimensionCounts }: { contractId?: string; di
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
               <YouCircle count={dimensionCounts[d.slug] ?? 0} threshold={3} />
-              <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: "#1a1a1a" }}>{d.label}</span>
-              <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: "#888" }}>{d.sub}</span>
+              <span style={{ fontFamily: serif, fontWeight: 700, fontSize: "18px", color: BLACK }}>{d.label}</span>
+              <span style={{ fontFamily: sans, fontStyle: "italic", fontSize: "18px", color: DARK_GREY }}>{d.sub}</span>
             </div>
             <DimArrow />
           </div>
@@ -153,10 +161,10 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
     return () => { document.body.style.overflow = ""; };
   }, [expanded]);
 
-  const dimColor = voiceComplete ? "#888" : "#bababa";
-  const youColor = voiceComplete ? "#1a1a1a" : "#bababa";
+  const dimColor = voiceComplete ? DARK_GREY : LIGHT_GREY;
+  const youColor = voiceComplete ? BLACK : LIGHT_GREY;
   // On dimension pages the closed bar background is always lavender
-  const closedBg = activeDimension ? "#efeaf2" : (voiceComplete ? "#fff" : "#f0f0f0");
+  const closedBg = activeDimension ? LAVENDER_FILL : (voiceComplete ? "#fff" : "#f0f0f0");
 
   const barLabel = (
     <div style={{ display: "flex", alignItems: "center" }}>
@@ -168,7 +176,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             label.toLowerCase() === activeDimension.toLowerCase() ||
             slug === activeDimension
           );
-          const labelColor = isActive ? "#6a4d7d" : dimColor;
+          const labelColor = isActive ? LAVENDER : dimColor;
           const labelWeight = isActive ? 700 : 400;
           return (
             <span key={label} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -191,7 +199,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
         style={{
           width: "100%", height: "70px",
           background: closedBg,
-          borderTop: "3px solid #bababa",
+          borderTop: `3px solid ${LIGHT_GREY}`,
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 50px", boxSizing: "border-box",
           cursor: voiceComplete ? "pointer" : "default",
@@ -209,8 +217,8 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             style={{
               position: "fixed", top: `${overlayTop}px`, left: 0, width: "1920px", height: "70px",
               zIndex: 50,
-              background: "#efeaf2",
-              borderTop: "3px solid #bababa",
+              background: LAVENDER_FILL,
+              borderTop: `3px solid ${LIGHT_GREY}`,
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "0 50px", boxSizing: "border-box",
               cursor: "pointer",
@@ -229,7 +237,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             zIndex: 50,
             overflowY: "auto",
             background: "#fff",
-            borderBottom: "0.5px solid #888",
+            borderBottom: `0.5px solid ${DARK_GREY}`,
             display: "flex", flexDirection: "column",
             gap: "10px", padding: "13px 88px",
             boxSizing: "border-box",

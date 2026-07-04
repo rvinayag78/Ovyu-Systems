@@ -2,9 +2,10 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
+import { tokens } from "@/styles/tokens";
 
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
-const PURPLE = "#6a4d7d";
+const sans = tokens.font.sans;
+const PURPLE = tokens.color.lavender;
 
 type Phase = "idle" | "recording" | "recorded";
 
