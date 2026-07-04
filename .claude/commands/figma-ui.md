@@ -33,8 +33,14 @@ Extract every applicable property from the checklist below. Do NOT skip any node
 - Effects: type, color, offset, radius
 - Typography (TEXT nodes): fontFamily, fontStyle, fontWeight, fontSize, lineHeight, letterSpacing, color, textCase
 
-### Step 3 — Read the existing code
+### Step 3 — Read the existing code AND the shared library
 Read the target file(s). If the path was not provided, search for the component/page.
+
+**Before writing any new markup or styles, check what's already reusable:**
+- `frontend/src/styles/tokens.ts` — canonical colors (`tokens.color.*`) and fonts (`tokens.font.*`), Figma-variable-derived. Never hardcode a hex string or font-family that already exists here.
+- `frontend/src/components/ui/BackLink.tsx` — the back-navigation chevron. Use `<BackLink href="..." label="..." marginBottom="..." />`, never hand-roll the SVG again.
+- `frontend/src/components/ui/PageShell.tsx` — the Header + scrollable body + YouBar + Footer composition shared by every Flow 2 / contracts page. New full pages should use `<PageShell headerInitial={...} contentStyle={{...}} youBar={{...}}>{children}</PageShell>` instead of assembling Header/Footer/YouBar by hand.
+- If the frame introduces a genuinely new repeating pattern (used 2+ times across pages, not just within one), add it to `components/ui/` rather than inlining it again — that's exactly the kind of drift this checklist exists to prevent. Don't force-fit an existing primitive onto a visually different pattern just to reuse it (e.g. card-shaped elements with different content shapes are not automatically the same component) — only extract what's actually the same thing repeated.
 
 ### Step 4 — Write the discrepancy table
 Output a markdown table comparing Figma spec vs. current code:
@@ -64,29 +70,35 @@ Never conditionally remove (`{condition && <El />}`) a flex child inside a `just
 In any 3-column form card with `justifyContent: "space-between"`, the save-button column must have an explicit `height` from Figma (differs per dimension — always read it).
 
 ### Back links
-Back links across all OVYU pages use a 12×21px SVG chevron, not a text character:
+Every back-navigation chevron across OVYU pages is the shared `<BackLink/>` component (`frontend/src/components/ui/BackLink.tsx`) — never a hand-rolled SVG or a `‹`/`<` text character:
 ```tsx
-<svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
-  <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-</svg>
+import { BackLink } from "@/components/ui/BackLink";
+<BackLink href="/contracts" label="Your contracts" marginBottom="32px" />
 ```
+`marginBottom` is the one prop that legitimately varies per Figma frame — read its actual value from the frame, don't guess.
+
+### Full pages (Header + body + YOU bar + Footer)
+Every page that has all four of Header, scrollable content, the YOU bar, and Footer must use `<PageShell/>` (`frontend/src/components/ui/PageShell.tsx`) — never assemble these by hand. This is the one place page-level width (1920px), background, and the Header/Footer/YouBar wiring live; a hand-rolled copy is exactly how the same page ended up with a different footer scroll behavior than every other screen once already (see project memory on the Flow 2 scroll-consistency fix).
 
 ---
 
 ## Design tokens (quick reference)
 
-| Token | Value | Used for |
-|-------|-------|---------|
-| `--page-bg` | `#f8f7f5` | Page background |
-| `--black` | `#1a1a1a` | Body text, headings |
-| `--dark-grey` | `#888` | Subtitles, labels |
-| `--light-grey` | `#bababa` | Disabled, locked |
-| `--maker-deep-lavender` | `#6a4d7d` | Maker accents |
-| `--maker-contract` | `#efeaf2` | Maker card fills |
-| `--aubergine` | `#4b3c5e` | Recording active |
-| `--pink` | `#8e5e6e` | Messages label |
-| `--pink-fill` | `#f4e8ec` | Messages card bg |
-| `--cream-fill` | `#f7f4ef` | Dimension row bg |
-| `--cream-stroke` | `#ddd6c6` | Dimension row border |
+**Canonical source: `frontend/src/styles/tokens.ts`.** The table below is a quick-glance reference — always import from `tokens.ts` (`tokens.color.*`, `tokens.font.*`, `tokens.space.*`) rather than retyping these hex values or font stacks inline.
 
-Typography: `serif = "Georgia, serif"` · `sans = "Helvetica Neue, Helvetica, Arial, sans-serif"`
+| `tokens.color.*` | Value | Used for |
+|-------|-------|---------|
+| `pageBg` | `#f8f7f5` | Page background |
+| `black` | `#1a1a1a` | Body text, headings |
+| `darkGrey` | `#888888` | Subtitles, labels |
+| `lightGrey` | `#bababa` | Disabled, locked |
+| `lavender` | `#6a4d7d` | Maker accents |
+| `lavenderFill` | `#efeaf2` | Maker card fills |
+| `pink` | `#8e5e6e` | Messages label |
+| `pinkFill` | `#f4e8ec` | Messages card bg |
+| `cream` | `#f7f4ef` | Dimension row bg |
+| `creamStroke` | `#ddd6c6` | Dimension row border |
+
+Typography: `tokens.font.serif = "Georgia, serif"` · `tokens.font.sans = "Helvetica Neue, Helvetica, Arial, sans-serif"`
+
+If a new frame needs a color or spacing value not yet in `tokens.ts`, verify it against Figma's `get_variable_defs` (not just eyeballing the frame) before adding it as a new token — that's what keeps this file trustworthy as ground truth instead of another place values can drift.
