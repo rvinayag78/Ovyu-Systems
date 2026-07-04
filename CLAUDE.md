@@ -1,5 +1,19 @@
 # Ovyu — Codebase Reference
 
+## UI / Layout Rule — STRICT
+
+> **Before writing or editing any UI/layout code, follow `FIGMA_READ_SPEC.md` exactly:**
+> 1. Fetch the Figma frame with `get_design_context` (file key `7eUxhN3sNdvXaPcwUhIlfh`).
+> 2. Output the spec table (every node, every property) in the response.
+> 3. Read the existing code.
+> 4. Output the discrepancy table (Figma value vs. current code, ✓/✗ per row).
+> 5. Fix all ✗ rows in one pass.
+> 6. Do NOT report done until every ✗ row is re-marked ✓.
+>
+> Skipping any step is not allowed. Use `/figma-ui <node-id>` to trigger this workflow.
+
+---
+
 ## Project Isolation — STRICT
 
 > **AWS account `860350045111`, AWS CLI profile `ovyu`, and GitHub repo `rvinayag78/Ovyu-Systems` are exclusively for OVYU.**

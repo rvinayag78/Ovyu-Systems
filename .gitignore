@@ -32,8 +32,10 @@ out/
 !*.tfvars.example
 .terraform.lock.hcl
 
-# Claude Code
-.claude/
+# Claude Code — ignore personal/local files, track shared commands
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/worktrees/
 
 # macOS
 .DS_Store
