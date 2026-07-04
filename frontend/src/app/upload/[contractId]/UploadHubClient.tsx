@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -50,6 +50,7 @@ export function UploadHubClient() {
     if (seg && seg !== "_") return seg;
     return sessionStorage.getItem("ovyu_contract_id") ?? rawId;
   })();
+  const router = useRouter();
   const [hub, setHub] = useState<HubData | null>(null);
   const [profile, setProfile] = useState<KeeperProfile>({});
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -77,7 +78,15 @@ export function UploadHubClient() {
       setProfile(p);
       setMessages(m);
       const status = vs as { name: string; profile: string };
-      setVoiceComplete(status.name === "complete" && status.profile === "complete");
+      const complete = status.name === "complete" && status.profile === "complete";
+      setVoiceComplete(complete);
+      if (!complete) {
+        router.replace(
+          status.name !== "complete"
+            ? `/upload/${contractId}/voice/name`
+            : `/upload/${contractId}/voice/profile`
+        );
+      }
     }).catch(console.error).finally(() => setLoading(false));
   }, [contractId]);
 
