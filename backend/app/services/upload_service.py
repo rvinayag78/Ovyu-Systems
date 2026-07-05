@@ -24,11 +24,20 @@ class UploadService:
     async def get_or_create_upload(self, contract_id: uuid.UUID, maker_id: uuid.UUID) -> Upload:
         result = await self.db.execute(select(Upload).where(Upload.contract_id == contract_id))
         upload = result.scalar_one_or_none()
-        if not upload:
-            upload = Upload(contract_id=contract_id, maker_id=maker_id)
-            self.db.add(upload)
-            await self.db.flush()
-        return upload
+        if upload:
+            return upload
+        # A fresh Maker's first hub load fires several requests in parallel
+        # (hub, messages, voice status) — plain SELECT-then-INSERT made the
+        # race loser 500 on the unique contract_id. ON CONFLICT DO NOTHING
+        # lets the loser fall through to re-select the winner's row.
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+        await self.db.execute(
+            pg_insert(Upload)
+            .values(id=uuid.uuid4(), contract_id=contract_id, maker_id=maker_id)
+            .on_conflict_do_nothing(index_elements=["contract_id"])
+        )
+        result = await self.db.execute(select(Upload).where(Upload.contract_id == contract_id))
+        return result.scalar_one()
 
     async def get_upload_by_contract(self, contract_id: uuid.UUID) -> Upload | None:
         result = await self.db.execute(select(Upload).where(Upload.contract_id == contract_id))
