@@ -40,7 +40,7 @@ MEDIA_BUCKET = os.environ.get("MEDIA_BUCKET", "")
 TRANSCRIBE_OUTPUT_PREFIX = "transcribe-output/"
 
 POLL_INTERVAL_S = 8
-MAX_WAIT_S = 840  # 14 min — leave headroom before Lambda timeout
+MAX_WAIT_S = 600  # 10 min — abort triangulation after this; entry stays as-is
 
 
 def handler(event: dict, context) -> None:
@@ -78,11 +78,11 @@ def _process(msg: dict) -> None:
         logger.error("transcribe_worker: job %s failed or timed out — leaving entry %s unchanged", job_name, entry_id)
         return
 
-    title = _title_from_transcript(transcript_text)
-    tags = extract_entry_tags(transcript_text)
+    extracted = extract_entry_tags(transcript_text)
+    ai_title = extracted.get("title") or _title_from_transcript(transcript_text)
 
-    _update_entry(entry_id, body=transcript_text, title=title, tags=tags)
-    logger.info("transcribe_worker: entry %s updated — title=%r tags=%s", entry_id, title, tags)
+    _update_entry(entry_id, body=transcript_text, ai_title=ai_title, extracted=extracted)
+    logger.info("transcribe_worker: entry %s updated — title=%r tags=%s", entry_id, ai_title, extracted)
 
 
 def _poll_and_read(transcribe, job_name: str, output_key: str) -> str | None:
@@ -131,8 +131,40 @@ def _title_from_transcript(text: str) -> str:
     return first
 
 
-def _update_entry(entry_id: str, body: str, title: str, tags: dict) -> None:
-    """Write transcript + title + tags back to dimension_entries via psycopg2."""
+def _merge_tags(existing: dict | None, extracted: dict) -> dict:
+    """Merge AI-extracted tags INTO whatever the Maker saved while the
+    transcription was running — never overwrite. User values keep their rows;
+    AI values append as extra rows in the same column, deduped
+    case-insensitively. Stored shape is always people/years/places arrays."""
+    existing = existing or {}
+
+    def norm_list(values) -> list[str]:
+        return [str(v).strip() for v in (values or []) if str(v).strip()]
+
+    people = norm_list(existing.get("people"))
+    # Fold legacy singular year/place into the array shape.
+    years = norm_list(existing.get("years")) or norm_list([existing.get("year")] if existing.get("year") else [])
+    places = norm_list(existing.get("places")) or norm_list([existing.get("place")] if existing.get("place") else [])
+
+    def add_unique(target: list[str], value: str | None) -> None:
+        if value and value.strip() and value.strip().lower() not in {t.lower() for t in target}:
+            target.append(value.strip())
+
+    for p in extracted.get("people") or []:
+        add_unique(people, p)
+    add_unique(years, extracted.get("year"))
+    add_unique(places, extracted.get("place"))
+
+    merged = dict(existing)  # preserves call_them/full_name/what_happened/when
+    merged.pop("year", None)
+    merged.pop("place", None)
+    merged.update({"people": people, "years": years, "places": places})
+    return merged
+
+
+def _update_entry(entry_id: str, body: str, ai_title: str, extracted: dict) -> None:
+    """Write transcript back to dimension_entries, MERGING with any edits the
+    Maker made while transcription ran (tags added, title renamed)."""
     conn = psycopg2.connect(
         host=os.environ["RDS_HOST"],
         port=int(os.environ.get("RDS_PORT", 5432)),
@@ -143,6 +175,19 @@ def _update_entry(entry_id: str, body: str, title: str, tags: dict) -> None:
     try:
         with conn:
             with conn.cursor() as cur:
+                cur.execute("SELECT title, tags FROM dimension_entries WHERE id = %s FOR UPDATE", (entry_id,))
+                row = cur.fetchone()
+                if row is None:
+                    logger.warning("transcribe_worker: entry %s no longer exists (deleted?) — skipping", entry_id)
+                    return
+                current_title, current_tags = row[0], row[1]
+                if isinstance(current_tags, str):
+                    current_tags = json.loads(current_tags)
+
+                merged = _merge_tags(current_tags, extracted)
+                # Only replace the placeholder title — a Maker-typed title wins.
+                title = ai_title if (current_title or "").strip() in ("", "Voice note") else current_title
+
                 cur.execute(
                     """
                     UPDATE dimension_entries
@@ -151,7 +196,7 @@ def _update_entry(entry_id: str, body: str, title: str, tags: dict) -> None:
                            tags  = %s
                      WHERE id = %s
                     """,
-                    (body, title, json.dumps(tags), entry_id),
+                    (body, title, json.dumps(merged), entry_id),
                 )
     finally:
         conn.close()

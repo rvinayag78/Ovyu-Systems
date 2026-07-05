@@ -68,7 +68,6 @@ export function UploadHubClient() {
   const [editMsgType, setEditMsgType] = useState<string | null>(null);
   const [editMsgText, setEditMsgText] = useState("");
   const [saving, setSaving] = useState(false);
-  const [youExpanded, setYouExpanded] = useState(false);
 
   const initial = typeof window !== "undefined"
     ? (sessionStorage.getItem("ovyu_maker_name") ?? "")[0]?.toUpperCase() ?? "?"
@@ -140,11 +139,12 @@ export function UploadHubClient() {
         voiceComplete,
         contractId,
         dimensionCounts: hub?.dimension_counts ?? {},
-        onExpandedChange: setYouExpanded,
       }}
     >
-      {/* Hidden (not removed) when YOU expanded, so PageShell's content slot still reserves its space */}
-      {!youExpanded && (
+      {/* Content stays rendered while the YOU accordion is expanded — the
+          accordion is a fixed overlay that paints over the lower page, same
+          as on the contracts page. Hiding content here (old workaround)
+          blanked the visible strip above the accordion. */}
           <div style={{ marginLeft: "108px", width: "1702px", display: "flex", flexDirection: "column", gap: "48px", paddingBottom: "40px" }}>
 
             {/* Breadcrumb */}
@@ -240,7 +240,6 @@ export function UploadHubClient() {
 
             </div>{/* end heading + sections container */}
           </div>
-      )}
 
       {/* Keeper card edit modal */}
       {editKeeperKey && (

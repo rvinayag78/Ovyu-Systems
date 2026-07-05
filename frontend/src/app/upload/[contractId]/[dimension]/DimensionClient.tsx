@@ -1098,7 +1098,7 @@ function DimensionForm({
   const allCols = [formDef.col1, formDef.col2, formDef.col3];
 
   return (
-    <div style={{ paddingLeft: "108px", paddingTop: "31px", paddingBottom: "60px", width: "1700px" }}>
+    <div style={{ marginLeft: "108px", paddingTop: "31px", paddingBottom: "60px", width: "1700px" }}>
       {/* Back link */}
       <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
 
@@ -1172,7 +1172,9 @@ function SField({ label, value, onChange, hint, id }: { label: string; value: st
 }
 
 function addTagBtnStyle(): CSSProperties {
-  return { fontFamily: sans, fontSize: "12px", color: LIGHT_GREY, background: "white", border: `0.5px solid ${LIGHT_GREY}`, height: "30px", padding: "0 14px", cursor: "pointer" };
+  // Fixed 110x30 per Figma AddTag component (2131:5784) — content-sized
+  // buttons rendered wider than spec and pushed the columns apart.
+  return { fontFamily: sans, fontSize: "12px", color: LIGHT_GREY, background: "white", border: `0.5px solid ${LIGHT_GREY}`, width: "110px", height: "30px", padding: "0 10px", cursor: "pointer", boxSizing: "border-box" as const, textAlign: "left" as const };
 }
 
 const CAROUSEL_SIZES = [
@@ -1377,7 +1379,7 @@ function EntryEditView({
                   own trailing row so they always line up with each other
                   regardless of how many tags are stacked above in any one
                   column. */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(113px, max-content))", gap: "8px 15px", marginBottom: "10px", alignItems: "start" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, max-content)", gap: "8px 15px", marginBottom: "10px", alignItems: "start" }}>
                 {Array.from({ length: Math.max(people.length, years.length, places.length) }).map((_, i) => (
                   <Fragment key={i}>
                     <div>{people[i] && <TagChip label={people[i]} onRemove={() => removePerson(i)} />}</div>
@@ -1434,42 +1436,42 @@ function EntryEditView({
                   style={{ display: "none" }}
                 />
               )}
-              <div style={{ display: "flex", alignItems: "center", gap: "17px", marginBottom: "12px" }}>
-                {mediaUrl && (
+              {/* Playback Interface per Figma 2182:7646 — three SEPARATE
+                  controls in a row ABOVE the waveform, 17px gap: play
+                  triangle (~18×20), pause bars (~11×17), stop square
+                  (~16×16, lavender fill). */}
+              {mediaUrl && (
+                <div style={{ display: "flex", alignItems: "center", gap: "17px", marginBottom: "14px" }}>
                   <button
-                    onClick={() => {
-                      const audio = audioRef.current;
-                      if (!audio) return;
-                      if (isPlaying) { audio.pause(); } else { audio.play(); }
-                      setIsPlaying(!isPlaying);
-                    }}
-                    style={{
-                      background: "none", border: "none", cursor: "pointer", padding: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      width: "20px", height: "20px", flexShrink: 0,
-                    }}
-                    aria-label={isPlaying ? "Pause" : "Play"}
-                  >
-                    {isPlaying ? (
-                      <div style={{ display: "flex", gap: "4px" }}>
-                        <div style={{ width: "6px", height: "20px", background: LAVENDER, borderRadius: "1px" }} />
-                        <div style={{ width: "6px", height: "20px", background: LAVENDER, borderRadius: "1px" }} />
-                      </div>
-                    ) : (
-                      <div style={{
-                        width: 0, height: 0,
-                        borderTop: "10px solid transparent", borderBottom: "10px solid transparent",
-                        borderLeft: `18px solid ${LAVENDER}`,
-                      }} />
-                    )}
+                    onClick={() => { const a = audioRef.current; if (!a) return; a.play(); setIsPlaying(true); }}
+                    aria-label="Play"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }}>
+                    <div style={{
+                      width: 0, height: 0,
+                      borderTop: "10px solid transparent", borderBottom: "10px solid transparent",
+                      borderLeft: `18px solid ${LAVENDER}`, opacity: isPlaying ? 0.45 : 1,
+                    }} />
                   </button>
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "60px", flex: 1 }}>
-                  {Array.from({ length: 70 }).map((_, i) => {
-                    const h = 8 + Math.abs(Math.sin(i * 0.5 + 1) * Math.cos(i * 0.3)) * 44;
-                    return <div key={i} style={{ width: "5px", height: `${h}px`, background: `rgba(106,77,125,${0.2 + Math.abs(Math.sin(i * 0.4)) * 0.5})`, borderRadius: "2px", flexShrink: 0 }} />;
-                  })}
+                  <button
+                    onClick={() => { const a = audioRef.current; if (!a) return; a.pause(); setIsPlaying(false); }}
+                    aria-label="Pause"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", gap: "4px" }}>
+                    <div style={{ width: "4px", height: "17px", background: LAVENDER, borderRadius: "1px" }} />
+                    <div style={{ width: "4px", height: "17px", background: LAVENDER, borderRadius: "1px" }} />
+                  </button>
+                  <button
+                    onClick={() => { const a = audioRef.current; if (!a) return; a.pause(); a.currentTime = 0; setIsPlaying(false); }}
+                    aria-label="Stop"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }}>
+                    <div style={{ width: "16px", height: "16px", background: LAVENDER_FILL, border: `1px solid ${LAVENDER}` }} />
+                  </button>
                 </div>
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "60px", marginBottom: "12px" }}>
+                {Array.from({ length: 70 }).map((_, i) => {
+                  const h = 8 + Math.abs(Math.sin(i * 0.5 + 1) * Math.cos(i * 0.3)) * 44;
+                  return <div key={i} style={{ width: "5px", height: `${h}px`, background: `rgba(106,77,125,${0.2 + Math.abs(Math.sin(i * 0.4)) * 0.5})`, borderRadius: "2px", flexShrink: 0 }} />;
+                })}
               </div>
               <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: DARK_GREY, margin: 0 }}>
                 Voice recording — to change this entry, delete it and re-record.
@@ -1610,14 +1612,31 @@ function EntriesView({
   const [recording, setRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [recordSeconds, setRecordSeconds] = useState(0);
+  const [voiceArmed, setVoiceArmed] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Voice-entry stage: idle (only Record enabled) → recording (only Stop
-  // enabled) → recorded (only Save enabled). Stopping and saving are two
-  // separate, deliberate user actions — stopping never auto-saves.
-  const voiceStage: "idle" | "recording" | "recorded" = recording ? "recording" : recordedBlob ? "recorded" : "idle";
+  // Voice-entry stages (explicit user spec):
+  //   idle      — the composer default: carousel + "♪ Voice" button
+  //   armed     — clicked Voice: card becomes the recording card, "● Record"
+  //   recording — clicked Record: mic live, "■ Stop"
+  //   recorded  — clicked Stop: only Save is actionable
+  // Stopping and saving are separate, deliberate actions — stop never
+  // auto-saves, and the mic only starts on Record, never on Voice.
+  const voiceStage: "idle" | "armed" | "recording" | "recorded" =
+    recording ? "recording" : recordedBlob ? "recorded" : voiceArmed ? "armed" : "idle";
+
+  // Return the composer to its true default (carousel + "♪ Voice") — used
+  // after every save and whenever the entry editor closes, so "● Record"
+  // never lingers as the apparent default state.
+  function resetComposer() {
+    setMode("voice");
+    setVoiceArmed(false);
+    setRecordedBlob(null);
+    setRecordSeconds(0);
+    setBody("");
+  }
 
   async function startRecording() {
     try {
@@ -1671,7 +1690,7 @@ function EntriesView({
       try {
         const e = await api.addDimensionEntry(contractId, dim.slug, { body: body.trim(), entry_type: "text" });
         onEntryAdded(e as Entry);
-        setBody("");
+        resetComposer();
         setEditing(e as Entry);
       } finally { setSaving(false); }
     } else {
@@ -1689,8 +1708,7 @@ function EntriesView({
           duration_s: secs,
         });
         onEntryAdded(e as Entry);
-        setRecordSeconds(0);
-        setRecordedBlob(null);
+        resetComposer();
         setEditing(e as Entry);
       } finally { setSaving(false); }
     }
@@ -1706,7 +1724,7 @@ function EntriesView({
       const e = await api.updateDimensionEntry(contractId, dim.slug, editing.id, patch);
       onEntryUpdated(e as Entry);
       setEditing(null);
-      setMode("voice");
+      resetComposer();
     } finally { setSavingEdit(false); }
   }
 
@@ -1741,7 +1759,7 @@ function EntriesView({
         }
       `}</style>
 
-      <div style={{ paddingLeft: "108px", paddingTop: "40px" }}>
+      <div style={{ marginLeft: "108px", paddingTop: "40px" }}>
         <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
 
         {/* Banner card — fixed 1700px per Figma 2062:1204 ("History Header"),
@@ -1790,7 +1808,7 @@ function EntriesView({
         </div>
       </div>
 
-      <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: editing ? undefined : "space-between", alignItems: "flex-start", width: editing ? undefined : "1700px", gap: editing ? "60px" : undefined }}>
+      <div style={{ display: "flex", marginLeft: "108px", paddingBottom: "80px", justifyContent: editing ? undefined : "space-between", alignItems: "flex-start", width: editing ? undefined : "1700px", gap: editing ? "60px" : undefined }}>
 
         {/* Left: ENTRIES list or inline EntryEditView */}
         {/* When editing, the card is a fixed 1300px per Figma 2182:7663
@@ -1802,7 +1820,7 @@ function EntriesView({
               entry={editing}
               onSave={saveEdit}
               onTagsChange={tags => saveQuickTags(editing.id, tags)}
-              onClose={() => { setEditing(null); setMode("voice"); }}
+              onClose={() => { setEditing(null); resetComposer(); }}
               saving={savingEdit}
               contractId={contractId}
               slug={dim.slug}
@@ -1851,16 +1869,11 @@ function EntriesView({
                         {entry.title || (entry.body ? `${entry.body.slice(0, 80)}${entry.body.length > 80 ? "…" : ""}` : "Untitled entry")}
                       </p>
                       <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>{meta}</p>
-                      {entry.entry_type === "voice" && !entry.body ? (
-                        <span style={{
-                          fontFamily: sans, fontSize: "13px", padding: "5px 12px", borderRadius: "999px",
-                          background: "#f0f0f0", color: LIGHT_GREY, fontStyle: "italic",
-                        }}>transcribing…</span>
-                      ) : allTags.length > 0 ? (
+                      {allTags.length > 0 ? (
                         // Same fixed Person/Year/Place column positions as the
                         // editor — multiple tags of the same category stack as
                         // extra rows within that column, not merged into one line.
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(113px, max-content))", gap: "8px 15px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, max-content)", gap: "8px 15px" }}>
                           {Array.from({ length: Math.max(peopleTags.length, yearTags.length, placeTags.length) }).map((_, r) => (
                             <Fragment key={r}>
                               <div>{peopleTags[r] && (
@@ -1910,7 +1923,7 @@ function EntriesView({
               buttons row, and the Save button. */}
           <div style={{ width: "800px", display: "flex", flexDirection: "column", gap: "14px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
-            {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
+            {mode === "text" ? "ADD TEXT ENTRY" : voiceStage !== "idle" ? "ADD VOICE ENTRY" : "ADD AN ENTRY"}
           </p>
 
           {/* Entry input card — explicit 800×433 per Figma 2045:1116, not
@@ -1934,7 +1947,10 @@ function EntriesView({
                   outline: "none", color: BLACK, boxSizing: "border-box",
                 }}
               />
-            ) : voiceStage === "recording" || voiceStage === "recorded" ? (
+            ) : voiceStage !== "idle" ? (
+              /* armed: static recording card (Figma 2095:6793) — bars still,
+                 no timer, mic NOT live yet. recording: animated + timer.
+                 recorded: frozen + duration / min-length warning. */
               <div style={{
                 flex: 1, display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center", gap: "32px",
@@ -1943,7 +1959,7 @@ function EntriesView({
                   {Array.from({ length: WAVE_BARS }).map((_, i) => (
                     <div key={i} style={{
                       width: "7px", height: "64px",
-                      background: voiceStage === "recorded" ? LAVENDER_FILL : LAVENDER,
+                      background: voiceStage === "recording" ? LAVENDER : LAVENDER_FILL,
                       borderRadius: "4px", transformOrigin: "center",
                       animation: voiceStage === "recording"
                         ? `barPulse ${0.4 + (i % 5) * 0.08}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite`
@@ -1951,11 +1967,13 @@ function EntriesView({
                     }} />
                   ))}
                 </div>
-                <p style={{ fontFamily: sans, fontSize: "18px", color: LAVENDER, margin: 0, fontWeight: 700 }}>
-                  {voiceStage === "recorded" && recordSeconds < 10
-                    ? "Needs at least 10 seconds — record again"
-                    : `${Math.floor(recordSeconds / 60)}:${String(recordSeconds % 60).padStart(2, "0")}`}
-                </p>
+                {voiceStage !== "armed" && (
+                  <p style={{ fontFamily: sans, fontSize: "18px", color: LAVENDER, margin: 0, fontWeight: 700 }}>
+                    {voiceStage === "recorded" && recordSeconds < 10
+                      ? "Needs at least 10 seconds — record again"
+                      : `${Math.floor(recordSeconds / 60)}:${String(recordSeconds % 60).padStart(2, "0")}`}
+                  </p>
+                )}
               </div>
             ) : (
               <PromptCarousel
@@ -1971,9 +1989,10 @@ function EntriesView({
           <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
             <button
               onClick={() => {
-                if (mode !== "voice") { setMode("voice"); return; }
-                if (voiceStage === "idle") startRecording();
-                else if (voiceStage === "recording") stopRecording();
+                if (mode !== "voice") { setMode("voice"); setVoiceArmed(true); return; }
+                if (voiceStage === "idle") setVoiceArmed(true);      // Voice → recording card, mic NOT started
+                else if (voiceStage === "armed") startRecording();    // Record → mic live
+                else if (voiceStage === "recording") stopRecording(); // Stop → recorded
                 // "recorded" stage: only Save is actionable, this button is disabled
               }}
               disabled={mode === "voice" && voiceStage === "recorded"}
@@ -1987,18 +2006,22 @@ function EntriesView({
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
                 color: mode === "voice" ? "white" : LAVENDER,
               }}>
-              {mode === "voice" ? (voiceStage === "recording" ? "■ Stop" : "● Record") : "♪ Voice"}
+              {mode !== "voice" ? "♪ Voice"
+                : voiceStage === "idle" ? "♪ Voice"
+                : voiceStage === "armed" ? "● Record"
+                : voiceStage === "recording" ? "■ Stop"
+                : "♪ Voice"}
             </button>
             <button
-              onClick={() => setMode("text")}
-              disabled={mode === "voice" && voiceStage !== "idle"}
+              onClick={() => { setMode("text"); setVoiceArmed(false); }}
+              disabled={mode === "voice" && (voiceStage === "recording" || voiceStage === "recorded")}
               style={{
                 width: "253px", height: "71px",
                 background: mode === "text" ? LAVENDER : "white",
                 border: `1.5px solid ${mode === "text" ? LAVENDER : CREAM_STROKE}`,
                 borderRadius: "12px",
-                cursor: mode === "voice" && voiceStage !== "idle" ? "not-allowed" : "pointer",
-                opacity: mode === "voice" && voiceStage !== "idle" ? 0.5 : 1,
+                cursor: mode === "voice" && (voiceStage === "recording" || voiceStage === "recorded") ? "not-allowed" : "pointer",
+                opacity: mode === "voice" && (voiceStage === "recording" || voiceStage === "recorded") ? 0.5 : 1,
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
                 color: mode === "text" ? "white" : LAVENDER,
               }}>

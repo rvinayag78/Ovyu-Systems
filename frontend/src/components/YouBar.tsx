@@ -161,9 +161,13 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
     if (!voiceComplete) return;
     const next = !expanded;
     if (next && typeof window !== "undefined") {
-      // Scroll to top so the Header is back in view and the panel sits
-      // directly beneath it, matching the Figma mock exactly.
-      window.scrollTo(0, 0);
+      // Scroll to the bottom so the real footer sits at the viewport bottom
+      // on EVERY page height — the expanded assembly is viewport-anchored
+      // (bottom: FOOTER_H), so this is what keeps it flush on the actual
+      // footer. On pages taller than the viewport, scrolling to top instead
+      // left the footer below the fold and the assembly floating mid-page.
+      // No-op on short pages (contracts/hub) that already fit the viewport.
+      window.scrollTo(0, document.documentElement.scrollHeight);
     }
     setExpanded(next);
     onExpandedChange?.(next);
