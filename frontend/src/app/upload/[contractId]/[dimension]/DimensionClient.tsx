@@ -741,6 +741,11 @@ type DimFormDef = {
   col1: FormFieldDef[];
   col2: FormFieldDef[];
   col3: FormFieldDef[];
+  // Banner facts line, per Figma add-entry frames — each dimension words and
+  // orders its summary differently (e.g. "Sharp at […] · Memory: […]" for
+  // How you think, 2062:1957). `label` is the full prefix including the colon
+  // when the frame shows one; fields joined with " · " in this exact order.
+  prose?: { key: string; label: string }[];
 };
 
 const DIMENSION_FORMS: Record<string, DimFormDef> = {
@@ -769,6 +774,14 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
     subtitle: "How you are with the people in your life.",
     formGap: 30,
     col3Height: 330,
+    // Figma 2062:1464
+    prose: [
+      { key: "relationship_status", label: "Relationship status:" },
+      { key: "how_show_love", label: "How you show love:" },
+      { key: "how_handle_conflict", label: "How you handle conflict:" },
+      { key: "stand_on_family", label: "Where you stand on family:" },
+      { key: "stand_on_friendship", label: "Where you stand on friendship:" },
+    ],
     col1: [
       { key: "relationship_status",  label: "Relationship status",    placeholder: "Your answer", hint: "e.g., single, married, partnered, it's complicated",                kind: "text", multi: false },
       { key: "how_show_love",        label: "How you show love",      placeholder: "Your answer", hint: "e.g., words, time, gifts, touch, showing up",                       kind: "text", multi: false },
@@ -786,6 +799,18 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   "how-you-think": {
     subtitle: "The way your mind works.",
     col3Height: 521,
+    // Figma 2062:1957
+    prose: [
+      { key: "mind_sharp_at", label: "Sharp at" },
+      { key: "mind_struggles", label: "Struggles with" },
+      { key: "how_decide", label: "Decides by" },
+      { key: "memory_works", label: "Memory:" },
+      { key: "how_focus", label: "Focus:" },
+      { key: "how_picture", label: "Pictures things:" },
+      { key: "sense_of_time", label: "Time:" },
+      { key: "keep_sharp", label: "Keeps sharp with" },
+      { key: "read_watch", label: "Reads/watches" },
+    ],
     col1: [
       { key: "mind_sharp_at",  label: "What your mind is sharp at",      placeholder: "Your answer", hint: "e.g., numbers, names, faces, directions, languages, patterns, big picture", kind: "text", multi: false },
       { key: "mind_struggles", label: "What your mind struggles with",   placeholder: "Your answer", hint: "e.g., remembering names, sitting still, abstract ideas, small talk",        kind: "text", multi: false },
@@ -805,6 +830,16 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   "how-you-talk": {
     subtitle: "What people hear when you speak.",
     col3Height: 376,
+    // Figma 2062:2450
+    prose: [
+      { key: "accent", label: "Accent:" },
+      { key: "pace", label: "Pace:" },
+      { key: "volume", label: "Volume:" },
+      { key: "humor", label: "Humor:" },
+      { key: "swearing", label: "Swears:" },
+      { key: "words_say_a_lot", label: "Says a lot:" },
+      { key: "words_never_say", label: "Never says:" },
+    ],
     col1: [
       { key: "accent",  label: "Your accent", placeholder: "Your answer", hint: "e.g., New York at home, neutral at work",                        kind: "text", multi: false },
       { key: "pace",    label: "Your pace",   placeholder: "Your answer", hint: "e.g., usually fast, slower when I'm being careful",              kind: "text", multi: false },
@@ -822,6 +857,18 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   "how-you-live": {
     subtitle: "What your days are made of.",
     col3Height: 619,
+    // Figma 2062:3096
+    prose: [
+      { key: "mornings", label: "Mornings:" },
+      { key: "evenings", label: "Evenings:" },
+      { key: "sleep", label: "Sleep:" },
+      { key: "eat", label: "Eats:" },
+      { key: "free_time", label: "Free time:" },
+      { key: "work", label: "Work:" },
+      { key: "rituals", label: "Rituals:" },
+      { key: "home_feels", label: "Home:" },
+      { key: "spend_money", label: "Spends on:" },
+    ],
     col1: [
       { key: "mornings", label: "Your mornings",  placeholder: "Your answer", hint: "e.g., up at five, slow with coffee, hit snooze three times",                      kind: "text", multi: true },
       { key: "evenings", label: "Your evenings",  placeholder: "Your answer", hint: "e.g., long dinners, in bed by nine, restless until midnight",                     kind: "text", multi: true },
@@ -841,6 +888,19 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   beliefs: {
     subtitle: "What you hold without apology.",
     col3Height: 667,
+    // Figma 2062:3132 — note the order differs from the form columns
+    prose: [
+      { key: "faith", label: "Faith:" },
+      { key: "how_practice", label: "Practices:" },
+      { key: "politics", label: "Politics:" },
+      { key: "believe_people", label: "On people:" },
+      { key: "believe_life", label: "On life:" },
+      { key: "believe_death", label: "On death:" },
+      { key: "believe_right", label: "Right:" },
+      { key: "believe_wrong", label: "Wrong:" },
+      { key: "stand_for", label: "Stands for:" },
+      { key: "wont_compromise", label: "Won't compromise on:" },
+    ],
     col1: [
       { key: "faith",           label: "Your faith",                    placeholder: "Your answer", hint: "e.g., Muslim, Catholic, spiritual but not religious, none",                             kind: "text", multi: false },
       { key: "how_practice",    label: "How you practice it",           placeholder: "Your answer", hint: "e.g., prayer, fasting, service, meditation, holidays only, not at all",                 kind: "text", multi: false },
@@ -861,6 +921,18 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   heart: {
     subtitle: "What you love, and how.",
     col3Height: 667,
+    // Figma 2062:3168
+    prose: [
+      { key: "how_love", label: "Loves:" },
+      { key: "how_forgive", label: "Forgives:" },
+      { key: "how_deeply_feel", label: "Feels:" },
+      { key: "how_express", label: "Expresses through" },
+      { key: "things_love", label: "Loves" },
+      { key: "who_love", label: "Loves" },
+      { key: "find_beautiful", label: "Finds beautiful:" },
+      { key: "makes_laugh", label: "Laughs at:" },
+      { key: "cant_stand", label: "Can't stand:" },
+    ],
     col1: [
       { key: "how_love",        label: "How you love",               placeholder: "Your answer", hint: "e.g., hard and fast, slow to start, forever once I do, all in",       kind: "text", multi: false },
       { key: "how_forgive",     label: "How you forgive",            placeholder: "Your answer", hint: "e.g., easily, never, after time, only when it's earned",               kind: "text", multi: false },
@@ -1566,6 +1638,20 @@ function buildProse(slug: string, structured: Record<string, string | string[]>)
   }
   const formDef = DIMENSION_FORMS[slug];
   if (!formDef) return "";
+  // Per-dimension wording and order from the Figma add-entry banners
+  // (e.g. 2062:1957 "Sharp at […] · Memory: […]"): use the configured
+  // prose map when the dimension defines one.
+  if (formDef.prose) {
+    return formDef.prose
+      .map(p => {
+        const v = structured[p.key];
+        if (!v) return "";
+        const str = Array.isArray(v) ? v.filter(Boolean).join(", ") : String(v);
+        return str ? `${p.label} ${str}` : "";
+      })
+      .filter(Boolean)
+      .join(" · ");
+  }
   const allFields = [...formDef.col1, ...formDef.col2, ...formDef.col3];
   return allFields
     .filter(f => structured[f.key])
