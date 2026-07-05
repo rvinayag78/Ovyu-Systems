@@ -1333,12 +1333,10 @@ function EntryEditView({
         <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
           <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
           <SField label="FULL NAME" value={fullName} onChange={setFullName} hint="First and last, if you know it." />
-          <button onClick={handleSave} disabled={saving} style={{
-            width: "204px", height: "57px", flexShrink: 0,
-            background: saving ? "#b0a0c0" : LAVENDER, border: "none", borderRadius: "8px",
-            fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "white",
-            cursor: saving ? "not-allowed" : "pointer",
-          }}>{saving ? "Saving…" : "Save"}</button>
+          {/* Per Figma 2185:8967, this slot is an empty placeholder (no visible
+              button) — only the row below has the real Save button. Kept as
+              a same-sized spacer so both rows' fields stay column-aligned. */}
+          <div style={{ width: "204px", height: "57px", flexShrink: 0 }} />
         </div>
 
         <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>A time that mattered?</p>
@@ -1790,16 +1788,18 @@ function EntriesView({
             </button>
           </div>
 
-          {/* Save button — voice: only actionable once stopped with ≥10s recorded */}
+          {/* Save button — voice: dark purple + white text once stopped and
+              ready to save (canSaveVoice), so it's visually clear a save is
+              needed; light fill beforehand (idle/recording, not actionable). */}
           <button
             onClick={handleSave}
             disabled={saving || (mode === "text" ? !canSaveText : !canSaveVoice)}
             style={{
               width: "255px", height: "71px",
-              background: mode === "text" ? LAVENDER : LAVENDER_FILL,
+              background: mode === "text" ? LAVENDER : (canSaveVoice ? LAVENDER : LAVENDER_FILL),
               border: "none", borderRadius: "8px",
               fontFamily: sans, fontWeight: 700, fontSize: "18px",
-              color: mode === "text" ? "white" : LAVENDER,
+              color: mode === "text" ? "white" : (canSaveVoice ? "white" : LAVENDER),
               cursor: saving || (mode === "text" ? !canSaveText : !canSaveVoice) ? "not-allowed" : "pointer",
               opacity: saving || (mode === "text" ? !canSaveText : !canSaveVoice) ? 0.5 : 1,
             }}
