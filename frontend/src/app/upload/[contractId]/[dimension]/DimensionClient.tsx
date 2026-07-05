@@ -1225,8 +1225,8 @@ function EntryEditView({
   const [people, setPeople] = useState<string[]>(entry.tags?.people ?? []);
   const [year, setYear] = useState(entry.tags?.year ?? "");
   const [place, setPlace] = useState(entry.tags?.place ?? "");
-  const [callThem, setCallThem] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [callThem, setCallThem] = useState(entry.tags?.call_them ?? "");
+  const [fullName, setFullName] = useState(entry.tags?.full_name ?? "");
   const [whatHappened, setWhatHappened] = useState(entry.tags?.what_happened ?? "");
   const [when, setWhen] = useState(entry.tags?.when ?? "");
   const [editingBody, setEditingBody] = useState(false);
@@ -1263,6 +1263,7 @@ function EntryEditView({
       tags: {
         people: finalPeople, year: y || null, place: place.trim() || null,
         what_happened: whatHappened.trim() || null, when: when.trim() || null,
+        call_them: callThem.trim() || null, full_name: fullName.trim() || null,
       },
     });
   }
@@ -1276,6 +1277,8 @@ function EntryEditView({
       place: (overrides.place ?? place) || null,
       what_happened: whatHappened.trim() || null,
       when: when.trim() || null,
+      call_them: callThem.trim() || null,
+      full_name: fullName.trim() || null,
     };
   }
 
@@ -1339,13 +1342,15 @@ function EntryEditView({
       {/* ENTRY label */}
       <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em" }}>ENTRY</p>
 
-      {/* Entry card — per Figma 2182:7663/2182:7611, the top content AND the
-          two structured rows below live in ONE continuous white bordered
-          card, not a separate floating section. */}
-      <div style={{ background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px", padding: "30px 50px 36px", display: "flex", flexDirection: "column", gap: "36px" }}>
-        <div>
+      {/* Entry card — per Figma 2182:7663/2182:7611: the outer card has no
+          uniform padding (only paddingBottom: 20px + a 42px gap between the
+          two groups below); horizontal 50px inset comes from each inner
+          group's own padding, and the header row itself carries 30px
+          top/bottom padding ("Top" node py-30), not the whole card. */}
+      <div style={{ background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px", paddingBottom: "20px", display: "flex", flexDirection: "column", gap: "42px" }}>
+        <div style={{ padding: "0 50px", display: "flex", flexDirection: "column", gap: "39px" }}>
           {/* Header row: title/meta/tags + close */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "30px 0" }}>
             <div style={{ flex: 1, paddingRight: "24px" }}>
               <input className="entry-title-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
                 fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK,
@@ -1432,8 +1437,10 @@ function EntryEditView({
           )}
         </div>
 
-        {/* Structured forms — inside the same card per Figma */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {/* Structured forms — inside the same card per Figma, fixed 346px
+            tall with the two label+row pairs distributed via justify-between
+            ("Standing Blocks" node), not organically gapped. */}
+        <div style={{ padding: "0 50px", height: "346px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>Someone worth naming?</p>
           <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
             <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
@@ -1723,7 +1730,7 @@ function EntriesView({
       <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: editing ? undefined : "space-between", alignItems: "flex-start", width: editing ? undefined : "1700px", gap: editing ? "60px" : undefined }}>
 
         {/* Left: ENTRIES list or inline EntryEditView */}
-        <div style={{ flex: editing ? 1 : undefined, width: editing ? undefined : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: editing ? "15px" : "50px" }}>
+        <div style={{ flex: editing ? 1 : undefined, width: editing ? undefined : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: editing ? "15px" : (data.entries.length === 0 ? "50px" : "15px") }}>
           {editing ? (
             <EntryEditView
               entry={editing}
@@ -1746,7 +1753,8 @@ function EntriesView({
                   Your stories live here. Add your first entry.
                 </p>
               ) : (
-                data.entries.map(entry => {
+                <div style={{ display: "flex", flexDirection: "column", gap: "0px", width: "100%" }}>
+                {data.entries.map(entry => {
                   const tags = entry.tags ?? {};
                   const peopleTags: string[] = tags.people?.length ? tags.people : [];
                   const yearTag = tags.year ?? null;
@@ -1765,11 +1773,6 @@ function EntriesView({
                         {entry.title || (entry.body ? `${entry.body.slice(0, 80)}${entry.body.length > 80 ? "…" : ""}` : "Untitled entry")}
                       </p>
                       <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>{meta}</p>
-                      {entry.entry_type !== "voice" && entry.body && (
-                        <p style={{ fontFamily: sans, fontSize: "16px", color: BLACK, margin: "0 0 12px", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
-                          {entry.body.length > 240 ? entry.body.slice(0, 240) + "…" : entry.body}
-                        </p>
-                      )}
                       {entry.entry_type === "voice" && !entry.body ? (
                         <span style={{
                           fontFamily: sans, fontSize: "13px", padding: "5px 12px", borderRadius: "999px",
@@ -1803,7 +1806,8 @@ function EntriesView({
                       </div>
                     </div>
                   );
-                })
+                })}
+                </div>
               )}
             </>
           )}

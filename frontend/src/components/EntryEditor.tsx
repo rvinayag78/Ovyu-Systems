@@ -9,7 +9,7 @@ const sans = tokens.font.sans;
 const PURPLE = tokens.color.lavender;
 const LILAC = tokens.color.lavenderFill;
 
-export type EntryTags = { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null };
+export type EntryTags = { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null };
 export type EditableEntry = {
   id: string;
   title?: string;
