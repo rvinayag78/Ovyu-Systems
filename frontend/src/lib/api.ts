@@ -14,6 +14,11 @@ async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail ?? `Error ${res.status}`);
   }
+  // 204 No Content has no body — calling .json() on it throws, which meant
+  // every 204 endpoint (entry/person/year/place/message delete, voice
+  // complete/delete) succeeded on the backend but threw on the frontend
+  // before the caller's onSuccess logic ran, looking like a silent failure.
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
