@@ -1733,7 +1733,10 @@ function EntriesView({
       <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: editing ? undefined : "space-between", alignItems: "flex-start", width: editing ? undefined : "1700px", gap: editing ? "60px" : undefined }}>
 
         {/* Left: ENTRIES list or inline EntryEditView */}
-        <div style={{ flex: editing ? 1 : undefined, width: editing ? undefined : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: editing ? "15px" : (data.entries.length === 0 ? "50px" : "15px") }}>
+        {/* When editing, the card is a fixed 1300px per Figma 2182:7663
+            (1200px content + 50px padding each side) — it does not stretch
+            to fill the row, unlike the 800px ENTRIES/ADD-entry columns. */}
+        <div style={{ width: editing ? "1300px" : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: editing ? "15px" : (data.entries.length === 0 ? "50px" : "15px") }}>
           {editing ? (
             <EntryEditView
               entry={editing}
