@@ -1760,7 +1760,7 @@ function EntriesView({
                 </p>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0px", width: "100%" }}>
-                {data.entries.map(entry => {
+                {data.entries.map((entry, i) => {
                   const tags = entry.tags ?? {};
                   const peopleTags: string[] = tags.people?.length ? tags.people : [];
                   const yearTag = tags.year ?? null;
@@ -1770,9 +1770,20 @@ function EntriesView({
                     ? `${Math.floor(entry.duration_s / 60)}:${String(entry.duration_s % 60).padStart(2, "0")}`
                     : null;
                   const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} • ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}${durationLabel ? ` • ${durationLabel}` : ""}`;
+                  // Flush stacked cards: only the first/last card round the outer
+                  // corners; middle cards are square where they meet a neighbor.
+                  // Every card but the first drops its top border so adjacent
+                  // cards share one border line instead of doubling up.
+                  const isFirst = i === 0;
+                  const isLast = i === data.entries.length - 1;
                   return (
                     <div key={entry.id} style={{
-                      background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px",
+                      background: "white",
+                      borderLeft: `1px solid ${CREAM_STROKE}`, borderRight: `1px solid ${CREAM_STROKE}`,
+                      borderTop: isFirst ? `1px solid ${CREAM_STROKE}` : "none",
+                      borderBottom: isLast ? `1px solid ${CREAM_STROKE}` : `1px solid ${CREAM_STROKE}`,
+                      borderTopLeftRadius: isFirst ? "15px" : 0, borderTopRightRadius: isFirst ? "15px" : 0,
+                      borderBottomLeftRadius: isLast ? "15px" : 0, borderBottomRightRadius: isLast ? "15px" : 0,
                       padding: "30px 30px 20px", position: "relative",
                     }}>
                       <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK, margin: "0 0 6px", paddingRight: "40px" }}>
