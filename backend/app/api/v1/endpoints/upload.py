@@ -26,6 +26,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
+# FOR KEEPER sections reuse the same dimensions/dimension_entries tables and
+# endpoints as the YOU dimensions — no new tables. History-facts triangulation
+# stays Maker-only (it keys off slug == "history" in the service).
+KEEPER_SLUGS = ["who-they-are", "who-theyre-becoming", "what-you-want", "what-you-want-known", "advice"]
+ALL_SLUGS = YOU_SLUGS + KEEPER_SLUGS
 
 
 async def _require_upload(
@@ -161,7 +166,7 @@ async def get_dimension(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     dim = await svc.get_dimension(upload.id, slug)
@@ -181,7 +186,7 @@ async def upsert_dimension(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     dim = await svc.upsert_dimension(upload.id, slug, body.structured)
@@ -199,7 +204,7 @@ async def entry_media_presigned(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> VoicePresignedResponse:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     try:
@@ -217,7 +222,7 @@ async def entry_media_playback_url(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     entry = await svc.get_dimension_entry(entry_id)
@@ -238,7 +243,7 @@ async def add_dimension_entry(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionEntryRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     dim = await svc.get_dimension(upload.id, slug)
@@ -290,7 +295,7 @@ async def update_dimension_entry(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionEntryRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     await _require_upload(contract_id, current_user, db)
     svc = UploadService(db)

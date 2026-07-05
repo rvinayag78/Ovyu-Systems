@@ -434,13 +434,16 @@ class UploadService:
 
     async def get_hub_counts(self, upload_id: uuid.UUID) -> dict:
         YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
+        # FOR KEEPER sections share the dimensions/dimension_entries tables —
+        # their entry counts drive the hub cards' dots.
+        KEEPER_SLUGS = ["who-they-are", "who-theyre-becoming", "what-you-want", "what-you-want-known", "advice"]
 
         dims_result = await self.db.execute(
             select(Dimension).where(Dimension.upload_id == upload_id)
         )
         dims = {d.slug: d.id for d in dims_result.scalars().all()}
 
-        dimension_counts: dict[str, int] = {slug: 0 for slug in YOU_SLUGS}
+        dimension_counts: dict[str, int] = {slug: 0 for slug in YOU_SLUGS + KEEPER_SLUGS}
         for slug, dim_id in dims.items():
             if slug in dimension_counts:
                 count_result = await self.db.execute(

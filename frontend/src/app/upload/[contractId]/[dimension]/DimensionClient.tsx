@@ -725,7 +725,7 @@ const PROMPTS: Record<string, string[]> = {
 
 type FieldKind = "text" | "date" | "place" | "language";
 
-type FormFieldDef = {
+export type FormFieldDef = {
   key: string;
   label: string;
   placeholder: string;
@@ -734,7 +734,7 @@ type FormFieldDef = {
   multi: boolean;
 };
 
-type DimFormDef = {
+export type DimFormDef = {
   subtitle: string;
   formGap?: number;   // gap between title block and form card; defaults to 50px
   col3Height?: number; // explicit height for save column so justify-between pins button to bottom
@@ -954,6 +954,25 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
 type Entry = { id: string; title?: string; body: string; entry_type: string; tags?: EntryTags; media_s3_key?: string | null; duration_s?: number | null; created_at: string };
 type DimData = { id: string; slug: string; structured: Record<string, unknown> | null; entries: Entry[] };
 
+// Config that drives one entry-engine page. The 7 YOU dimensions build theirs
+// from DIMENSIONS/PROMPTS/DIMENSION_FORMS (back link "Your contracts" →
+// /contracts); the FOR KEEPER sections (keeper/[section]) pass their own —
+// same engine, different words. Behavior for YOU slugs must not change.
+export type SectionSpec = {
+  slug: string;              // API dimension slug (shared dimensions/dimension_entries tables)
+  label: string;             // page/banner title
+  formDef?: DimFormDef;      // structured form shown before first save (who-they-are, all YOU dims)
+  prompts: string[];         // carousel question deck
+  backHref: string;
+  backLabel?: string;        // static label; omitted → "For {keeper_name}" from the hub
+  proseWidth?: number;       // banner prose width — 1180 (YOU, 2062:1204) / 1064 (keeper, 2337:6155)
+  // Keeper banner styling per 2337:6151: avatar/title vertically centered and a
+  // 10px title→prose gap (0 when no prose), vs the YOU banners' flex-start +
+  // fixed 16px (2062:1204). Also suppresses the YOU-bar active-dimension tint,
+  // since keeper sections aren't YOU dimensions.
+  keeperBanner?: boolean;
+};
+
 const FOOTER_H = 103;
 const BAR_H = 70;
 
@@ -1118,18 +1137,20 @@ function FormColumn({
 function DimensionForm({
   contractId,
   dimension,
-  dim,
+  label,
+  backHref,
+  backLabel,
   formDef,
   initialStructured,
-  makerFirstName,
   onSaved,
 }: {
   contractId: string;
   dimension: string;
-  dim: typeof DIMENSIONS[number];
+  label: string;
+  backHref: string;
+  backLabel: string;
   formDef: DimFormDef;
   initialStructured: Record<string, unknown> | null;
-  makerFirstName: string;
   onSaved: (structured: Record<string, unknown>) => void;
 }) {
   const [form, setForm] = useState<Record<string, string | string[]>>(() => {
@@ -1172,7 +1193,7 @@ function DimensionForm({
   return (
     <div style={{ marginLeft: "108px", paddingTop: "31px", paddingBottom: "60px", width: "1700px" }}>
       {/* Back link */}
-      <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
+      <BackLink href={backHref} label={backLabel} marginBottom="30px" />
 
       {/* Title + subtitle */}
       <div style={{ marginBottom: `${formDef.formGap ?? 50}px` }}>
@@ -1180,7 +1201,7 @@ function DimensionForm({
           fontFamily: serif, fontStyle: "italic", fontWeight: 400,
           fontSize: "64px", color: BLACK, margin: "0 0 10px",
         }}>
-          {dim.label}
+          {label}
         </h1>
         <p style={{
           fontFamily: sans, fontStyle: "oblique", fontSize: "22px",
@@ -1608,7 +1629,7 @@ function EntryEditView({
   );
 }
 
-function buildProse(slug: string, structured: Record<string, string | string[]>): string {
+function buildProse(slug: string, formDef: DimFormDef | undefined, structured: Record<string, string | string[]>): string {
   if (Object.keys(structured).length === 0) return "";
   if (slug === "history") {
     const parts: string[] = [];
@@ -1636,7 +1657,6 @@ function buildProse(slug: string, structured: Record<string, string | string[]>)
     const homeLine = homes ? (Array.isArray(homes) ? homes.filter(Boolean) : [String(homes)]).join(" → ") : "";
     return prose + (homeLine ? `\n${homeLine}` : "");
   }
-  const formDef = DIMENSION_FORMS[slug];
   if (!formDef) return "";
   // Per-dimension wording and order from the Figma add-entry banners
   // (e.g. 2062:1957 "Sharp at […] · Memory: […]"): use the configured
@@ -1667,26 +1687,26 @@ function buildProse(slug: string, structured: Record<string, string | string[]>)
 
 function EntriesView({
   contractId,
-  dim,
+  spec,
+  backLabel,
   data,
   initial,
-  makerFirstName,
   onEntryAdded,
   onEntryDeleted,
   onEntryUpdated,
   onEditStructured,
 }: {
   contractId: string;
-  dim: typeof DIMENSIONS[number];
+  spec: SectionSpec;
+  backLabel: string;
   data: DimData;
   initial: string;
-  makerFirstName: string;
   onEntryAdded: (e: Entry) => void;
   onEntryDeleted: (id: string) => void;
   onEntryUpdated: (e: Entry) => void;
   onEditStructured: () => void;
 }) {
-  const prompts = PROMPTS[dim.slug] ?? [];
+  const prompts = spec.prompts;
   const [promptIdx, setPromptIdx] = useState(0);
   const [mode, setMode] = useState<"voice" | "text">("voice");
   const [body, setBody] = useState("");
@@ -1774,7 +1794,7 @@ function EntriesView({
       if (!body.trim()) return;
       setSaving(true);
       try {
-        const e = await api.addDimensionEntry(contractId, dim.slug, { body: body.trim(), entry_type: "text" });
+        const e = await api.addDimensionEntry(contractId, spec.slug, { body: body.trim(), entry_type: "text" });
         onEntryAdded(e as Entry);
         resetComposer();
         setEditing(e as Entry);
@@ -1784,9 +1804,9 @@ function EntriesView({
       setSaving(true);
       const secs = recordSeconds;
       try {
-        const { presigned_url, s3_key } = await api.getEntryMediaPresigned(contractId, dim.slug);
+        const { presigned_url, s3_key } = await api.getEntryMediaPresigned(contractId, spec.slug);
         await fetch(presigned_url, { method: "PUT", body: recordedBlob, headers: { "Content-Type": "audio/webm" } });
-        const e = await api.addDimensionEntry(contractId, dim.slug, {
+        const e = await api.addDimensionEntry(contractId, spec.slug, {
           body: "",
           entry_type: "voice",
           title: "Voice note",
@@ -1807,7 +1827,7 @@ function EntriesView({
     if (!editing) return;
     setSavingEdit(true);
     try {
-      const e = await api.updateDimensionEntry(contractId, dim.slug, editing.id, patch);
+      const e = await api.updateDimensionEntry(contractId, spec.slug, editing.id, patch);
       onEntryUpdated(e as Entry);
       setEditing(null);
       resetComposer();
@@ -1817,7 +1837,7 @@ function EntriesView({
   // Quick tags (chips + Add Person/Year/Place) save immediately, independent
   // of the big bottom Save button — each add/remove is its own PUT.
   async function saveQuickTags(entryId: string, tags: EntryTags) {
-    const e = await api.updateDimensionEntry(contractId, dim.slug, entryId, { tags });
+    const e = await api.updateDimensionEntry(contractId, spec.slug, entryId, { tags });
     onEntryUpdated(e as Entry);
   }
 
@@ -1825,14 +1845,14 @@ function EntriesView({
     setDeletingId(id);
     setMenuOpenId(null);
     try {
-      await api.deleteDimensionEntry(contractId, dim.slug, id);
+      await api.deleteDimensionEntry(contractId, spec.slug, id);
       onEntryDeleted(id);
     } finally { setDeletingId(null); }
   }
 
   const structured = data.structured as Record<string, string | string[]> | null;
-  const formDef = DIMENSION_FORMS[dim.slug];
-  const prose = structured ? buildProse(dim.slug, structured) : "";
+  const formDef = spec.formDef;
+  const prose = structured ? buildProse(spec.slug, formDef, structured) : "";
   const canSaveText = body.trim().length > 0;
   const canSaveVoice = voiceStage === "recorded" && recordSeconds >= 10;
 
@@ -1846,19 +1866,22 @@ function EntriesView({
       `}</style>
 
       <div style={{ marginLeft: "108px", paddingTop: "40px" }}>
-        <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
+        <BackLink href={spec.backHref} label={backLabel} marginBottom="30px" />
 
         {/* Banner card — fixed 1700px per Figma 2062:1204 ("History Header"),
             same width as the ENTRIES/ADD-entry row below it. Missing this
             let the banner stretch to fill the page instead of matching the
-            row's actual content width. */}
+            row's actual content width. Keeper banners (2337:6151) center the
+            avatar/title vertically and use a 10px title→prose gap; the YOU
+            banners keep flex-start + 16px. */}
         <div style={{
           background: LAVENDER_FILL, borderRadius: "20px",
           padding: "30px 60px", width: "1700px", boxSizing: "border-box",
-          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+          display: "flex", justifyContent: "space-between",
+          alignItems: spec.keeperBanner ? "center" : "flex-start",
           marginBottom: "50px",
         }}>
-          <div style={{ display: "flex", gap: "28px", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", gap: "28px", alignItems: spec.keeperBanner ? "center" : "flex-start" }}>
             <div style={{
               width: "64px", height: "64px", borderRadius: "50%", background: LAVENDER,
               flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
@@ -1868,15 +1891,20 @@ function EntriesView({
             <div>
               <h1 style={{
                 fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-                fontSize: "64px", color: BLACK, margin: "0 0 10px", lineHeight: 1.1,
+                fontSize: "64px", color: BLACK,
+                // 10px title→facts gap per Figma banner nodes (2062:1204 for
+                // YOU dimensions, 2337:6153 for keeper sections); no bottom
+                // margin when there is no facts line at all.
+                margin: prose ? "0 0 10px" : "0",
+                lineHeight: 1.1,
               }}>
-                {dim.label}
+                {spec.label}
               </h1>
               {prose && (
                 <p style={{
                   fontFamily: sans, fontStyle: "oblique", fontSize: "22px",
                   color: DARK_GREY, margin: 0, lineHeight: "1.6",
-                  whiteSpace: "pre-line", maxWidth: "1180px",
+                  whiteSpace: "pre-line", maxWidth: `${spec.proseWidth ?? 1180}px`,
                 }}>
                   {prose}
                 </p>
@@ -1909,7 +1937,7 @@ function EntriesView({
               onClose={() => { setEditing(null); resetComposer(); }}
               saving={savingEdit}
               contractId={contractId}
-              slug={dim.slug}
+              slug={spec.slug}
             />
           ) : (
             <>
@@ -2157,6 +2185,112 @@ function menuItem(): CSSProperties {
   };
 }
 
+// The whole entry-engine page (form → entries list → composer → editor),
+// driven by a SectionSpec. Used by the 7 YOU dimensions (via DimensionClient
+// below) and the FOR KEEPER sections (keeper/[section]/KeeperSectionClient).
+export function DimensionEngine({ contractId, spec }: { contractId: string; spec: SectionSpec }) {
+  const [data, setData] = useState<DimData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [dimensionCounts, setDimensionCounts] = useState<Record<string, number>>({});
+  const [keeperName, setKeeperName] = useState("");
+
+  const initial = typeof window !== "undefined"
+    ? (sessionStorage.getItem("ovyu_maker_name") ?? "")[0]?.toUpperCase() ?? "?"
+    : "?";
+
+  const { slug, formDef } = spec;
+  useEffect(() => {
+    Promise.all([
+      api.getDimension(contractId, slug),
+      api.getHub(contractId),
+    ]).then(([d, hub]) => {
+      setData(d as DimData);
+      if (formDef && !d.structured) setShowForm(true);
+      const h = hub as { dimension_counts: Record<string, number>; keeper_name?: string };
+      setKeeperName(h.keeper_name ?? "");
+      setDimensionCounts({ ...(h.dimension_counts ?? {}), [slug]: (d as DimData).entries.length });
+    }).catch(console.error).finally(() => setLoading(false));
+  }, [contractId, slug, formDef]);
+
+  const handleSaved = useCallback((structured: Record<string, unknown>) => {
+    setData(prev => prev ? { ...prev, structured } : null);
+    setShowForm(false);
+  }, []);
+
+  const handleEntryAdded = useCallback((e: Entry) => {
+    setData(prev => {
+      if (!prev) return null;
+      const entries = [e, ...prev.entries];
+      setDimensionCounts(c => ({ ...c, [slug]: entries.length }));
+      return { ...prev, entries };
+    });
+  }, [slug]);
+  const handleEntryDeleted = useCallback((id: string) => {
+    setData(prev => {
+      if (!prev) return null;
+      const entries = prev.entries.filter(e => e.id !== id);
+      setDimensionCounts(c => ({ ...c, [slug]: entries.length }));
+      return { ...prev, entries };
+    });
+  }, [slug]);
+  const handleEntryUpdated = useCallback((updated: Entry) => {
+    setData(prev => prev ? { ...prev, entries: prev.entries.map(e => e.id === updated.id ? updated : e) } : null);
+  }, []);
+
+  // Keeper pages label the back link "For {keeperName}" (frames 2337:6147 etc.)
+  // — the name comes from the hub fetch above, so it's ready by the time the
+  // form/entries views (which contain the BackLink) render.
+  const backLabel = spec.backLabel ?? (keeperName ? `For ${keeperName}` : "");
+
+  return (
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingBottom: `${FOOTER_H + BAR_H}px` }}
+      youBar={{
+        voiceComplete: true,
+        contractId,
+        dimensionCounts,
+        // Keeper sections aren't YOU dimensions — no active tint on the bar.
+        activeDimension: spec.keeperBanner ? undefined : slug,
+      }}
+    >
+        {loading ? (
+          <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
+            <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Loading…</p>
+          </div>
+        ) : showForm && formDef ? (
+          <DimensionForm
+            contractId={contractId}
+            dimension={slug}
+            label={spec.label}
+            backHref={spec.backHref}
+            backLabel={backLabel}
+            formDef={formDef}
+            initialStructured={data?.structured ?? null}
+            onSaved={handleSaved}
+          />
+        ) : data ? (
+          <EntriesView
+            contractId={contractId}
+            spec={spec}
+            backLabel={backLabel}
+            data={data}
+            initial={initial}
+            onEntryAdded={handleEntryAdded}
+            onEntryDeleted={handleEntryDeleted}
+            onEntryUpdated={handleEntryUpdated}
+            onEditStructured={() => setShowForm(true)}
+          />
+        ) : (
+          <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
+            <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Could not load dimension.</p>
+          </div>
+        )}
+    </PageShell>
+  );
+}
+
 export function DimensionClient() {
   const { contractId: rawId, dimension: rawDim } = useParams<{ contractId: string; dimension: string }>();
   const contractId = (() => {
@@ -2172,97 +2306,20 @@ export function DimensionClient() {
   const dim = DIMENSIONS.find(d => d.slug === dimension);
   const router = useRouter();
 
-  const [data, setData] = useState<DimData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [dimensionCounts, setDimensionCounts] = useState<Record<string, number>>({});
-
-  const initial = typeof window !== "undefined"
-    ? (sessionStorage.getItem("ovyu_maker_name") ?? "")[0]?.toUpperCase() ?? "?"
-    : "?";
-  const makerFirstName = typeof window !== "undefined"
-    ? (sessionStorage.getItem("ovyu_maker_name") ?? "").split(" ")[0]
-    : "";
-
   useEffect(() => {
-    if (!dim) { router.replace(`/upload/${contractId}`); return; }
-    Promise.all([
-      api.getDimension(contractId, dimension),
-      api.getHub(contractId),
-    ]).then(([d, hub]) => {
-      setData(d as DimData);
-      if (DIMENSION_FORMS[dimension] && !d.structured) setShowForm(true);
-      const hubCounts = (hub as { dimension_counts: Record<string, number> }).dimension_counts ?? {};
-      setDimensionCounts({ ...hubCounts, [dimension]: (d as DimData).entries.length });
-    }).catch(console.error).finally(() => setLoading(false));
-  }, [contractId, dimension, dim, router]);
-
-  const handleSaved = useCallback((structured: Record<string, unknown>) => {
-    setData(prev => prev ? { ...prev, structured } : null);
-    setShowForm(false);
-  }, []);
-
-  const handleEntryAdded = useCallback((e: Entry) => {
-    setData(prev => {
-      if (!prev) return null;
-      const entries = [e, ...prev.entries];
-      setDimensionCounts(c => ({ ...c, [dimension]: entries.length }));
-      return { ...prev, entries };
-    });
-  }, [dimension]);
-  const handleEntryDeleted = useCallback((id: string) => {
-    setData(prev => {
-      if (!prev) return null;
-      const entries = prev.entries.filter(e => e.id !== id);
-      setDimensionCounts(c => ({ ...c, [dimension]: entries.length }));
-      return { ...prev, entries };
-    });
-  }, [dimension]);
-  const handleEntryUpdated = useCallback((updated: Entry) => {
-    setData(prev => prev ? { ...prev, entries: prev.entries.map(e => e.id === updated.id ? updated : e) } : null);
-  }, []);
+    if (!dim) router.replace(`/upload/${contractId}`);
+  }, [dim, contractId, router]);
 
   if (!dim) return null;
 
-  const formDef = DIMENSION_FORMS[dimension];
+  const spec: SectionSpec = {
+    slug: dim.slug,
+    label: dim.label,
+    formDef: DIMENSION_FORMS[dim.slug],
+    prompts: PROMPTS[dim.slug] ?? [],
+    backHref: "/contracts",
+    backLabel: "Your contracts",
+  };
 
-  return (
-    <PageShell
-      headerInitial={initial}
-      contentStyle={{ paddingBottom: `${FOOTER_H + BAR_H}px` }}
-      youBar={{ voiceComplete: true, contractId, dimensionCounts, activeDimension: dimension }}
-    >
-        {loading ? (
-          <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
-            <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Loading…</p>
-          </div>
-        ) : showForm && formDef ? (
-          <DimensionForm
-            contractId={contractId}
-            dimension={dimension}
-            dim={dim}
-            formDef={formDef}
-            initialStructured={data?.structured ?? null}
-            makerFirstName={makerFirstName}
-            onSaved={handleSaved}
-          />
-        ) : data ? (
-          <EntriesView
-            contractId={contractId}
-            dim={dim}
-            data={data}
-            initial={initial}
-            makerFirstName={makerFirstName}
-            onEntryAdded={handleEntryAdded}
-            onEntryDeleted={handleEntryDeleted}
-            onEntryUpdated={handleEntryUpdated}
-            onEditStructured={() => setShowForm(true)}
-          />
-        ) : (
-          <div style={{ paddingLeft: "108px", paddingTop: "60px" }}>
-            <p style={{ fontFamily: sans, fontSize: "18px", color: DARK_GREY }}>Could not load dimension.</p>
-          </div>
-        )}
-    </PageShell>
-  );
+  return <DimensionEngine contractId={contractId} spec={spec} />;
 }
