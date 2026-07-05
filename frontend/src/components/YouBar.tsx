@@ -242,12 +242,17 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
           </div>
 
           {/* Rows panel — sized to its own content (8 rows + gaps + padding ≈
-              681px per Figma 2003:922), anchored to the footer (grows upward
-              from the footer's top edge), not stretched to fill the viewport.
+              681px per Figma 2003:922), pinned directly below the bar. Anchoring
+              to the footer instead (bottom: FOOTER_H) left a visible gap above
+              the panel on any viewport taller than Figma's 1080px reference,
+              since the panel's height doesn't scale with viewport — it's fixed
+              at its own content height, so it must anchor from the bar (fixed
+              distance, same on every viewport), not from the footer (whose
+              distance from the bar varies with viewport height).
               maxHeight + overflowY is a safety net if the row count ever grows. */}
           <div style={{
             position: "fixed",
-            bottom: `${FOOTER_H}px`,
+            top: `${HEADER_H + 70}px`,
             left: 0,
             width: "1920px",
             maxHeight: `calc(100vh - ${HEADER_H + 70 + FOOTER_H}px)`,
