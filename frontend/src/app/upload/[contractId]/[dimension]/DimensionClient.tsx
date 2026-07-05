@@ -1868,7 +1868,7 @@ function EntriesView({
             <div>
               <h1 style={{
                 fontFamily: serif, fontStyle: "italic", fontWeight: 400,
-                fontSize: "64px", color: BLACK, margin: "0 0 16px", lineHeight: 1.1,
+                fontSize: "64px", color: BLACK, margin: "0 0 10px", lineHeight: 1.1,
               }}>
                 {dim.label}
               </h1>
