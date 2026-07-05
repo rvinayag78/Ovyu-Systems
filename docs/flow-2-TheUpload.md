@@ -2,6 +2,17 @@
 
 ---
 
+## What changed as-built (2026-07-05)
+
+- **Voice entries** use a deliberate 4-step flow: ♪ Voice → ● Record → ■ Stop → Save (10-second minimum; a short take lets you re-record). Saving any entry opens the editor first for review/tagging; the editor's Save returns to the list.
+- **Tags** are three fixed columns — Person, Year, Place — and each can hold **multiple values** (extra rows). AI fills what it finds; the Maker adds/removes instantly with + buttons and ×. AI results arriving later (voice transcription) merge in without overwriting the Maker's tags. Transcription is invisible and gives up quietly after 10 minutes.
+- **Titles** are AI-suggested from the content (or the first few words); the Maker's own title always wins.
+- **"For [Keeper]" cards are now full pages**, not pop-ups: each of the five opens an entries page identical to a dimension (text + voice, tagging, everything). "Who they are" starts with a short facts form about the Keeper. **"Welcome" is a voice recording page** with a suggested script, like the Voice Gate pages.
+- **Status Circle**: fills fully at 3 entries (confirmed default).
+- See `flow-2-maker-upload-spec.md` §10 for the precise as-built rules.
+
+---
+
 ## Plain English Glossary
 
 | Term | What it means |

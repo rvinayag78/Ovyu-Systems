@@ -330,7 +330,11 @@ The History **form facts** (full name, goes-by, DOB/year, place of birth, homes,
 
 ---
 
-## 9. Per-dimension prompt decks (to author — unique per dimension)
+## 9. Per-dimension prompt decks — ✅ WIRED (2026-07-04)
+
+> **Status:** the full decks were supplied via the Notion doc "Ovyu Entry Inspiration Lines" and are wired into `PROMPTS` in `DimensionClient.tsx`: History 100, Relationships 99, How you think 100, How you talk 75, How you live 100, Beliefs 100, Heart 100 (counts match the source exactly). **Still TBD:** real decks for the 5 FOR-KEEPER sections (placeholders live, marked `// TBD`).
+
+### (original planning notes below, kept for history)
 
 The "ADD AN ENTRY" rotating deck must be unique per dimension. The Figma placeholder deck (shown on History & Heart) is:
 1. "When was the first time you felt like an adult?"
@@ -357,7 +361,35 @@ The "ADD AN ENTRY" rotating deck must be unique per dimension. The Figma placeho
 
 ## 10. Implementation status
 
-*Last updated: 2026-06-21. All 7 dimensions + voice gate + hub are complete for MVP.*
+*Last updated: 2026-07-05. All 7 dimensions + voice gate + hub + 5 FOR-KEEPER sections + Welcome recording are complete on staging.*
+
+### As-built interaction flow (settled 2026-07-05 — supersedes older flow notes above)
+
+- **Composer default** is always the prompt carousel with the "♪ Voice" button. Voice is a 4-stage flow: click **♪ Voice** → recording card appears with **● Record** (mic NOT live yet) → **● Record** starts the mic (**■ Stop**) → **■ Stop** arms **Save** (dark purple when ≥10s). A take under 10s re-enables **● Record** for a fresh take (never a dead end). Text: **✎ Text** → textarea → Save.
+- **Save (text or voice) opens the entry editor immediately** (first-time edit, Figma 2182:7663/7611). The editor's own Save/close returns to the ENTRIES list and resets the composer to carousel+Voice. Editing later via the card's ⋯ menu opens the same editor, pre-populated (incl. call-them / full-name / what-happened / when).
+- **Titles**: Maker-typed title wins; else AI title from the same Haiku call as tagging; else first ~9 words of the body. Voice entries start as "Voice note" until transcription lands.
+- **Tags model**: `tags` JSON holds `people[]`, `years[]`, `places[]` (arrays; legacy singular year/place still read) plus `what_happened`, `when`, `call_them`, `full_name`. Fixed 3-column display (Person/Year/Place), multi-row per column, content-sized columns, 110×30 add buttons. **Quick tags save instantly** (own PUT per add/remove); the structured rows batch into the editor's Save.
+- **Voice transcription** is async (SQS → `ovyu-transcribe-worker-staging`): invisible to the Maker (no "transcribing…" UI), **merges** AI tags into Maker-added ones (never overwrites; dedup, appends as extra rows), replaces only the "Voice note" placeholder title, sets the transcript as body, and **aborts after 10 minutes** leaving the entry untouched. Editor has custom purple **Play/Pause/Stop** controls (presigned GET) above the waveform.
+- **YOU accordion**: bar+rows rise from the footer as one 751px assembly (70 bar + 681 rows), rows packed at a 10px gap; expanding scrolls to the page bottom so behavior is identical on every page height; page content stays visible above it on all pages.
+- **Layout invariants**: banner 1700px; ENTRIES+ADD row 1700 content (marginLeft 108 — never paddingLeft, global border-box); columns 800 + 100 gap; composer card 800×433; editor card 1300; banner title→facts gap 10px. Back link on dimension pages: "Your contracts" → /contracts.
+
+### FOR KEEPER (new, 2026-07-05)
+
+- **Welcome** (`/upload/[id]/keeper/welcome`, Figma 2337:11562): voice-recording page mirroring the voice-gate pages — pink banner, suggested script, record ≥10s, confirm-voice checkbox, save → hub. Backend: `keeper_messages.s3_key/duration_s` (migration 0010), presigned PUT under `makers/{upload}/keeper/{type}.webm`.
+- **5 sections** (`/upload/[id]/keeper/[section]`): who-they-are (starts with a form, Figma 2337:6097; facts banner per 2337:6142), who-theyre-becoming, what-you-want, what-you-want-known, advice (title-only banners, straight to entries). All reuse the SAME dimension entry engine (`DimensionEngine` in `DimensionClient.tsx`) and the same backend tables/endpoints (keeper slugs whitelisted alongside YOU_SLUGS) — AI tagging, transcription, everything identical. Back link: "For {keeper}" → hub. Hub cards navigate to these pages (old textarea modals removed for these 5; old keeper_profile blobs discarded); dots fill from `dimension_counts` (threshold 3, deliberate default).
+
+### Resolved since 2026-06-21
+
+| Old item | Resolution |
+|---|---|
+| Prompt decks (MVP blocker) | ✅ wired for all 7 dimensions (see §9); keeper decks TBD |
+| Voice entries had no playback | ✅ custom Play/Pause/Stop + presigned GET |
+| Auto-tagging synchronous concern | Kept synchronous for text (fast enough); voice path fully async with 10-min abort + merge |
+| StatusCircle threshold | Confirmed with user 2026-07-05: 3 stays as the deliberate default |
+| Bedrock IAM AccessDenied on tagging | ✅ fixed (inference-profile ARN added to `ovyu-transcribe-bedrock-sqs` policy) |
+| `duration_s` | ✅ real column on dimension_entries (migration 0009), shown in meta line |
+
+*(original 2026-06-21 status tables below, kept for history)*
 
 ### ✅ Complete — Backend
 
