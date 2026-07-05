@@ -242,11 +242,12 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
           </div>
 
           {/* Rows panel — sized to its own content (8 rows + gaps + padding ≈
-              681px per Figma 2003:922), not stretched to fill the viewport.
+              681px per Figma 2003:922), anchored to the footer (grows upward
+              from the footer's top edge), not stretched to fill the viewport.
               maxHeight + overflowY is a safety net if the row count ever grows. */}
           <div style={{
             position: "fixed",
-            top: `${HEADER_H + 70}px`,
+            bottom: `${FOOTER_H}px`,
             left: 0,
             width: "1920px",
             maxHeight: `calc(100vh - ${HEADER_H + 70 + FOOTER_H}px)`,
