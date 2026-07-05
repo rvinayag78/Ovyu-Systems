@@ -74,6 +74,20 @@ class UploadService:
             ExpiresIn=300,
         )
 
+    def generate_presigned_put_keeper_message(self, upload_id: uuid.UUID, msg_type: str) -> tuple[str, str]:
+        """Presigned PUT for a Keeper-message voice recording — same envelope as
+        the name/profile recordings, keyed per message type under keeper/."""
+        s3_key = f"makers/{upload_id}/keeper/{msg_type}.webm"
+        if not settings.media_bucket:
+            raise ValueError("MEDIA_BUCKET not configured")
+        s3 = boto3.client("s3", region_name=settings.aws_region)
+        url = s3.generate_presigned_url(
+            "put_object",
+            Params={"Bucket": settings.media_bucket, "Key": s3_key, "ContentType": "audio/webm"},
+            ExpiresIn=300,
+        )
+        return url, s3_key
+
     async def complete_voice_recording(
         self,
         upload_id: uuid.UUID,
@@ -360,7 +374,13 @@ class UploadService:
         return list(result.scalars().all())
 
     async def upsert_keeper_message(
-        self, contract_id: uuid.UUID, msg_type: str, body: str, trigger: str | None
+        self,
+        contract_id: uuid.UUID,
+        msg_type: str,
+        body: str,
+        trigger: str | None,
+        s3_key: str | None = None,
+        duration_s: float | None = None,
     ) -> KeeperMessage:
         if msg_type == "welcome":
             result = await self.db.execute(
@@ -372,9 +392,14 @@ class UploadService:
             existing = result.scalar_one_or_none()
             if existing:
                 existing.body = body
+                existing.s3_key = s3_key
+                existing.duration_s = duration_s
                 await self.db.flush()
                 return existing
-        msg = KeeperMessage(contract_id=contract_id, type=msg_type, trigger=trigger, body=body)
+        msg = KeeperMessage(
+            contract_id=contract_id, type=msg_type, trigger=trigger, body=body,
+            s3_key=s3_key, duration_s=duration_s,
+        )
         self.db.add(msg)
         await self.db.flush()
         return msg

@@ -137,6 +137,8 @@ class KeeperMessageRead(BaseModel):
     type: str
     trigger: str | None
     body: str
+    s3_key: str | None = None
+    duration_s: float | None = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
@@ -145,6 +147,8 @@ class KeeperMessageCreate(BaseModel):
     type: str  # 'welcome' | 'for_when'
     trigger: str | None = None
     body: str
+    s3_key: str | None = None
+    duration_s: float | None = None
 
 
 class KeeperProfileRead(BaseModel):

@@ -156,10 +156,15 @@ export const api = {
     req(`/contracts/${contractId}/upload/places/${placeId}`, { method: "DELETE" }),
 
   listMessages: (contractId: string) =>
-    req<Array<{ id: string; type: string; trigger?: string; body: string }>>(`/contracts/${contractId}/upload/messages`),
+    req<Array<{ id: string; type: string; trigger?: string; body: string; s3_key?: string; duration_s?: number }>>(`/contracts/${contractId}/upload/messages`),
 
-  addMessage: (contractId: string, p: { type: string; trigger?: string; body: string }) =>
-    req<{ id: string; type: string; trigger?: string; body: string }>(`/contracts/${contractId}/upload/messages`, { method: "POST", body: JSON.stringify(p) }),
+  addMessage: (contractId: string, p: { type: string; trigger?: string; body: string; s3_key?: string; duration_s?: number }) =>
+    req<{ id: string; type: string; trigger?: string; body: string; s3_key?: string; duration_s?: number }>(`/contracts/${contractId}/upload/messages`, { method: "POST", body: JSON.stringify(p) }),
+
+  getMessagePresigned: (contractId: string, messageType: "welcome" | "for_when") =>
+    req<{ upload_id: string; presigned_url: string; s3_key: string }>(
+      `/contracts/${contractId}/upload/messages/presigned?message_type=${messageType}`, { method: "POST" }
+    ),
 
   deleteMessage: (contractId: string, messageId: string) =>
     req(`/contracts/${contractId}/upload/messages/${messageId}`, { method: "DELETE" }),

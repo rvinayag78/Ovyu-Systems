@@ -189,7 +189,12 @@ export function UploadHubClient() {
                       </div>
                     </div>
                   ) : (
-                    <button key={card.type} onClick={() => { setEditMsgType(card.type); setEditMsgText(saved?.body ?? ""); }} style={{
+                    // Welcome opens its own recording page (Figma 2337:11562);
+                    // any other enabled message type keeps the modal.
+                    <button key={card.type} onClick={() => {
+                      if (card.type === "welcome") { router.push(`/upload/${contractId}/keeper/welcome`); return; }
+                      setEditMsgType(card.type); setEditMsgText(saved?.body ?? "");
+                    }} style={{
                       background: PINK_FILL, borderRadius: "10px", border: "none", cursor: "pointer",
                       height: "130px", width: "840px", padding: "20px 30px",
                       boxSizing: "border-box", textAlign: "left", display: "flex", alignItems: "flex-start",
@@ -198,7 +203,7 @@ export function UploadHubClient() {
                         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
                           <p style={{ fontFamily: serif, fontWeight: 700, fontSize: "30px", color: BLACK, margin: 0 }}>{card.label}</p>
                           <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: DARK_GREY, margin: 0, whiteSpace: "pre-line" }}>
-                            {saved ? saved.body.slice(0, 70) + (saved.body.length > 70 ? "…" : "") : card.sub}
+                            {saved?.body ? saved.body.slice(0, 70) + (saved.body.length > 70 ? "…" : "") : card.sub}
                           </p>
                         </div>
                         <Dot filled={!!saved} />

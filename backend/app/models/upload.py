@@ -98,6 +98,8 @@ class KeeperMessage(Base):
     type: Mapped[str] = mapped_column(String(20))  # 'welcome' | 'for_when'
     trigger: Mapped[str | None] = mapped_column(Text(), nullable=True)
     body: Mapped[str] = mapped_column(Text())
+    s3_key: Mapped[str | None] = mapped_column(Text(), nullable=True)  # voice recording, if any
+    duration_s: Mapped[float | None] = mapped_column(Float(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 

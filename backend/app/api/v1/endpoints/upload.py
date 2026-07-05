@@ -461,6 +461,23 @@ async def delete_place(
 
 # ── FOR KEEPER — Messages ─────────────────────────────────────────────────────
 
+@router.post("/contracts/{contract_id}/upload/messages/presigned", response_model=VoicePresignedResponse)
+async def message_presigned(
+    contract_id: UUID,
+    message_type: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> VoicePresignedResponse:
+    if message_type not in ("welcome", "for_when"):
+        raise HTTPException(status_code=400, detail="message_type must be 'welcome' or 'for_when'")
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    try:
+        url, s3_key = svc.generate_presigned_put_keeper_message(upload.id, message_type)
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return VoicePresignedResponse(upload_id=upload.id, presigned_url=url, s3_key=s3_key)
+
+
 @router.get("/contracts/{contract_id}/upload/messages", response_model=list[KeeperMessageRead])
 async def list_messages(
     contract_id: UUID,
@@ -481,7 +498,10 @@ async def add_message(
     if body.type not in ("welcome", "for_when"):
         raise HTTPException(status_code=400, detail="type must be 'welcome' or 'for_when'")
     upload, svc = await _require_upload(contract_id, current_user, db)
-    msg = await svc.upsert_keeper_message(contract_id, body.type, body.body, body.trigger)
+    msg = await svc.upsert_keeper_message(
+        contract_id, body.type, body.body, body.trigger,
+        s3_key=body.s3_key, duration_s=body.duration_s,
+    )
     await db.commit()
     return msg
 
