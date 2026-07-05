@@ -209,6 +209,27 @@ async def entry_media_presigned(
     return VoicePresignedResponse(upload_id=upload.id, presigned_url=url, s3_key=s3_key)
 
 
+@router.get("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}/media-url")
+async def entry_media_playback_url(
+    contract_id: UUID,
+    slug: str,
+    entry_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    if slug not in YOU_SLUGS:
+        raise HTTPException(status_code=404, detail="Unknown dimension slug")
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    entry = await svc.get_dimension_entry(entry_id)
+    if not entry or not entry.media_s3_key:
+        raise HTTPException(status_code=404, detail="No media for this entry")
+    try:
+        url = svc.generate_presigned_get(entry.media_s3_key)
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return {"url": url}
+
+
 @router.post("/contracts/{contract_id}/upload/dimensions/{slug}/entries", response_model=DimensionEntryRead, status_code=201)
 async def add_dimension_entry(
     contract_id: UUID,
@@ -223,12 +244,21 @@ async def add_dimension_entry(
     dim = await svc.get_dimension(upload.id, slug)
     if not dim:
         dim = await svc.upsert_dimension(upload.id, slug, {})
-    # Auto-tag (People / Year / Place) from the body when the client doesn't
-    # supply tags. Best-effort — falls back to empty tags inside the service.
+    # Auto-tag (Title / People / Year / Place) from the body when the client
+    # doesn't supply tags and/or didn't type a title. Best-effort — falls back
+    # to empty tags / a first-words title inside the service. One Haiku call
+    # covers both needs.
     tags = body.tags
-    if tags is None and body.entry_type == "text" and body.body.strip():
-        tags = svc.auto_tag(body.body)
-    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags, body.media_s3_key, body.duration_s)
+    title = body.title
+    needs_tags = tags is None
+    needs_title = not (title or "").strip()
+    if (needs_tags or needs_title) and body.entry_type == "text" and body.body.strip():
+        extracted = svc.auto_tag(body.body)
+        if needs_tags:
+            tags = {"people": extracted["people"], "year": extracted["year"], "place": extracted["place"]}
+        if needs_title:
+            title = extracted.get("title") or svc.fallback_title(body.body)
+    entry = await svc.add_dimension_entry(dim.id, body.body, title, body.entry_type, tags, body.media_s3_key, body.duration_s)
     await db.commit()
 
     # Enqueue transcription job for voice entries that have audio on S3.

@@ -62,6 +62,18 @@ class UploadService:
         )
         return url, s3_key
 
+    def generate_presigned_get(self, s3_key: str) -> str:
+        """Presigned GET for playing back a Maker's own recording (voice name/
+        profile, or a voice dimension entry) — media bucket is private."""
+        if not settings.media_bucket:
+            raise ValueError("MEDIA_BUCKET not configured")
+        s3 = boto3.client("s3", region_name=settings.aws_region)
+        return s3.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": settings.media_bucket, "Key": s3_key},
+            ExpiresIn=300,
+        )
+
     async def complete_voice_recording(
         self,
         upload_id: uuid.UUID,
@@ -199,9 +211,14 @@ class UploadService:
         return list(result.scalars().all())
 
     def auto_tag(self, text: str) -> dict:
-        """Best-effort People/Year/Place extraction for an entry (Bedrock Haiku)."""
+        """Best-effort Title/People/Year/Place extraction for an entry (Bedrock Haiku)."""
         from app.services.tagging_service import extract_entry_tags
         return extract_entry_tags(text)
+
+    def fallback_title(self, text: str) -> str:
+        """First few words of ``text`` — used when AI title extraction returns nothing."""
+        from app.services.tagging_service import first_words_title
+        return first_words_title(text)
 
     # ── Triangulation (form facts → People / Years / Places, deduped) ───────────
 

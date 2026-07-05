@@ -108,22 +108,25 @@ export const api = {
     req(`/contracts/${contractId}/upload/voice/complete`, { method: "POST", body: JSON.stringify(p) }),
 
   getDimension: (contractId: string, slug: string) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
 
   upsertDimension: (contractId: string, slug: string, structured: Record<string, unknown>) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
 
   getEntryMediaPresigned: (contractId: string, slug: string) =>
     req<{ upload_id: string; presigned_url: string; s3_key: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/presigned`, { method: "POST" }),
 
-  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; media_s3_key?: string; duration_s?: number }) =>
-    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
+  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null }; media_s3_key?: string; duration_s?: number }) =>
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
 
   updateDimensionEntry: (contractId: string, slug: string, entryId: string, p: { title?: string; body?: string; tags?: Record<string, unknown>; retag?: boolean }) =>
-    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "PUT", body: JSON.stringify(p) }),
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "PUT", body: JSON.stringify(p) }),
 
   deleteDimensionEntry: (contractId: string, slug: string, entryId: string) =>
     req(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "DELETE" }),
+
+  getEntryMediaUrl: (contractId: string, slug: string, entryId: string) =>
+    req<{ url: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}/media-url`),
 
   listPeople: (contractId: string) =>
     req<Array<{ id: string; name: string; role?: string; notes?: string }>>(`/contracts/${contractId}/upload/people`),

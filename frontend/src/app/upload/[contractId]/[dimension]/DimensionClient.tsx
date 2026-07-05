@@ -1206,13 +1206,19 @@ function PromptCarousel({ questions, idx, onRotate }: { questions: string[]; idx
 function EntryEditView({
   entry,
   onSave,
+  onTagsChange,
   onClose,
   saving,
+  contractId,
+  slug,
 }: {
   entry: Entry;
   onSave: (patch: { title: string; body: string; tags: EntryTags }) => void;
+  onTagsChange: (tags: EntryTags) => void;
   onClose: () => void;
   saving: boolean;
+  contractId: string;
+  slug: string;
 }) {
   const [title, setTitle] = useState(entry.title ?? "");
   const [body, setBody] = useState(entry.body);
@@ -1221,15 +1227,25 @@ function EntryEditView({
   const [place, setPlace] = useState(entry.tags?.place ?? "");
   const [callThem, setCallThem] = useState("");
   const [fullName, setFullName] = useState("");
-  const [whatHappened, setWhatHappened] = useState("");
-  const [when, setWhen] = useState("");
+  const [whatHappened, setWhatHappened] = useState(entry.tags?.what_happened ?? "");
+  const [when, setWhen] = useState(entry.tags?.when ?? "");
   const [editingBody, setEditingBody] = useState(false);
+  const [addingField, setAddingField] = useState<"person" | "year" | "place" | null>(null);
+  const [addingValue, setAddingValue] = useState("");
+  const skipCommitRef = useRef(false);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
 
   const isVoice = entry.entry_type === "voice";
   const created = new Date(entry.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const durationLabel = isVoice && entry.duration_s != null
     ? `${Math.floor(entry.duration_s / 60)}:${String(entry.duration_s % 60).padStart(2, "0")}`
     : null;
+
+  useEffect(() => {
+    if (isVoice && entry.media_s3_key) {
+      api.getEntryMediaUrl(contractId, slug, entry.id).then(r => setMediaUrl(r.url)).catch(() => setMediaUrl(null));
+    }
+  }, [isVoice, entry.media_s3_key, entry.id, contractId, slug]);
 
   // Both structured-prompt rows save the whole entry (per Figma 2182:7663,
   // each row ends in the same "Save" button, not a separate "add" step) —
@@ -1244,117 +1260,207 @@ function EntryEditView({
     onSave({
       title: (title.trim() || whatHappened.trim()),
       body,
-      tags: { people: finalPeople, year: y || null, place: place.trim() || null },
+      tags: {
+        people: finalPeople, year: y || null, place: place.trim() || null,
+        what_happened: whatHappened.trim() || null, when: when.trim() || null,
+      },
     });
   }
 
+  // Quick tags (chips + Add Person/Year/Place) persist immediately — each
+  // add/remove fires its own save, independent of the big bottom Save button.
+  function quickTags(overrides: Partial<{ people: string[]; year: string; place: string }>): EntryTags {
+    return {
+      people: overrides.people ?? people,
+      year: (overrides.year ?? year) || null,
+      place: (overrides.place ?? place) || null,
+      what_happened: whatHappened.trim() || null,
+      when: when.trim() || null,
+    };
+  }
+
+  function startAdding(field: "person" | "year" | "place") {
+    skipCommitRef.current = false;
+    setAddingField(field);
+    setAddingValue("");
+  }
+
+  function cancelAdding() {
+    skipCommitRef.current = true;
+    setAddingField(null);
+    setAddingValue("");
+  }
+
+  function commitAdding() {
+    if (skipCommitRef.current) { skipCommitRef.current = false; return; }
+    const v = addingValue.trim();
+    setAddingField(null);
+    setAddingValue("");
+    if (!v) return;
+    if (addingField === "person") {
+      if (people.some(p => p.toLowerCase() === v.toLowerCase())) return;
+      const next = [...people, v];
+      setPeople(next);
+      onTagsChange(quickTags({ people: next }));
+    } else if (addingField === "year") {
+      setYear(v);
+      onTagsChange(quickTags({ year: v }));
+    } else if (addingField === "place") {
+      setPlace(v);
+      onTagsChange(quickTags({ place: v }));
+    }
+  }
+
+  function removePerson(i: number) {
+    const next = people.filter((_, j) => j !== i);
+    setPeople(next);
+    onTagsChange(quickTags({ people: next }));
+  }
+  function removeYear() {
+    setYear("");
+    onTagsChange(quickTags({ year: "" }));
+  }
+  function removePlace() {
+    setPlace("");
+    onTagsChange(quickTags({ place: "" }));
+  }
+
   const allTags: Array<{ label: string; remove: () => void }> = [
-    ...people.map((p, i) => ({ label: p, remove: () => setPeople(prev => prev.filter((_, j) => j !== i)) })),
-    ...(year ? [{ label: year, remove: () => setYear("") }] : []),
-    ...(place ? [{ label: place, remove: () => setPlace("") }] : []),
+    ...people.map((p, i) => ({ label: p, remove: () => removePerson(i) })),
+    ...(year ? [{ label: year, remove: removeYear }] : []),
+    ...(place ? [{ label: place, remove: removePlace }] : []),
   ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+      <style>{`
+        .entry-title-input::placeholder, .entry-body-textarea::placeholder { color: ${LIGHT_GREY}; font-style: italic; font-weight: 400; }
+      `}</style>
       {/* ENTRY label */}
       <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em" }}>ENTRY</p>
 
-      {/* Entry card */}
-      <div style={{ background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px", padding: "30px 50px 36px", position: "relative" }}>
-        {/* Header row: title/meta/tags + close */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
-          <div style={{ flex: 1, paddingRight: "24px" }}>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
-              fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK,
-              border: "none", background: "transparent", outline: "none",
-              width: "100%", padding: 0, marginBottom: "6px", display: "block",
-            }} />
-            <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>
-              {isVoice ? "Voice" : "Text"} • {created}{durationLabel ? ` • ${durationLabel}` : ""}
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginBottom: "10px" }}>
-              {allTags.length > 0
-                ? allTags.map((t, i) => <TagChip key={i} label={t.label} onRemove={t.remove} />)
-                : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: LIGHT_GREY }}>No tags yet — add them below.</span>
-              }
-            </div>
-            <div style={{ display: "flex", gap: "0" }}>
-              <button onClick={() => document.getElementById("edit-call-them")?.focus()} style={addTagBtnStyle()}>+ Add Person</button>
-              <button onClick={() => { const y = prompt("Year (e.g. 2013):"); if (y) setYear(y.trim()); }} style={addTagBtnStyle()}>+ Add Year</button>
-              <button onClick={() => { const p = prompt("Place (City, Country):"); if (p) setPlace(p.trim()); }} style={addTagBtnStyle()}>+ Add Place</button>
-            </div>
-          </div>
-          {/* Small × close */}
-          <button onClick={onClose} style={{
-            background: "none", border: "none", cursor: "pointer",
-            fontFamily: sans, fontSize: "22px", color: DARK_GREY, lineHeight: 1,
-            padding: "0 4px", flexShrink: 0,
-          }}>×</button>
-        </div>
-
-        {/* Body / Waveform */}
-        {isVoice ? (
-          <div style={{ background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "60px", marginBottom: "12px" }}>
-              {Array.from({ length: 70 }).map((_, i) => {
-                const h = 8 + Math.abs(Math.sin(i * 0.5 + 1) * Math.cos(i * 0.3)) * 44;
-                return <div key={i} style={{ width: "5px", height: `${h}px`, background: `rgba(106,77,125,${0.2 + Math.abs(Math.sin(i * 0.4)) * 0.5})`, borderRadius: "2px", flexShrink: 0 }} />;
-              })}
-            </div>
-            <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: DARK_GREY, margin: 0 }}>
-              Voice recording — to change this entry, delete it and re-record.
-            </p>
-          </div>
-        ) : (
-          <div style={{ position: "relative", background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px", minHeight: "120px" }}>
-            <button onClick={() => setEditingBody(b => !b)} style={{
-              position: "absolute", top: "12px", right: "12px",
-              background: "none", border: "none", cursor: "pointer",
-              color: LAVENDER, fontSize: "17px", lineHeight: 1, padding: "2px",
-            }}>✎</button>
-            {editingBody ? (
-              <textarea value={body} onChange={e => setBody(e.target.value)} autoFocus style={{
-                width: "100%", minHeight: "100px", border: "none", background: "transparent",
-                fontFamily: sans, fontSize: "14px", lineHeight: "1.7", resize: "vertical",
-                outline: "none", boxSizing: "border-box", color: BLACK,
+      {/* Entry card — per Figma 2182:7663/2182:7611, the top content AND the
+          two structured rows below live in ONE continuous white bordered
+          card, not a separate floating section. */}
+      <div style={{ background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px", padding: "30px 50px 36px", display: "flex", flexDirection: "column", gap: "36px" }}>
+        <div>
+          {/* Header row: title/meta/tags + close */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+            <div style={{ flex: 1, paddingRight: "24px" }}>
+              <input className="entry-title-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
+                fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK,
+                border: "none", background: "transparent", outline: "none",
+                width: "100%", padding: 0, marginBottom: "6px", display: "block",
               }} />
-            ) : (
-              <p style={{ fontFamily: sans, fontSize: "14px", color: BLACK, lineHeight: "1.7", margin: 0, whiteSpace: "pre-wrap", paddingRight: "28px" }}>
-                {body || <span style={{ color: LIGHT_GREY, fontStyle: "oblique" }}>Click ✎ to edit</span>}
+              <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>
+                {isVoice ? "Voice" : "Text"} • {created}{durationLabel ? ` • ${durationLabel}` : ""}
               </p>
-            )}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginBottom: "10px" }}>
+                {allTags.length > 0
+                  ? allTags.map((t, i) => <TagChip key={i} label={t.label} onRemove={t.remove} />)
+                  : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: LIGHT_GREY }}>No tags yet — add them below.</span>
+                }
+              </div>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                {addingField === "person" ? (
+                  <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
+                    onBlur={commitAdding} placeholder="Name" style={{ ...addTagBtnStyle(), width: "140px" }} />
+                ) : (
+                  <button onClick={() => startAdding("person")} style={addTagBtnStyle()}>+ Add Person</button>
+                )}
+                {addingField === "year" ? (
+                  <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
+                    onBlur={commitAdding} placeholder="Year" style={{ ...addTagBtnStyle(), width: "100px" }} />
+                ) : (
+                  <button onClick={() => startAdding("year")} style={addTagBtnStyle()}>+ Add Year</button>
+                )}
+                {addingField === "place" ? (
+                  <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
+                    onBlur={commitAdding} placeholder="City, Country" style={{ ...addTagBtnStyle(), width: "160px" }} />
+                ) : (
+                  <button onClick={() => startAdding("place")} style={addTagBtnStyle()}>+ Add Place</button>
+                )}
+              </div>
+            </div>
+            {/* Small × close */}
+            <button onClick={onClose} style={{
+              background: "none", border: "none", cursor: "pointer",
+              fontFamily: sans, fontSize: "22px", color: DARK_GREY, lineHeight: 1,
+              padding: "0 4px", flexShrink: 0,
+            }}>×</button>
           </div>
-        )}
-      </div>
 
-      {/* Structured forms */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>Someone worth naming?</p>
-        <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
-          <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
-          <SField label="FULL NAME" value={fullName} onChange={setFullName} hint="First and last, if you know it." />
-          {/* Per Figma 2185:8967, this slot is an empty placeholder (no visible
-              button) — only the row below has the real Save button. Kept as
-              a same-sized spacer so both rows' fields stay column-aligned. */}
-          <div style={{ width: "204px", height: "57px", flexShrink: 0 }} />
+          {/* Body / Playback */}
+          {isVoice ? (
+            <div style={{ background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px" }}>
+              {mediaUrl ? (
+                <audio controls src={mediaUrl} style={{ width: "100%", marginBottom: "12px" }} />
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "60px", marginBottom: "12px" }}>
+                  {Array.from({ length: 70 }).map((_, i) => {
+                    const h = 8 + Math.abs(Math.sin(i * 0.5 + 1) * Math.cos(i * 0.3)) * 44;
+                    return <div key={i} style={{ width: "5px", height: `${h}px`, background: `rgba(106,77,125,${0.2 + Math.abs(Math.sin(i * 0.4)) * 0.5})`, borderRadius: "2px", flexShrink: 0 }} />;
+                  })}
+                </div>
+              )}
+              <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: DARK_GREY, margin: 0 }}>
+                Voice recording — to change this entry, delete it and re-record.
+              </p>
+            </div>
+          ) : (
+            <div style={{ position: "relative", background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px", minHeight: "120px" }}>
+              <button onClick={() => setEditingBody(b => !b)} style={{
+                position: "absolute", top: "12px", right: "12px",
+                background: "none", border: "none", cursor: "pointer",
+                color: LAVENDER, fontSize: "17px", lineHeight: 1, padding: "2px",
+              }}>✎</button>
+              {editingBody ? (
+                <textarea className="entry-body-textarea" value={body} onChange={e => setBody(e.target.value)} autoFocus style={{
+                  width: "100%", minHeight: "100px", border: "none", background: "transparent",
+                  fontFamily: sans, fontSize: "14px", lineHeight: "1.7", resize: "vertical",
+                  outline: "none", boxSizing: "border-box", color: BLACK,
+                }} />
+              ) : (
+                <p style={{ fontFamily: sans, fontSize: "14px", color: BLACK, lineHeight: "1.7", margin: 0, whiteSpace: "pre-wrap", paddingRight: "28px" }}>
+                  {body || <span style={{ color: LIGHT_GREY, fontStyle: "oblique" }}>Click ✎ to edit</span>}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
-        <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>A time that mattered?</p>
-        <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
-          <SField label="WHAT HAPPENED" value={whatHappened} onChange={setWhatHappened} hint="Born · Moved · Married · A child arrived · Someone left" />
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: DARK_GREY, textTransform: "uppercase", letterSpacing: "0.04em" }}>WHEN</label>
-            <input value={when} onChange={e => { setWhen(e.target.value); const y = /\b(\d{4})\b/.exec(e.target.value)?.[1]; if (y) setYear(y); }} style={{ height: "57px", padding: "0 12px", border: `1px solid ${DARK_GREY}`, borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
-            <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: DARK_GREY }}>A day, a month, a year, or a span. e.g. 2003 · 2015 to 2019</span>
+        {/* Structured forms — inside the same card per Figma */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>Someone worth naming?</p>
+          <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
+            <SField id="edit-call-them" label="WHAT YOU CALL THEM" value={callThem} onChange={setCallThem} hint="Mum • Auntie N • Whatever you actually say" />
+            <SField label="FULL NAME" value={fullName} onChange={setFullName} hint="First and last, if you know it." />
+            {/* Per Figma 2185:8967, this slot is an empty placeholder (no visible
+                button) — only the row below has the real Save button. Kept as
+                a same-sized spacer so both rows' fields stay column-aligned. */}
+            <div style={{ width: "204px", height: "57px", flexShrink: 0 }} />
           </div>
-          <button onClick={handleSave} disabled={saving} style={{
-            width: "204px", height: "57px", flexShrink: 0,
-            background: saving ? "#b0a0c0" : LAVENDER, border: "none", borderRadius: "8px",
-            fontFamily: sans, fontWeight: 700, fontSize: "17px", color: "white",
-            cursor: saving ? "not-allowed" : "pointer",
-          }}>
-            {saving ? "Saving…" : "Save"}
-          </button>
+
+          <p style={{ fontFamily: serif, fontStyle: "italic", fontSize: "18px", color: BLACK, margin: 0 }}>A time that mattered?</p>
+          <div style={{ display: "flex", gap: "20px", alignItems: "flex-end" }}>
+            <SField label="WHAT HAPPENED" value={whatHappened} onChange={setWhatHappened} hint="Born · Moved · Married · A child arrived · Someone left" />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: DARK_GREY, textTransform: "uppercase", letterSpacing: "0.04em" }}>WHEN</label>
+              <input value={when} onChange={e => { setWhen(e.target.value); const y = /\b(\d{4})\b/.exec(e.target.value)?.[1]; if (y) setYear(y); }} style={{ height: "57px", padding: "0 12px", border: `1px solid ${DARK_GREY}`, borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
+              <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: DARK_GREY }}>A day, a month, a year, or a span. e.g. 2003 · 2015 to 2019</span>
+            </div>
+            <button onClick={handleSave} disabled={saving} style={{
+              width: "204px", height: "57px", flexShrink: 0,
+              background: saving ? "#b0a0c0" : LAVENDER, border: "none", borderRadius: "8px",
+              fontFamily: sans, fontWeight: 700, fontSize: "17px", color: "white",
+              cursor: saving ? "not-allowed" : "pointer",
+            }}>
+              {saving ? "Saving…" : "Save"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1479,6 +1585,18 @@ function EntriesView({
     setRecordedBlob(blob);
   }
 
+  // Per Figma 2095:6746 ("...voice entry in"), saving does NOT open the entry
+  // editor — the page returns to the ENTRIES list with the composer reset to
+  // its idle default (Voice mode, carousel showing), not the just-saved entry.
+  // Both text and voice: Save opens the entry editor immediately (Figma path
+  // 2062:1016 → 2182:7663 for text, confirmed the same shape applies to
+  // voice). For text, AI triangulation already ran server-side (synchronous
+  // Haiku call), so the editor shows the real title/tags right away. For
+  // voice, transcription + tagging is async (a separate worker) — the editor
+  // opens with the placeholder title ("Voice note") and empty tags, which
+  // get filled in later once that worker finishes. Composer only resets to
+  // idle Voice+carousel once the editor itself is saved/closed (see saveEdit
+  // and the onClose handler below) — not at this step.
   async function handleSave() {
     if (mode === "text") {
       if (!body.trim()) return;
@@ -1511,6 +1629,9 @@ function EntriesView({
     }
   }
 
+  // Closing the editor (via its own Save, or the × close) is the point where
+  // the page returns to the ENTRIES list per Figma 2062:1195 — composer
+  // resets to idle Voice+carousel here, not at the composer-save step.
   async function saveEdit(patch: { title: string; body: string; tags: EntryTags }) {
     if (!editing) return;
     setSavingEdit(true);
@@ -1518,7 +1639,15 @@ function EntriesView({
       const e = await api.updateDimensionEntry(contractId, dim.slug, editing.id, patch);
       onEntryUpdated(e as Entry);
       setEditing(null);
+      setMode("voice");
     } finally { setSavingEdit(false); }
+  }
+
+  // Quick tags (chips + Add Person/Year/Place) save immediately, independent
+  // of the big bottom Save button — each add/remove is its own PUT.
+  async function saveQuickTags(entryId: string, tags: EntryTags) {
+    const e = await api.updateDimensionEntry(contractId, dim.slug, entryId, { tags });
+    onEntryUpdated(e as Entry);
   }
 
   async function deleteEntry(id: string) {
@@ -1599,8 +1728,11 @@ function EntriesView({
             <EntryEditView
               entry={editing}
               onSave={saveEdit}
-              onClose={() => setEditing(null)}
+              onTagsChange={tags => saveQuickTags(editing.id, tags)}
+              onClose={() => { setEditing(null); setMode("voice"); }}
               saving={savingEdit}
+              contractId={contractId}
+              slug={dim.slug}
             />
           ) : (
             <>
@@ -1761,7 +1893,7 @@ function EntriesView({
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
                 color: mode === "voice" ? "white" : LAVENDER,
               }}>
-              {mode === "voice" ? (voiceStage === "recording" ? "■ Stop" : "● Record") : "♪ Voice"}
+              {mode === "voice" && voiceStage === "recording" ? "■ Stop" : "♪ Voice"}
             </button>
             <button
               onClick={() => setMode("text")}
