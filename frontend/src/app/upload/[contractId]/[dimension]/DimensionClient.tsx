@@ -1377,7 +1377,7 @@ function EntryEditView({
                   own trailing row so they always line up with each other
                   regardless of how many tags are stacked above in any one
                   column. */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px 15px", marginBottom: "10px", alignItems: "start" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(113px, max-content))", gap: "8px 15px", marginBottom: "10px", alignItems: "start" }}>
                 {Array.from({ length: Math.max(people.length, years.length, places.length) }).map((_, i) => (
                   <Fragment key={i}>
                     <div>{people[i] && <TagChip label={people[i]} onRemove={() => removePerson(i)} />}</div>
@@ -1860,7 +1860,7 @@ function EntriesView({
                         // Same fixed Person/Year/Place column positions as the
                         // editor — multiple tags of the same category stack as
                         // extra rows within that column, not merged into one line.
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px 15px" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(113px, max-content))", gap: "8px 15px" }}>
                           {Array.from({ length: Math.max(peopleTags.length, yearTags.length, placeTags.length) }).map((_, r) => (
                             <Fragment key={r}>
                               <div>{peopleTags[r] && (
