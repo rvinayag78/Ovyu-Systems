@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, Fragment } from "react";
 import type { CSSProperties } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Typeahead } from "@/components/Typeahead";
@@ -1236,6 +1236,8 @@ function EntryEditView({
   const [addingValue, setAddingValue] = useState("");
   const skipCommitRef = useRef(false);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const isVoice = entry.entry_type === "voice";
   const created = new Date(entry.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -1369,13 +1371,21 @@ function EntryEditView({
               <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>
                 {isVoice ? "Voice" : "Text"} • {created}{durationLabel ? ` • ${durationLabel}` : ""}
               </p>
-              {/* Fixed 3-column layout — Person / Year / Place. AI
-                  triangulation and manual "+ Add" both write into the same
-                  column; multiple values for the same type stack as extra
-                  rows within that column, never mixed into one flat list. */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "15px", marginBottom: "10px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
-                  {people.map((p, i) => <TagChip key={i} label={p} onRemove={() => removePerson(i)} />)}
+              {/* Fixed 3-column GRID — Person / Year / Place. Each grid ROW
+                  holds one value per column (blank cell if that column has
+                  fewer values at this row); the "+ Add" controls are their
+                  own trailing row so they always line up with each other
+                  regardless of how many tags are stacked above in any one
+                  column. */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px 15px", marginBottom: "10px", alignItems: "start" }}>
+                {Array.from({ length: Math.max(people.length, years.length, places.length) }).map((_, i) => (
+                  <Fragment key={i}>
+                    <div>{people[i] && <TagChip label={people[i]} onRemove={() => removePerson(i)} />}</div>
+                    <div>{years[i] && <TagChip label={years[i]} onRemove={() => removeYear(i)} />}</div>
+                    <div>{places[i] && <TagChip label={places[i]} onRemove={() => removePlace(i)} />}</div>
+                  </Fragment>
+                ))}
+                <div>
                   {addingField === "person" ? (
                     <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
                       onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
@@ -1384,8 +1394,7 @@ function EntryEditView({
                     <button onClick={() => startAdding("person")} style={addTagBtnStyle()}>+ Add Person</button>
                   )}
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
-                  {years.map((y, i) => <TagChip key={i} label={y} onRemove={() => removeYear(i)} />)}
+                <div>
                   {addingField === "year" ? (
                     <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
                       onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
@@ -1394,8 +1403,7 @@ function EntryEditView({
                     <button onClick={() => startAdding("year")} style={addTagBtnStyle()}>+ Add Year</button>
                   )}
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
-                  {places.map((pl, i) => <TagChip key={i} label={pl} onRemove={() => removePlace(i)} />)}
+                <div>
                   {addingField === "place" ? (
                     <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
                       onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
@@ -1414,19 +1422,55 @@ function EntryEditView({
             }}>×</button>
           </div>
 
-          {/* Body / Playback */}
+          {/* Body / Playback — custom purple play/pause + waveform per Figma
+              2182:7611 "Playback Interface", not the native browser player. */}
           {isVoice ? (
             <div style={{ background: "rgba(247,244,239,0.5)", borderRadius: "12px", padding: "20px 30px" }}>
-              {mediaUrl ? (
-                <audio controls src={mediaUrl} style={{ width: "100%", marginBottom: "12px" }} />
-              ) : (
-                <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "60px", marginBottom: "12px" }}>
+              {mediaUrl && (
+                <audio
+                  ref={audioRef}
+                  src={mediaUrl}
+                  onEnded={() => setIsPlaying(false)}
+                  style={{ display: "none" }}
+                />
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: "17px", marginBottom: "12px" }}>
+                {mediaUrl && (
+                  <button
+                    onClick={() => {
+                      const audio = audioRef.current;
+                      if (!audio) return;
+                      if (isPlaying) { audio.pause(); } else { audio.play(); }
+                      setIsPlaying(!isPlaying);
+                    }}
+                    style={{
+                      background: "none", border: "none", cursor: "pointer", padding: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      width: "20px", height: "20px", flexShrink: 0,
+                    }}
+                    aria-label={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isPlaying ? (
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <div style={{ width: "6px", height: "20px", background: LAVENDER, borderRadius: "1px" }} />
+                        <div style={{ width: "6px", height: "20px", background: LAVENDER, borderRadius: "1px" }} />
+                      </div>
+                    ) : (
+                      <div style={{
+                        width: 0, height: 0,
+                        borderTop: "10px solid transparent", borderBottom: "10px solid transparent",
+                        borderLeft: `18px solid ${LAVENDER}`,
+                      }} />
+                    )}
+                  </button>
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "60px", flex: 1 }}>
                   {Array.from({ length: 70 }).map((_, i) => {
                     const h = 8 + Math.abs(Math.sin(i * 0.5 + 1) * Math.cos(i * 0.3)) * 44;
                     return <div key={i} style={{ width: "5px", height: `${h}px`, background: `rgba(106,77,125,${0.2 + Math.abs(Math.sin(i * 0.4)) * 0.5})`, borderRadius: "2px", flexShrink: 0 }} />;
                   })}
                 </div>
-              )}
+              </div>
               <p style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: DARK_GREY, margin: 0 }}>
                 Voice recording — to change this entry, delete it and re-record.
               </p>
@@ -1813,12 +1857,22 @@ function EntriesView({
                           background: "#f0f0f0", color: LIGHT_GREY, fontStyle: "italic",
                         }}>transcribing…</span>
                       ) : allTags.length > 0 ? (
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
-                          {allTags.map((c, i) => (
-                            <span key={i} style={{
-                              fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px",
-                              background: LAVENDER_FILL, color: LAVENDER,
-                            }}>{c}</span>
+                        // Same fixed Person/Year/Place column positions as the
+                        // editor — multiple tags of the same category stack as
+                        // extra rows within that column, not merged into one line.
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px 15px" }}>
+                          {Array.from({ length: Math.max(peopleTags.length, yearTags.length, placeTags.length) }).map((_, r) => (
+                            <Fragment key={r}>
+                              <div>{peopleTags[r] && (
+                                <span style={{ fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px", background: LAVENDER_FILL, color: LAVENDER, display: "inline-block" }}>{peopleTags[r]}</span>
+                              )}</div>
+                              <div>{yearTags[r] && (
+                                <span style={{ fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px", background: LAVENDER_FILL, color: LAVENDER, display: "inline-block" }}>{yearTags[r]}</span>
+                              )}</div>
+                              <div>{placeTags[r] && (
+                                <span style={{ fontFamily: sans, fontSize: "14px", padding: "5px 12px", borderRadius: "999px", background: LAVENDER_FILL, color: LAVENDER, display: "inline-block" }}>{placeTags[r]}</span>
+                              )}</div>
+                            </Fragment>
                           ))}
                         </div>
                       ) : null}
@@ -1854,15 +1908,17 @@ function EntriesView({
           {/* Label + card grouped tightly (~14px gap per Figma 2045:1116),
               distinct from the 27px gap between this block, the mode
               buttons row, and the Save button. */}
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div style={{ width: "800px", display: "flex", flexDirection: "column", gap: "14px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
             {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
           </p>
 
-          {/* Entry input card (433px tall) */}
+          {/* Entry input card — explicit 800×433 per Figma 2045:1116, not
+              inherited via width:100% (the pattern that caused the banner
+              and editor-card width bugs earlier this session). */}
           <div style={{
             background: "white", border: `1px solid ${CREAM_STROKE}`,
-            borderRadius: "15px", height: "433px", width: "100%",
+            borderRadius: "15px", height: "433px", width: "800px", boxSizing: "border-box",
             display: "flex", flexDirection: "column", overflow: "hidden",
           }}>
             {mode === "text" ? (
@@ -1931,7 +1987,7 @@ function EntriesView({
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
                 color: mode === "voice" ? "white" : LAVENDER,
               }}>
-              {mode === "voice" && voiceStage === "recording" ? "■ Stop" : "♪ Voice"}
+              {mode === "voice" ? (voiceStage === "recording" ? "■ Stop" : "● Record") : "♪ Voice"}
             </button>
             <button
               onClick={() => setMode("text")}
