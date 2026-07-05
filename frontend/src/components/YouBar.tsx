@@ -241,11 +241,14 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             <BarArrow expanded={true} />
           </div>
 
-          {/* Rows panel — flush against both the bar (top) and the footer
-              (bottom), filling exactly the space between them on any
-              viewport. Rows distribute evenly via justify-content:
-              space-between rather than a fixed gap, so they spread out on
-              tall viewports instead of leaving a gap at either end. */}
+          {/* Rows panel — the white panel itself still spans exactly bar-to-
+              footer (flush with both, no gap at either end, matching the
+              "no gap anywhere" reference). What changed: the 8 ROWS inside it
+              are no longer stretched via justify-content: space-between —
+              they pack tightly at the top with a small fixed gap, like a
+              normal list. Any leftover space on a tall viewport shows as
+              plain white space below "Heart" (still inside this panel,
+              before the actual footer), not as inflated gaps between rows. */}
           <div style={{
             position: "fixed",
             top: `${HEADER_H + 70}px`,
@@ -257,7 +260,6 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             background: "#fff",
             borderBottom: `0.5px solid ${DARK_GREY}`,
             display: "flex", flexDirection: "column",
-            justifyContent: "space-between",
             gap: "10px", padding: "13px 88px",
             boxSizing: "border-box",
           }}>
