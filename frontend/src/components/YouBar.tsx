@@ -149,6 +149,10 @@ type YouBarProps = {
 // effectively invisible, "below the page" instead of over it.
 const HEADER_H = tokens.space.headerHeight;
 const FOOTER_H = tokens.space.footerHeight;
+// Expanded rows panel content height per Figma 2003:922 — 8 rows + gaps +
+// padding. Together with the 70px bar, the whole expanded assembly is 751px,
+// sitting flush on the footer (977 − 751 = 226 = bar top in the frame).
+const ROWS_PANEL_H = 681;
 
 export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}, onExpandedChange, activeDimension }: YouBarProps) {
   const [expanded, setExpanded] = useState(false);
@@ -224,13 +228,28 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
       </div>
 
       {expanded && (
-        <>
-          {/* Expanded YOU bar — pinned right below the Header, independent fixed div, no flex parent */}
+        /* Expanded accordion — ONE assembly (bar on top + rows below) that
+           rises from the FOOTER like a blind, per Figma 2003:922 math:
+           footer top = 977, assembly = 751px tall (70 bar + 681 rows), so
+           the assembly's bottom sits flush on the footer and the bar's top
+           lands at y = 226 — NOT under the header. Anchoring only the rows
+           to the footer (bar pinned under the header) is exactly the bug
+           that kept producing a gap at one end or the other. */
+        <div style={{
+          position: "fixed",
+          bottom: `${FOOTER_H}px`,
+          left: 0,
+          width: "1920px",
+          height: `${70 + ROWS_PANEL_H}px`,
+          maxHeight: `calc(100vh - ${HEADER_H + FOOTER_H}px)`,
+          zIndex: 50,
+          display: "flex", flexDirection: "column",
+        }}>
+          {/* Bar — sits directly on top of the rows panel, flush, no gap */}
           <div
             onClick={toggle}
             style={{
-              position: "fixed", top: `${HEADER_H}px`, left: 0, width: "1920px", height: "70px",
-              zIndex: 50,
+              height: "70px", flexShrink: 0,
               background: LAVENDER_FILL,
               borderTop: `3px solid ${LIGHT_GREY}`,
               display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -241,21 +260,10 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
             <BarArrow expanded={true} />
           </div>
 
-          {/* Rows panel — the white panel itself still spans exactly bar-to-
-              footer (flush with both, no gap at either end, matching the
-              "no gap anywhere" reference). What changed: the 8 ROWS inside it
-              are no longer stretched via justify-content: space-between —
-              they pack tightly at the top with a small fixed gap, like a
-              normal list. Any leftover space on a tall viewport shows as
-              plain white space below "Heart" (still inside this panel,
-              before the actual footer), not as inflated gaps between rows. */}
+          {/* Rows panel — 681px of rows packed with a fixed 10px gap; bottom
+              edge is flush against the footer via the assembly's anchoring. */}
           <div style={{
-            position: "fixed",
-            top: `${HEADER_H + 70}px`,
-            bottom: `${FOOTER_H}px`,
-            left: 0,
-            width: "1920px",
-            zIndex: 50,
+            flex: 1,
             overflowY: "auto",
             background: "#fff",
             borderBottom: `0.5px solid ${DARK_GREY}`,
@@ -265,7 +273,7 @@ export function YouBar({ voiceComplete = false, contractId, dimensionCounts = {}
           }}>
             <ExpandedRows contractId={contractId} dimensionCounts={dimensionCounts} />
           </div>
-        </>
+        </div>
       )}
     </div>
   );
