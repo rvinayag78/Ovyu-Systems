@@ -56,6 +56,13 @@ Apply all ✗ rows in a single edit. Do not make incremental partial fixes and r
 ### Step 6 — Completion gate
 Before reporting done, re-read the discrepancy table. Every ✗ row must be re-marked ✓. A task is **not done** when the code is written — it is done when all discrepancies are closed.
 
+Then run the **Verification Rules V1–V5 in `FIGMA_READ_SPEC.md`** (each one exists because it caused a shipped bug):
+- **V1** — every number cites the frame (node ID) it came from, and that frame shows the *state* being coded (empty vs populated vs editing are different frames).
+- **V2** — every container has an explicit width AND height row in the discrepancy table; "renders fine" is not evidence.
+- **V3** — every fixed element's structurally-identical twin got the same fix.
+- **V4** — every fix agreed in conversation is present in `git diff`, not just acknowledged.
+- **V5** — static frame text never overrides an agreed interaction flow; conflicts get flagged, not silently resolved toward the literal text.
+
 ---
 
 ## Layout rules to check before shipping

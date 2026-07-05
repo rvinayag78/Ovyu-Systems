@@ -133,6 +133,41 @@ Extract every property below for every node. Never skip a category.
 
 ---
 
+## Verification Rules (added after repeated real misses — every one of these caused a shipped bug)
+
+### V1 — One Figma state is not evidence for another state
+**Rule:** Every distinct visual state of a screen (empty list / populated list / first-time edit / re-edit / recording / recorded) has its own frame. A value read from one state's frame applies ONLY to that state.
+
+**Why:** The ENTRIES label→card gap was read as 50px from the *empty*-list frame and wrongly reused for the *populated*-list frame (actual: 15px). If no fetched frame shows the state you're coding (e.g. no frame showed 2+ stacked cards), say so explicitly and ask — never silently assume the value carries over.
+
+**When to apply:** Before reusing any number, name which frame (node ID) it came from and confirm that frame shows the state being coded.
+
+### V2 — Width/height are first-class checks, not optional ones
+**Rule:** For every container-like node (card, banner, row, column, panel), explicitly pull its Figma width/height (`w-[...]`/`h-[...]` or absoluteBoundingBox) and confirm the code has a real `width`/`height` — or a written reason why it intentionally doesn't.
+
+**Why:** An element with no explicit width still renders — it silently stretches to fill its parent. Three shipped bugs came from this: the History banner (no width at all → stretched past the 1700px row), the entry editor card (`flex: 1` → ballooned to full page instead of 1300px), and the composer card (`width: 100%` instead of 800px). Color/padding/typography audits all passed while the sizing was wrong, and the visible symptom appeared *elsewhere* (as a misaligned neighbor), hiding the real cause.
+
+**When to apply:** Every discrepancy table must contain a width row and a height row for every container. "Renders fine" is not evidence — only the number is.
+
+### V3 — Parallel twins get the same fix
+**Rule:** After fixing any field/row/button, check every structurally-identical sibling in the same component and apply the identical fix before reporting done.
+
+**Why:** `what_happened`/`when` persistence was fixed while the visually-parallel `call_them`/`full_name` fields right next to them were left broken — an asymmetry that inspection should catch, not the user testing live.
+
+**When to apply:** Ask explicitly: "does this component have a twin of the element I just changed?" If yes, fix it in the same pass.
+
+### V4 — Agreed fixes must appear in the diff, not just the conversation
+**Rule:** At the end of any multi-part batch, re-scan the conversation for every discrete "yes, do that" decision and verify each one is present in the actual diff (`git diff`) before committing.
+
+**Why:** The saved-card body-preview removal was agreed, acknowledged — and never executed, because a larger batch of work absorbed the attention. It shipped still broken.
+
+### V5 — Static frame text does not override an agreed interaction spec
+**Rule:** Figma frames are static; they cannot depict intermediate interaction states. When frame text conflicts with an explicitly agreed interaction flow (e.g. frames only ever say "♪ Voice" but the agreed flow is Record → Stop → Save), the agreed flow wins — flag the conflict, don't silently match the literal text.
+
+**Why:** Matching the literal "♪ Voice" label deleted the visible Record state and collapsed a 3-stage flow into 2.
+
+---
+
 ## Layout Rules (catch before shipping)
 
 ### justify-between + conditional children
