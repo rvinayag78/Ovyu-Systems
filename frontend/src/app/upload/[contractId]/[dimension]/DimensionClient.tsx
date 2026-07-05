@@ -224,6 +224,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   relationships: {
     subtitle: "How you are with the people in your life.",
     formGap: 30,
+    col3Height: 330,
     col1: [
       { key: "relationship_status",  label: "Relationship status",    placeholder: "Your answer", hint: "e.g., single, married, partnered, it's complicated",                kind: "text", multi: false },
       { key: "how_show_love",        label: "How you show love",      placeholder: "Your answer", hint: "e.g., words, time, gifts, touch, showing up",                       kind: "text", multi: false },
@@ -239,18 +240,22 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
     ],
   },
   "how-you-think": {
-    subtitle: "How you decide, process, land on answers.",
+    subtitle: "The way your mind works.",
     col3Height: 521,
     col1: [
-      { key: "how_decide",       label: "How you make decisions",         placeholder: "Your answer", hint: "e.g., gut first, research first, ask someone I trust",               kind: "text", multi: false },
-      { key: "when_stuck",       label: "What you do when you're stuck",  placeholder: "Your answer", hint: "e.g., walk, sleep on it, talk it through, push harder",             kind: "text", multi: false },
-      { key: "how_right",        label: "How you know when you're right", placeholder: "Your answer", hint: "e.g., it feels settled, people agree, the evidence stacks up",      kind: "text", multi: false },
+      { key: "mind_sharp_at",  label: "What your mind is sharp at",      placeholder: "Your answer", hint: "e.g., numbers, names, faces, directions, languages, patterns, big picture", kind: "text", multi: false },
+      { key: "mind_struggles", label: "What your mind struggles with",   placeholder: "Your answer", hint: "e.g., remembering names, sitting still, abstract ideas, small talk",        kind: "text", multi: false },
+      { key: "how_decide",     label: "How you make decisions",         placeholder: "Your answer", hint: "e.g., gut, pros and cons, ask people, sleep on it, decide fast",            kind: "text", multi: false },
+      { key: "memory_works",   label: "How your memory works",          placeholder: "Your answer", hint: "e.g., conversations word for word, feelings over facts, faces not names",   kind: "text", multi: false },
     ],
     col2: [
-      { key: "uncommon_belief",  label: "What you believe that most don't", placeholder: "Your answer", hint: "e.g., something you'd argue for but rarely say out loud",           kind: "text", multi: false },
+      { key: "how_focus",   label: "How you focus",                       placeholder: "Your answer", hint: "e.g., one thing at a time, easily distracted, deep dives",         kind: "text", multi: false },
+      { key: "how_picture", label: "How you picture things in your head", placeholder: "Your answer", hint: "e.g., in words, in images, other, not at all",                      kind: "text", multi: false },
+      { key: "keep_sharp",  label: "How you keep your mind sharp",        placeholder: "Your answer", hint: "e.g., crosswords, mahjong, reading, learning a language, debate",  kind: "text", multi: false },
     ],
     col3: [
-      { key: "how_process",      label: "How you process information",      placeholder: "Your answer", hint: "e.g., instinct first, analysis first, a mix",                       kind: "text", multi: false },
+      { key: "read_watch",    label: "What you read or watch", placeholder: "Your answer", hint: "e.g., literary fiction, sci-fi, history, biographies, documentaries, the news", kind: "text", multi: false },
+      { key: "sense_of_time", label: "Your sense of time",     placeholder: "Your answer", hint: "e.g., always early, always late, lose track of it",                            kind: "text", multi: false },
     ],
   },
   "how-you-talk": {
