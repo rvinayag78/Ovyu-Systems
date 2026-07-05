@@ -9,7 +9,14 @@ const sans = tokens.font.sans;
 const PURPLE = tokens.color.lavender;
 const LILAC = tokens.color.lavenderFill;
 
-export type EntryTags = { people?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null };
+// `years`/`places` are the current shape (multiple values, one per row in
+// the UI). `year`/`place` (singular) are kept only for reading entries saved
+// before this change — new saves always write `years`/`places`.
+export type EntryTags = {
+  people?: string[]; years?: string[]; places?: string[];
+  year?: string | null; place?: string | null;
+  what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null;
+};
 export type EditableEntry = {
   id: string;
   title?: string;

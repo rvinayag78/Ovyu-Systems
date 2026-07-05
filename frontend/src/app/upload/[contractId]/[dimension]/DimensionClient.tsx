@@ -1223,8 +1223,10 @@ function EntryEditView({
   const [title, setTitle] = useState(entry.title ?? "");
   const [body, setBody] = useState(entry.body);
   const [people, setPeople] = useState<string[]>(entry.tags?.people ?? []);
-  const [year, setYear] = useState(entry.tags?.year ?? "");
-  const [place, setPlace] = useState(entry.tags?.place ?? "");
+  // Backward-compat: entries saved before years/places were arrays still
+  // have the old singular `year`/`place` fields — fold them into the array.
+  const [years, setYears] = useState<string[]>(entry.tags?.years ?? (entry.tags?.year ? [entry.tags.year] : []));
+  const [places, setPlaces] = useState<string[]>(entry.tags?.places ?? (entry.tags?.place ? [entry.tags.place] : []));
   const [callThem, setCallThem] = useState(entry.tags?.call_them ?? "");
   const [fullName, setFullName] = useState(entry.tags?.full_name ?? "");
   const [whatHappened, setWhatHappened] = useState(entry.tags?.what_happened ?? "");
@@ -1256,12 +1258,13 @@ function EntryEditView({
     const finalPeople = name && !people.some(p => p.toLowerCase() === name.toLowerCase())
       ? [...people, name]
       : people;
-    const y = /\b(\d{4})\b/.exec(when)?.[1] ?? year;
+    const y = /\b(\d{4})\b/.exec(when)?.[1];
+    const finalYears = y && !years.some(existing => existing === y) ? [...years, y] : years;
     onSave({
       title: (title.trim() || whatHappened.trim()),
       body,
       tags: {
-        people: finalPeople, year: y || null, place: place.trim() || null,
+        people: finalPeople, years: finalYears, places,
         what_happened: whatHappened.trim() || null, when: when.trim() || null,
         call_them: callThem.trim() || null, full_name: fullName.trim() || null,
       },
@@ -1270,11 +1273,14 @@ function EntryEditView({
 
   // Quick tags (chips + Add Person/Year/Place) persist immediately — each
   // add/remove fires its own save, independent of the big bottom Save button.
-  function quickTags(overrides: Partial<{ people: string[]; year: string; place: string }>): EntryTags {
+  // Position is fixed: people/years/places are always three separate
+  // columns/arrays — AI triangulation and manual "+ Add" both write into the
+  // same column, never mixed into one flat list.
+  function quickTags(overrides: Partial<{ people: string[]; years: string[]; places: string[] }>): EntryTags {
     return {
       people: overrides.people ?? people,
-      year: (overrides.year ?? year) || null,
-      place: (overrides.place ?? place) || null,
+      years: overrides.years ?? years,
+      places: overrides.places ?? places,
       what_happened: whatHappened.trim() || null,
       when: when.trim() || null,
       call_them: callThem.trim() || null,
@@ -1294,6 +1300,9 @@ function EntryEditView({
     setAddingValue("");
   }
 
+  // A value that already exists in its column (case-insensitive) is a no-op —
+  // e.g. if AI already found "2013"/"Pondy", adding another person doesn't
+  // duplicate those, only the genuinely new value gets its own row.
   function commitAdding() {
     if (skipCommitRef.current) { skipCommitRef.current = false; return; }
     const v = addingValue.trim();
@@ -1306,11 +1315,15 @@ function EntryEditView({
       setPeople(next);
       onTagsChange(quickTags({ people: next }));
     } else if (addingField === "year") {
-      setYear(v);
-      onTagsChange(quickTags({ year: v }));
+      if (years.some(y => y.toLowerCase() === v.toLowerCase())) return;
+      const next = [...years, v];
+      setYears(next);
+      onTagsChange(quickTags({ years: next }));
     } else if (addingField === "place") {
-      setPlace(v);
-      onTagsChange(quickTags({ place: v }));
+      if (places.some(p => p.toLowerCase() === v.toLowerCase())) return;
+      const next = [...places, v];
+      setPlaces(next);
+      onTagsChange(quickTags({ places: next }));
     }
   }
 
@@ -1319,20 +1332,16 @@ function EntryEditView({
     setPeople(next);
     onTagsChange(quickTags({ people: next }));
   }
-  function removeYear() {
-    setYear("");
-    onTagsChange(quickTags({ year: "" }));
+  function removeYear(i: number) {
+    const next = years.filter((_, j) => j !== i);
+    setYears(next);
+    onTagsChange(quickTags({ years: next }));
   }
-  function removePlace() {
-    setPlace("");
-    onTagsChange(quickTags({ place: "" }));
+  function removePlace(i: number) {
+    const next = places.filter((_, j) => j !== i);
+    setPlaces(next);
+    onTagsChange(quickTags({ places: next }));
   }
-
-  const allTags: Array<{ label: string; remove: () => void }> = [
-    ...people.map((p, i) => ({ label: p, remove: () => removePerson(i) })),
-    ...(year ? [{ label: year, remove: removeYear }] : []),
-    ...(place ? [{ label: place, remove: removePlace }] : []),
-  ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
@@ -1360,34 +1369,41 @@ function EntryEditView({
               <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>
                 {isVoice ? "Voice" : "Text"} • {created}{durationLabel ? ` • ${durationLabel}` : ""}
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginBottom: "10px" }}>
-                {allTags.length > 0
-                  ? allTags.map((t, i) => <TagChip key={i} label={t.label} onRemove={t.remove} />)
-                  : <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "14px", color: LIGHT_GREY }}>No tags yet — add them below.</span>
-                }
-              </div>
-              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                {addingField === "person" ? (
-                  <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
-                    onBlur={commitAdding} placeholder="Name" style={{ ...addTagBtnStyle(), width: "140px" }} />
-                ) : (
-                  <button onClick={() => startAdding("person")} style={addTagBtnStyle()}>+ Add Person</button>
-                )}
-                {addingField === "year" ? (
-                  <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
-                    onBlur={commitAdding} placeholder="Year" style={{ ...addTagBtnStyle(), width: "100px" }} />
-                ) : (
-                  <button onClick={() => startAdding("year")} style={addTagBtnStyle()}>+ Add Year</button>
-                )}
-                {addingField === "place" ? (
-                  <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
-                    onBlur={commitAdding} placeholder="City, Country" style={{ ...addTagBtnStyle(), width: "160px" }} />
-                ) : (
-                  <button onClick={() => startAdding("place")} style={addTagBtnStyle()}>+ Add Place</button>
-                )}
+              {/* Fixed 3-column layout — Person / Year / Place. AI
+                  triangulation and manual "+ Add" both write into the same
+                  column; multiple values for the same type stack as extra
+                  rows within that column, never mixed into one flat list. */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "15px", marginBottom: "10px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
+                  {people.map((p, i) => <TagChip key={i} label={p} onRemove={() => removePerson(i)} />)}
+                  {addingField === "person" ? (
+                    <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
+                      onBlur={commitAdding} placeholder="Name" style={{ ...addTagBtnStyle(), width: "140px" }} />
+                  ) : (
+                    <button onClick={() => startAdding("person")} style={addTagBtnStyle()}>+ Add Person</button>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
+                  {years.map((y, i) => <TagChip key={i} label={y} onRemove={() => removeYear(i)} />)}
+                  {addingField === "year" ? (
+                    <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
+                      onBlur={commitAdding} placeholder="Year" style={{ ...addTagBtnStyle(), width: "100px" }} />
+                  ) : (
+                    <button onClick={() => startAdding("year")} style={addTagBtnStyle()}>+ Add Year</button>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-start" }}>
+                  {places.map((pl, i) => <TagChip key={i} label={pl} onRemove={() => removePlace(i)} />)}
+                  {addingField === "place" ? (
+                    <input autoFocus value={addingValue} onChange={e => setAddingValue(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); if (e.key === "Escape") cancelAdding(); }}
+                      onBlur={commitAdding} placeholder="City, Country" style={{ ...addTagBtnStyle(), width: "160px" }} />
+                  ) : (
+                    <button onClick={() => startAdding("place")} style={addTagBtnStyle()}>+ Add Place</button>
+                  )}
+                </div>
               </div>
             </div>
             {/* Small × close */}
@@ -1456,7 +1472,7 @@ function EntryEditView({
             <SField label="WHAT HAPPENED" value={whatHappened} onChange={setWhatHappened} hint="Born · Moved · Married · A child arrived · Someone left" />
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
               <label style={{ fontFamily: sans, fontWeight: 700, fontSize: "12px", color: DARK_GREY, textTransform: "uppercase", letterSpacing: "0.04em" }}>WHEN</label>
-              <input value={when} onChange={e => { setWhen(e.target.value); const y = /\b(\d{4})\b/.exec(e.target.value)?.[1]; if (y) setYear(y); }} style={{ height: "57px", padding: "0 12px", border: `1px solid ${DARK_GREY}`, borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
+              <input value={when} onChange={e => setWhen(e.target.value)} style={{ height: "57px", padding: "0 12px", border: `1px solid ${DARK_GREY}`, borderRadius: "10px", fontFamily: sans, fontSize: "15px", width: "100%", boxSizing: "border-box" as const }} />
               <span style={{ fontFamily: sans, fontStyle: "oblique", fontSize: "12px", color: DARK_GREY }}>A day, a month, a year, or a span. e.g. 2003 · 2015 to 2019</span>
             </div>
             <button onClick={handleSave} disabled={saving} style={{
@@ -1763,9 +1779,10 @@ function EntriesView({
                 {data.entries.map((entry, i) => {
                   const tags = entry.tags ?? {};
                   const peopleTags: string[] = tags.people?.length ? tags.people : [];
-                  const yearTag = tags.year ?? null;
-                  const placeTag = tags.place ?? null;
-                  const allTags = [...peopleTags, ...(yearTag ? [yearTag] : []), ...(placeTag ? [placeTag] : [])];
+                  // Backward-compat: fold the old singular year/place into the array shape.
+                  const yearTags: string[] = tags.years?.length ? tags.years : (tags.year ? [tags.year] : []);
+                  const placeTags: string[] = tags.places?.length ? tags.places : (tags.place ? [tags.place] : []);
+                  const allTags = [...peopleTags, ...yearTags, ...placeTags];
                   const durationLabel = entry.entry_type === "voice" && entry.duration_s != null
                     ? `${Math.floor(entry.duration_s / 60)}:${String(entry.duration_s % 60).padStart(2, "0")}`
                     : null;

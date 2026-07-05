@@ -255,7 +255,13 @@ async def add_dimension_entry(
     if (needs_tags or needs_title) and body.entry_type == "text" and body.body.strip():
         extracted = svc.auto_tag(body.body)
         if needs_tags:
-            tags = {"people": extracted["people"], "year": extracted["year"], "place": extracted["place"]}
+            # Stored shape is always years/places (arrays) so a Maker can add
+            # more of the same type later without overwriting what AI found.
+            tags = {
+                "people": extracted["people"],
+                "years": [extracted["year"]] if extracted["year"] else [],
+                "places": [extracted["place"]] if extracted["place"] else [],
+            }
         if needs_title:
             title = extracted.get("title") or svc.fallback_title(body.body)
     entry = await svc.add_dimension_entry(dim.id, body.body, title, body.entry_type, tags, body.media_s3_key, body.duration_s)
