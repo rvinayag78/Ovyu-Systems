@@ -1684,10 +1684,13 @@ function EntriesView({
       <div style={{ paddingLeft: "108px", paddingTop: "40px" }}>
         <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
 
-        {/* Banner card */}
+        {/* Banner card — fixed 1700px per Figma 2062:1204 ("History Header"),
+            same width as the ENTRIES/ADD-entry row below it. Missing this
+            let the banner stretch to fill the page instead of matching the
+            row's actual content width. */}
         <div style={{
           background: LAVENDER_FILL, borderRadius: "20px",
-          padding: "30px 60px",
+          padding: "30px 60px", width: "1700px", boxSizing: "border-box",
           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
           marginBottom: "50px",
         }}>
