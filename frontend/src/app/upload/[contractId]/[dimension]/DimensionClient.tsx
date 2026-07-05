@@ -1190,7 +1190,7 @@ function PromptCarousel({ questions, idx, onRotate }: { questions: string[]; idx
     <div onClick={onRotate} style={{
       flex: 1, display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
-      gap: "33px", cursor: "pointer", padding: "0 44px", boxSizing: "border-box",
+      gap: "33px", cursor: "pointer", padding: "0 115px", boxSizing: "border-box",
     }}>
       {visible.map((q, i) => (
         <p key={i} style={{
@@ -1596,7 +1596,7 @@ function EntriesView({
       <div style={{ display: "flex", paddingLeft: "108px", paddingBottom: "80px", justifyContent: editing ? undefined : "space-between", alignItems: "flex-start", width: editing ? undefined : "1700px", gap: editing ? "60px" : undefined }}>
 
         {/* Left: ENTRIES list or inline EntryEditView */}
-        <div style={{ flex: editing ? 1 : undefined, width: editing ? undefined : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "15px" }}>
+        <div style={{ flex: editing ? 1 : undefined, width: editing ? undefined : "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: editing ? "15px" : "50px" }}>
           {editing ? (
             <EntryEditView
               entry={editing}
@@ -1683,6 +1683,10 @@ function EntriesView({
             per Figma (2182:7663) the editor takes the full row, no second column */}
         {!editing && (
         <div style={{ width: "800px", flexShrink: 0, display: "flex", flexDirection: "column", gap: "27px", height: "695px", alignItems: "flex-end" }}>
+          {/* Label + card grouped tightly (~14px gap per Figma 2045:1116),
+              distinct from the 27px gap between this block, the mode
+              buttons row, and the Save button. */}
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "14px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "22px", color: LAVENDER, margin: 0, letterSpacing: "0.03em", alignSelf: "flex-start" }}>
             {mode === "text" ? "ADD TEXT ENTRY" : "ADD AN ENTRY"}
           </p>
@@ -1736,6 +1740,7 @@ function EntriesView({
                 onRotate={() => setPromptIdx(prev => (prev + 1) % (prompts.length || 1))}
               />
             )}
+          </div>
           </div>
 
           {/* Mode buttons — justify-between, 253×71px each */}
