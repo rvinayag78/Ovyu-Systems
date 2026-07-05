@@ -889,10 +889,16 @@ function EntriesView({
   const [editing, setEditing] = useState<Entry | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Voice-entry stage: idle (only Record enabled) → recording (only Stop
+  // enabled) → recorded (only Save enabled). Stopping and saving are two
+  // separate, deliberate user actions — stopping never auto-saves.
+  const voiceStage: "idle" | "recording" | "recorded" = recording ? "recording" : recordedBlob ? "recorded" : "idle";
 
   async function startRecording() {
     try {
@@ -922,6 +928,11 @@ function EntriesView({
     });
   }
 
+  async function stopRecording() {
+    const blob = await stopRecordingAsync();
+    setRecordedBlob(blob);
+  }
+
   async function handleSave() {
     if (mode === "text") {
       if (!body.trim()) return;
@@ -933,13 +944,12 @@ function EntriesView({
         setEditing(e as Entry);
       } finally { setSaving(false); }
     } else {
-      if (!recording) return;
+      if (!recordedBlob || recordSeconds < 10) return;
       setSaving(true);
       const secs = recordSeconds;
       try {
-        const blob = await stopRecordingAsync();
         const { presigned_url, s3_key } = await api.getEntryMediaPresigned(contractId, dim.slug);
-        await fetch(presigned_url, { method: "PUT", body: blob, headers: { "Content-Type": "audio/webm" } });
+        await fetch(presigned_url, { method: "PUT", body: recordedBlob, headers: { "Content-Type": "audio/webm" } });
         const mins = Math.floor(secs / 60);
         const s = String(secs % 60).padStart(2, "0");
         const e = await api.addDimensionEntry(contractId, dim.slug, {
@@ -950,6 +960,7 @@ function EntriesView({
         });
         onEntryAdded(e as Entry);
         setRecordSeconds(0);
+        setRecordedBlob(null);
       } finally { setSaving(false); }
     }
   }
@@ -976,7 +987,8 @@ function EntriesView({
   const structured = data.structured as Record<string, string | string[]> | null;
   const formDef = DIMENSION_FORMS[dim.slug];
   const prose = structured ? buildProse(dim.slug, structured) : "";
-  const canSave = mode === "text" ? body.trim().length > 0 : recording;
+  const canSaveText = body.trim().length > 0;
+  const canSaveVoice = voiceStage === "recorded" && recordSeconds >= 10;
 
   return (
     <>
@@ -1143,7 +1155,7 @@ function EntriesView({
                   outline: "none", color: BLACK, boxSizing: "border-box",
                 }}
               />
-            ) : recording ? (
+            ) : voiceStage === "recording" || voiceStage === "recorded" ? (
               <div style={{
                 flex: 1, display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center", gap: "32px",
@@ -1151,14 +1163,19 @@ function EntriesView({
                 <div style={{ display: "flex", alignItems: "center", gap: "5px", height: "80px" }}>
                   {Array.from({ length: WAVE_BARS }).map((_, i) => (
                     <div key={i} style={{
-                      width: "7px", height: "64px", background: LAVENDER,
+                      width: "7px", height: "64px",
+                      background: voiceStage === "recorded" ? LAVENDER_FILL : LAVENDER,
                       borderRadius: "4px", transformOrigin: "center",
-                      animation: `barPulse ${0.4 + (i % 5) * 0.08}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite`,
+                      animation: voiceStage === "recording"
+                        ? `barPulse ${0.4 + (i % 5) * 0.08}s ease-in-out ${(i * 0.04).toFixed(2)}s infinite`
+                        : "none",
                     }} />
                   ))}
                 </div>
                 <p style={{ fontFamily: sans, fontSize: "18px", color: LAVENDER, margin: 0, fontWeight: 700 }}>
-                  {Math.floor(recordSeconds / 60)}:{String(recordSeconds % 60).padStart(2, "0")}
+                  {voiceStage === "recorded" && recordSeconds < 10
+                    ? "Needs at least 10 seconds — record again"
+                    : `${Math.floor(recordSeconds / 60)}:${String(recordSeconds % 60).padStart(2, "0")}`}
                 </p>
               </div>
             ) : (
@@ -1172,18 +1189,41 @@ function EntriesView({
 
           {/* Mode buttons — justify-between, 253×71px each */}
           <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-            {(["voice", "text"] as const).map(m => (
-              <button key={m} onClick={() => setMode(m)} style={{
+            <button
+              onClick={() => {
+                if (mode !== "voice") { setMode("voice"); return; }
+                if (voiceStage === "idle") startRecording();
+                else if (voiceStage === "recording") stopRecording();
+                // "recorded" stage: only Save is actionable, this button is disabled
+              }}
+              disabled={mode === "voice" && voiceStage === "recorded"}
+              style={{
                 width: "253px", height: "71px",
-                background: mode === m ? LAVENDER : "white",
-                border: `1.5px solid ${mode === m ? LAVENDER : CREAM_STROKE}`,
-                borderRadius: "12px", cursor: "pointer",
+                background: mode === "voice" ? LAVENDER : "white",
+                border: `1.5px solid ${mode === "voice" ? LAVENDER : CREAM_STROKE}`,
+                borderRadius: "12px",
+                cursor: mode === "voice" && voiceStage === "recorded" ? "not-allowed" : "pointer",
+                opacity: mode === "voice" && voiceStage === "recorded" ? 0.5 : 1,
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
-                color: mode === m ? "white" : LAVENDER,
+                color: mode === "voice" ? "white" : LAVENDER,
               }}>
-                {m === "voice" ? "♪ Voice" : "✎ Text"}
-              </button>
-            ))}
+              {mode === "voice" ? (voiceStage === "recording" ? "■ Stop" : "● Record") : "♪ Voice"}
+            </button>
+            <button
+              onClick={() => setMode("text")}
+              disabled={mode === "voice" && voiceStage !== "idle"}
+              style={{
+                width: "253px", height: "71px",
+                background: mode === "text" ? LAVENDER : "white",
+                border: `1.5px solid ${mode === "text" ? LAVENDER : CREAM_STROKE}`,
+                borderRadius: "12px",
+                cursor: mode === "voice" && voiceStage !== "idle" ? "not-allowed" : "pointer",
+                opacity: mode === "voice" && voiceStage !== "idle" ? 0.5 : 1,
+                fontFamily: sans, fontWeight: 700, fontSize: "18px",
+                color: mode === "text" ? "white" : LAVENDER,
+              }}>
+              ✎ Text
+            </button>
             <button disabled style={{
               width: "253px", height: "71px",
               background: CREAM_FILL, border: `1.5px solid ${CREAM_STROKE}`,
@@ -1194,21 +1234,21 @@ function EntriesView({
             </button>
           </div>
 
-          {/* Save button */}
+          {/* Save button — voice: only actionable once stopped with ≥10s recorded */}
           <button
-            onClick={mode === "voice" && !recording ? startRecording : handleSave}
-            disabled={saving || (mode === "text" && !canSave)}
+            onClick={handleSave}
+            disabled={saving || (mode === "text" ? !canSaveText : !canSaveVoice)}
             style={{
               width: "255px", height: "71px",
               background: mode === "text" ? LAVENDER : LAVENDER_FILL,
               border: "none", borderRadius: "8px",
               fontFamily: sans, fontWeight: 700, fontSize: "18px",
               color: mode === "text" ? "white" : LAVENDER,
-              cursor: saving || (mode === "text" && !canSave) ? "not-allowed" : "pointer",
-              opacity: saving || (mode === "text" && !canSave) ? 0.5 : 1,
+              cursor: saving || (mode === "text" ? !canSaveText : !canSaveVoice) ? "not-allowed" : "pointer",
+              opacity: saving || (mode === "text" ? !canSaveText : !canSaveVoice) ? 0.5 : 1,
             }}
           >
-            {saving ? "Saving…" : recording ? "■ Stop & Save" : "Save"}
+            {saving ? "Saving…" : "Save"}
           </button>
         </div>
         )}
