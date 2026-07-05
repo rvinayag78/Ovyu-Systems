@@ -1100,7 +1100,7 @@ function DimensionForm({
   return (
     <div style={{ paddingLeft: "108px", paddingTop: "31px", paddingBottom: "60px", width: "1700px" }}>
       {/* Back link */}
-      <BackLink href={`/upload/${contractId}`} label="Upload hub" marginBottom="30px" />
+      <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
 
       {/* Title + subtitle */}
       <div style={{ marginBottom: `${formDef.formGap ?? 50}px` }}>
@@ -1548,7 +1548,7 @@ function EntriesView({
       `}</style>
 
       <div style={{ paddingLeft: "108px", paddingTop: "40px" }}>
-        <BackLink href={`/upload/${contractId}`} label="Upload hub" marginBottom="30px" />
+        <BackLink href="/contracts" label="Your contracts" marginBottom="30px" />
 
         {/* Banner card */}
         <div style={{
