@@ -2107,16 +2107,23 @@ function EntriesView({
                 if (voiceStage === "idle") setVoiceArmed(true);      // Voice → recording card, mic NOT started
                 else if (voiceStage === "armed") startRecording();    // Record → mic live
                 else if (voiceStage === "recording") stopRecording(); // Stop → recorded
-                // "recorded" stage: only Save is actionable, this button is disabled
+                else if (voiceStage === "recorded" && recordSeconds < 10) {
+                  // Short take: let the Maker record again (fresh take
+                  // replaces the too-short one) instead of dead-ending with
+                  // both Record and Save disabled.
+                  setRecordedBlob(null);
+                  startRecording();
+                }
+                // recorded ≥10s: only Save is actionable, this button is disabled
               }}
-              disabled={mode === "voice" && voiceStage === "recorded"}
+              disabled={mode === "voice" && voiceStage === "recorded" && recordSeconds >= 10}
               style={{
                 width: "253px", height: "71px",
                 background: mode === "voice" ? LAVENDER : "white",
                 border: `1.5px solid ${mode === "voice" ? LAVENDER : CREAM_STROKE}`,
                 borderRadius: "12px",
-                cursor: mode === "voice" && voiceStage === "recorded" ? "not-allowed" : "pointer",
-                opacity: mode === "voice" && voiceStage === "recorded" ? 0.5 : 1,
+                cursor: mode === "voice" && voiceStage === "recorded" && recordSeconds >= 10 ? "not-allowed" : "pointer",
+                opacity: mode === "voice" && voiceStage === "recorded" && recordSeconds >= 10 ? 0.5 : 1,
                 fontFamily: sans, fontWeight: 700, fontSize: "18px",
                 color: mode === "voice" ? "white" : LAVENDER,
               }}>
@@ -2124,6 +2131,7 @@ function EntriesView({
                 : voiceStage === "idle" ? "♪ Voice"
                 : voiceStage === "armed" ? "● Record"
                 : voiceStage === "recording" ? "■ Stop"
+                : recordSeconds < 10 ? "● Record"
                 : "♪ Voice"}
             </button>
             <button
