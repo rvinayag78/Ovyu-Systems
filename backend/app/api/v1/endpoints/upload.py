@@ -169,7 +169,7 @@ async def get_dimension(
     if not dim:
         return DimensionRead(id=upload.id, slug=slug, structured=None, entries=[])
     return DimensionRead(id=dim.id, slug=slug, structured=dim.structured, entries=[
-        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, created_at=e.created_at) for e in entries
+        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, media_s3_key=e.media_s3_key, duration_s=e.duration_s, created_at=e.created_at) for e in entries
     ])
 
 
@@ -188,7 +188,7 @@ async def upsert_dimension(
     entries = await svc.get_dimension_entries(dim.id)
     await db.commit()
     return DimensionRead(id=dim.id, slug=slug, structured=dim.structured, entries=[
-        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, created_at=e.created_at) for e in entries
+        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, media_s3_key=e.media_s3_key, duration_s=e.duration_s, created_at=e.created_at) for e in entries
     ])
 
 
@@ -228,7 +228,7 @@ async def add_dimension_entry(
     tags = body.tags
     if tags is None and body.entry_type == "text" and body.body.strip():
         tags = svc.auto_tag(body.body)
-    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags, body.media_s3_key)
+    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags, body.media_s3_key, body.duration_s)
     await db.commit()
 
     # Enqueue transcription job for voice entries that have audio on S3.
@@ -242,7 +242,7 @@ async def add_dimension_entry(
             # Non-fatal — entry is saved, transcription can be re-queued manually.
             logger.warning("failed to enqueue transcription job for entry %s: %s", entry.id, e)
 
-    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, created_at=entry.created_at)
+    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, duration_s=entry.duration_s, created_at=entry.created_at)
 
 
 @router.put("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}", response_model=DimensionEntryRead)
@@ -264,7 +264,7 @@ async def update_dimension_entry(
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
     await db.commit()
-    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, created_at=entry.created_at)
+    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, duration_s=entry.duration_s, created_at=entry.created_at)
 
 
 @router.delete("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}", status_code=204)

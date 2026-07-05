@@ -330,7 +330,7 @@ const DIMENSION_FORMS: Record<string, DimFormDef> = {
   },
 };
 
-type Entry = { id: string; title?: string; body: string; entry_type: string; tags?: EntryTags; created_at: string };
+type Entry = { id: string; title?: string; body: string; entry_type: string; tags?: EntryTags; media_s3_key?: string | null; duration_s?: number | null; created_at: string };
 type DimData = { id: string; slug: string; structured: Record<string, unknown> | null; entries: Entry[] };
 
 const FOOTER_H = 103;
@@ -678,6 +678,9 @@ function EntryEditView({
 
   const isVoice = entry.entry_type === "voice";
   const created = new Date(entry.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const durationLabel = isVoice && entry.duration_s != null
+    ? `${Math.floor(entry.duration_s / 60)}:${String(entry.duration_s % 60).padStart(2, "0")}`
+    : null;
 
   // Both structured-prompt rows save the whole entry (per Figma 2182:7663,
   // each row ends in the same "Save" button, not a separate "add" step) —
@@ -712,17 +715,13 @@ function EntryEditView({
         {/* Header row: title/meta/tags + close */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
           <div style={{ flex: 1, paddingRight: "24px" }}>
-            {isVoice ? (
-              <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK, margin: "0 0 6px" }}>{title || "Untitled"}</p>
-            ) : (
-              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
-                fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK,
-                border: "none", background: "transparent", outline: "none",
-                width: "100%", padding: 0, marginBottom: "6px", display: "block",
-              }} />
-            )}
+            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" style={{
+              fontFamily: sans, fontWeight: 700, fontSize: "20px", color: BLACK,
+              border: "none", background: "transparent", outline: "none",
+              width: "100%", padding: 0, marginBottom: "6px", display: "block",
+            }} />
             <p style={{ fontFamily: sans, fontSize: "16px", color: DARK_GREY, margin: "0 0 12px" }}>
-              {isVoice ? "Voice" : "Text"} · {created}
+              {isVoice ? "Voice" : "Text"} • {created}{durationLabel ? ` • ${durationLabel}` : ""}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "15px", marginBottom: "10px" }}>
               {allTags.length > 0
@@ -950,17 +949,17 @@ function EntriesView({
       try {
         const { presigned_url, s3_key } = await api.getEntryMediaPresigned(contractId, dim.slug);
         await fetch(presigned_url, { method: "PUT", body: recordedBlob, headers: { "Content-Type": "audio/webm" } });
-        const mins = Math.floor(secs / 60);
-        const s = String(secs % 60).padStart(2, "0");
         const e = await api.addDimensionEntry(contractId, dim.slug, {
           body: "",
           entry_type: "voice",
-          title: `Voice note (${mins}:${s})`,
+          title: "Voice note",
           media_s3_key: s3_key,
+          duration_s: secs,
         });
         onEntryAdded(e as Entry);
         setRecordSeconds(0);
         setRecordedBlob(null);
+        setEditing(e as Entry);
       } finally { setSaving(false); }
     }
   }
@@ -1074,7 +1073,10 @@ function EntriesView({
                   const yearTag = tags.year ?? null;
                   const placeTag = tags.place ?? null;
                   const allTags = [...peopleTags, ...(yearTag ? [yearTag] : []), ...(placeTag ? [placeTag] : [])];
-                  const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} • ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+                  const durationLabel = entry.entry_type === "voice" && entry.duration_s != null
+                    ? `${Math.floor(entry.duration_s / 60)}:${String(entry.duration_s % 60).padStart(2, "0")}`
+                    : null;
+                  const meta = `${entry.entry_type === "voice" ? "Voice" : "Text"} • ${new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}${durationLabel ? ` • ${durationLabel}` : ""}`;
                   return (
                     <div key={entry.id} style={{
                       background: "white", border: `1px solid ${CREAM_STROKE}`, borderRadius: "15px",

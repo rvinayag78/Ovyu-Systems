@@ -54,6 +54,7 @@ class DimensionEntry(Base):
     entry_type: Mapped[str] = mapped_column(String(10), default="text")
     tags: Mapped[dict | None] = mapped_column(JSON(), nullable=True)
     media_s3_key: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    duration_s: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 

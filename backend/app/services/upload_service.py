@@ -144,6 +144,7 @@ class UploadService:
         entry_type: str = "text",
         tags: dict | None = None,
         media_s3_key: str | None = None,
+        duration_s: int | None = None,
     ) -> DimensionEntry:
         entry = DimensionEntry(
             dimension_id=dimension_id,
@@ -152,6 +153,7 @@ class UploadService:
             entry_type=entry_type,
             tags=tags,
             media_s3_key=media_s3_key,
+            duration_s=duration_s,
         )
         self.db.add(entry)
         await self.db.flush()
