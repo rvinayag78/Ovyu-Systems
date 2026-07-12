@@ -751,23 +751,25 @@ export type DimFormDef = {
 const DIMENSION_FORMS: Record<string, DimFormDef> = {
   history: {
     subtitle: "Where you come from. Who you come from.",
-    col3Height: 667,
+    // 818 per updated form frame 2044:694 — hints under each field make
+    // every block taller, so the save column grew from 667.
+    col3Height: 818,
     col1: [
-      { key: "full_name",      label: "Full name",        placeholder: "Your full name, exactly as you write it", kind: "text",     multi: false },
-      { key: "goes_by",        label: "Goes by",          placeholder: "What people actually call you",           kind: "text",     multi: false },
+      { key: "full_name",      label: "Full name",        placeholder: "Your full name, exactly as you write it", hint: "The full spelling you'd use to sign something.", kind: "text",     multi: false },
+      { key: "goes_by",        label: "Goes by",          placeholder: "What people actually call you",           hint: "e.g., a nickname, a shortened name, what your family calls you", kind: "text",     multi: false },
       { key: "dob",            label: "Date of birth",    placeholder: "MM/DD/YYYY",                              kind: "date",     multi: false },
       { key: "place_of_birth", label: "Place of birth",   placeholder: "City, Country",                          kind: "place",    multi: false },
-      { key: "where_from",     label: "Where you're from", placeholder: "Culture, ethnicity, the place that shaped you", kind: "text", multi: true },
-      { key: "homes",          label: "Homes",            placeholder: "Where?",                                  kind: "place",    multi: true },
+      { key: "where_from",     label: "Where you're from", placeholder: "Culture, ethnicity, the place that shaped you", hint: "e.g., your culture, your ethnicity, the place that shaped you", kind: "text", multi: true },
+      { key: "homes",          label: "Homes",            placeholder: "Where?",                                  hint: "e.g., the cities and countries you've lived in", kind: "place",    multi: true },
     ],
     col2: [
-      { key: "parents",  label: "Parents",  placeholder: "Full name",  kind: "text", multi: true },
-      { key: "siblings", label: "Siblings", placeholder: "Full name",  kind: "text", multi: true },
-      { key: "partners", label: "Partners", placeholder: "Full name",  kind: "text", multi: true },
-      { key: "children", label: "Children", placeholder: "Full name",  kind: "text", multi: true },
+      { key: "parents",  label: "Parents",  placeholder: "Full name",  hint: "First and last, if you know it.", kind: "text", multi: true },
+      { key: "siblings", label: "Siblings", placeholder: "Full name",  hint: "First and last, if you know it.", kind: "text", multi: true },
+      { key: "partners", label: "Partners", placeholder: "Full name",  hint: "First and last, if you know it.", kind: "text", multi: true },
+      { key: "children", label: "Children", placeholder: "Full name",  hint: "First and last, if you know it.", kind: "text", multi: true },
     ],
     col3: [
-      { key: "languages", label: "Languages", placeholder: "Add a language", kind: "language", multi: true },
+      { key: "languages", label: "Languages", placeholder: "Add a language", hint: "e.g., English, Arabic, French", kind: "language", multi: true },
     ],
   },
   relationships: {
