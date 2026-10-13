@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { useRouter } from "next/navigation";
+import { PageShell } from "@/components/ui/PageShell";
 import { api } from "@/lib/api";
 
 const serif = "Georgia, serif";
@@ -13,6 +13,7 @@ type ContractRow = {
   id: string; path: string; status: string; my_role: string;
   maker_name?: string; keeper_name?: string; tc_name?: string;
   relationship?: string; maker_signed_at?: string; locked_at?: string;
+  voice_status?: string;
 };
 
 function fmtDate(iso?: string) {
@@ -20,7 +21,7 @@ function fmtDate(iso?: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function MakerRow({ c }: { c: ContractRow }) {
+function MakerRow({ c, voiceComplete }: { c: ContractRow; voiceComplete?: boolean }) {
   const makerSigned = !!c.maker_signed_at;
   const isLocked = c.status === "LOCKED";
   const sentDate = fmtDate(c.maker_signed_at);
@@ -37,12 +38,14 @@ function MakerRow({ c }: { c: ContractRow }) {
     }}>
       {/* Left — avatar + meta */}
       <div style={{ width: "452px", display: "flex", flexDirection: "row", gap: "40px", alignItems: "center" }}>
-        <div style={{
-          width: "50px", height: "50px",
-          background: "#4b3c5e", borderRadius: "50%",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <span style={{ fontFamily: serif, fontWeight: 400, fontSize: "28px", color: "#fff" }}>M</span>
+        <div style={{ position: "relative", width: "50px", height: "50px", flexShrink: 0 }}>
+          <div style={{
+            position: "absolute", top: "-21.6%", left: "-21.6%", right: "-21.6%", bottom: "-21.6%",
+            background: "#4b3c5e", borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontFamily: serif, fontWeight: 400, fontSize: "32px", color: "#fff" }}>M</span>
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
           <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "16px", color: "#6a4d7d", margin: 0 }}>MAKER</p>
@@ -52,25 +55,40 @@ function MakerRow({ c }: { c: ContractRow }) {
 
       {/* Middle / Right */}
       {isLocked ? (
-        <>
-          <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
-            Signed on {lockedDate}
-          </span>
-          <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
-            fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
-            textDecoration: "underline",
-          }}>
-            View Contract
-          </Link>
-          <div style={{ display: "flex", flexDirection: "row", gap: "12px", alignItems: "center" }}>
-            <Link href={`/upload/${c.id}`} style={{
-              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a", textDecoration: "none",
+        voiceComplete ? (
+          <>
+            {/* Voice complete: Signed on + View Contract grouped center, Upload right */}
+            <div style={{ display: "flex", alignItems: "center", gap: "40px", fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", flexShrink: 0, whiteSpace: "nowrap" }}>
+              <span style={{ color: "#888" }}>Signed on {lockedDate}</span>
+              <Link href={`/keeper/contracts/view?id=${c.id}`} style={{ color: "#1a1a1a", textDecoration: "none" }}>
+                View Contract
+              </Link>
+            </div>
+            <Link href={`/upload/${c.id}`} prefetch={false} onClick={() => sessionStorage.setItem('ovyu_contract_id', c.id)} style={{
+              display: "flex", alignItems: "center", gap: "10px", flexShrink: 0,
+              fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#1a1a1a",
+              textDecoration: "none", textTransform: "uppercase",
             }}>
-              UPLOAD
+              Upload
+              <svg width="15" height="26" viewBox="0 0 15 26" fill="none">
+                <path d="M1 1L14 13L1 25" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </Link>
-            <span style={{ fontSize: "18px" }}>→</span>
-          </div>
-        </>
+          </>
+        ) : (
+          <>
+            {/* Voice not complete: Signed on center, View Contract right — 3 separate justify-between items */}
+            <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888", flexShrink: 0, whiteSpace: "nowrap" }}>
+              Signed on {lockedDate}
+            </span>
+            <Link href={`/keeper/contracts/view?id=${c.id}`} style={{
+              fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#1a1a1a",
+              textDecoration: "none", flexShrink: 0, whiteSpace: "nowrap",
+            }}>
+              View Contract
+            </Link>
+          </>
+        )
       ) : makerSigned ? (
         <>
           <span style={{ fontFamily: sans, fontStyle: "italic", fontWeight: 400, fontSize: "18px", color: "#888" }}>
@@ -173,36 +191,78 @@ function TcRow({ c }: { c: ContractRow }) {
 }
 
 export default function ContractsPage() {
+  const router = useRouter();
   const [contracts, setContracts] = useState<ContractRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [initial, setInitial] = useState("?");
+  const [voiceCompleteMap, setVoiceCompleteMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const name = sessionStorage.getItem("ovyu_maker_name") ?? sessionStorage.getItem("ovyu_keeper_name") ?? "";
     setInitial(name[0]?.toUpperCase() ?? "?");
 
     api.listMyContracts()
-      .then(setContracts)
+      .then(cs => setContracts(cs))
       .catch(() => setError("Could not load contracts."))
       .finally(() => setLoading(false));
   }, []);
+
+  // Voice recording happens on a separate route (voice/name, voice/profile);
+  // this page only learns it finished by asking again. A one-time fetch on
+  // mount left the YOU bar showing stale "locked" state whenever the user
+  // returned here via back-navigation or a cached route instead of a fresh
+  // load. Poll while locked; stop once voice recording completes.
+  useEffect(() => {
+    const makerContracts = contracts.filter(c => c.my_role === "maker" && c.status === "LOCKED");
+    if (makerContracts.length === 0) return;
+
+    let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | undefined;
+
+    async function refresh() {
+      const voiceMap: Record<string, boolean> = {};
+      for (const c of makerContracts) {
+        try {
+          const status = await api.getVoiceStatus(c.id);
+          voiceMap[c.id] = status.name === "complete" && status.profile === "complete";
+        } catch {
+          voiceMap[c.id] = false;
+        }
+      }
+      if (cancelled) return;
+      setVoiceCompleteMap(voiceMap);
+      if (Object.values(voiceMap).some(Boolean) && interval) {
+        clearInterval(interval);
+      }
+    }
+
+    refresh();
+    interval = setInterval(refresh, 5000);
+    return () => { cancelled = true; if (interval) clearInterval(interval); };
+  }, [contracts]);
 
   const making = contracts.filter(c => c.my_role === "maker");
   const receiving = contracts.filter(c => c.my_role === "keeper");
   const tc = contracts.filter(c => c.my_role === "tc");
 
-  return (
-    <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header variant="loggedIn" initial={initial} />
+  // Check if any locked maker contract has voice complete
+  const voiceIsComplete = making.some(c => c.status === "LOCKED" && voiceCompleteMap[c.id]);
+  const lockedContractId = making.find(c => c.status === "LOCKED")?.id;
 
-      <div style={{ flex: 1, paddingTop: "78px", paddingBottom: "80px" }}>
+  return (
+    <PageShell
+      headerInitial={initial}
+      contentStyle={{ paddingTop: "78px" }}
+      youBar={{ voiceComplete: voiceIsComplete, contractId: lockedContractId }}
+    >
         <div style={{
           width: "1700px",
           margin: "0 auto",
           display: "flex",
           flexDirection: "column",
           gap: "50px",
+          paddingBottom: "50px",
         }}>
           <h1 style={{
             fontFamily: serif, fontStyle: "italic", fontWeight: 400,
@@ -212,45 +272,75 @@ export default function ContractsPage() {
 
           {error && <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", margin: 0 }}>{error}</p>}
 
-          {/* Making section */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              {/* Making section */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>MAKING</p>
             {loading ? (
               <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
-            ) : making.length === 0 ? (
-              <div style={{
-                width: "1700px", height: "100px",
-                border: "1px solid #888", borderRadius: "10px",
-                display: "flex", alignItems: "center", gap: "20px",
-                paddingLeft: "55px", boxSizing: "border-box",
-              }}>
-                <span style={{ fontFamily: sans, fontSize: "22px", color: "#888" }}>+</span>
-                <Link href="/signup" style={{
-                  fontFamily: sans, fontWeight: 700, fontSize: "16px",
-                  textTransform: "uppercase", color: "#1a1a1a",
-                  letterSpacing: "0.05em", textDecoration: "none",
-                }}>
-                  Start a new contract
-                </Link>
-              </div>
             ) : (
-              making.map(c => <MakerRow key={c.id} c={c} />)
+              <>
+                {making.map(c => <MakerRow key={c.id} c={c} voiceComplete={voiceCompleteMap[c.id]} />)}
+                {/* "Start a new contract" row — always shown */}
+                <div style={{
+                  width: "1700px", height: "100px",
+                  border: "1px solid #888", borderRadius: "8px",
+                  display: "flex", alignItems: "center", gap: "57px",
+                  paddingLeft: "55px", paddingRight: "55px", boxSizing: "border-box",
+                }}>
+                  {/* 40px cross icon per Figma 2004:1572 */}
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ flexShrink: 0 }}>
+                    <line x1="20" y1="0" x2="20" y2="40" stroke="#888" strokeWidth="2.5"/>
+                    <line x1="0" y1="20" x2="40" y2="20" stroke="#888" strokeWidth="2.5"/>
+                  </svg>
+                  <Link href="/signup" style={{
+                    fontFamily: sans, fontWeight: 700, fontSize: "22px",
+                    color: "#888", textDecoration: "none", whiteSpace: "nowrap",
+                  }}>
+                    Start a new contract
+                  </Link>
+                </div>
+                {/* "Ready to begin?" CTA — shown for the first LOCKED contract without voice complete */}
+                {!voiceIsComplete && (() => {
+                  const locked = making.find(c => c.status === "LOCKED");
+                  if (!locked) return null;
+                  return (
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <button
+                        onClick={async () => {
+                          sessionStorage.setItem("ovyu_contract_id", locked.id);
+                          try {
+                            const status = await api.getVoiceStatus(locked.id);
+                            const target = status.name !== "complete"
+                              ? `/upload/${locked.id}/voice/name`
+                              : `/upload/${locked.id}/voice/profile`;
+                            router.push(target);
+                          } catch {
+                            router.push(`/upload/${locked.id}/voice/name`);
+                          }
+                        }}
+                        style={{
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          width: "345px", height: "48px",
+                          background: "#1a1a1a", borderRadius: "8px",
+                          border: "none", cursor: "pointer",
+                          fontFamily: sans, fontSize: "16px", color: "#f5f0e8",
+                        }}
+                      >
+                        <em style={{ fontWeight: 300, fontStyle: "italic" }}>Ready to begin?</em>
+                        &nbsp;Start with your voice →
+                      </button>
+                    </div>
+                  );
+                })()}
+              </>
             )}
           </div>
 
-          {/* Receiving section */}
-          {(receiving.length > 0 || !loading) && (
+          {/* Receiving section — only shown when there are receiving contracts */}
+          {receiving.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
               <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "18px", color: "#c9a84c", margin: 0 }}>RECEIVING</p>
-              {loading ? (
-                <p style={{ fontFamily: sans, fontSize: "18px", color: "#888", margin: 0 }}>Loading…</p>
-              ) : receiving.length === 0 ? (
-                <p style={{ fontFamily: sans, fontStyle: "italic", fontSize: "16px", color: "#888", margin: 0 }}>
-                  No contracts received yet.
-                </p>
-              ) : (
-                receiving.map(c => <KeeperRow key={c.id} c={c} />)
-              )}
+              {receiving.map(c => <KeeperRow key={c.id} c={c} />)}
             </div>
           )}
 
@@ -262,9 +352,17 @@ export default function ContractsPage() {
             </div>
           )}
         </div>
-      </div>
 
-      <Footer />
-    </div>
+      {/* Hint text above locked YOU bar — only show when voice not complete */}
+      {!voiceIsComplete && (
+        <div style={{ paddingLeft: "50px", paddingBottom: "12px" }}>
+          <p style={{
+            fontFamily: sans, fontStyle: "oblique", fontSize: "16px", color: "#888", margin: 0, lineHeight: "normal",
+          }}>
+            Complete your voice recording to unlock your profile.
+          </p>
+        </div>
+      )}
+    </PageShell>
   );
 }

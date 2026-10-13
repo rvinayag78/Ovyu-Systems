@@ -8,7 +8,8 @@ import * as os from "os";
 import * as path from "path";
 
 const DB_DSN =
-  "postgresql://ovyu:OvYRhKhMp35TUZOhTBjYzVVX@ovyu-dev.c76g48wwy9cb.us-west-2.rds.amazonaws.com:5432/ovyu";
+  process.env.OVYU_E2E_DB_DSN ??
+  "postgresql://ovyu:OvYRhKhMp35TUZOhTBjYzVVX@ovyu-dev.c76g48wwy9cb.us-west-2.rds.amazonaws.com:5432/ovyu_staging";
 
 function pyRun(script: string): string {
   const tmp = path.join(os.tmpdir(), `ovyu_e2e_${crypto.randomBytes(4).toString("hex")}.py`);

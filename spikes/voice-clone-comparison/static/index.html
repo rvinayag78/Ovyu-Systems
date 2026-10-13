@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OVYU · Voice Cloning Comparison</title>
+<style>
+  :root {
+    --bg: #f7f5f1;
+    --panel: #ffffff;
+    --ink: #1b1a17;
+    --muted: #6c6a64;
+    --accent: #4a3b2f;
+    --accent-hover: #2f2620;
+    --danger: #b13838;
+    --ok: #2f7a4a;
+    --border: #e3ddd2;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.04);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  header { margin-bottom: 24px; }
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .sub { color: var(--muted); font-size: 14px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .passage {
+    font-size: 17px;
+    line-height: 1.65;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .target {
+    font-style: italic;
+    color: var(--accent);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    margin: 0;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button {
+    appearance: none;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font: 500 14px/1 inherit;
+    cursor: pointer;
+    transition: background .15s, transform .05s;
+  }
+  button:hover:not(:disabled) { background: var(--accent-hover); }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.secondary {
+    background: transparent;
+    color: var(--accent);
+  }
+  button.secondary:hover:not(:disabled) {
+    background: rgba(74,59,47,.06);
+  }
+  button.danger { background: var(--danger); border-color: var(--danger); }
+  .meter {
+    height: 8px;
+    background: #ece6da;
+    border-radius: 4px;
+    overflow: hidden;
+    flex: 1;
+    min-width: 120px;
+  }
+  .meter-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--ok);
+    transition: width .08s linear;
+  }
+  .recording-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    background: var(--danger);
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 1s infinite;
+    vertical-align: middle;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .35; }
+  }
+  audio {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .timer { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; }
+  .results { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  .clone-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #fbfaf6;
+  }
+  .clone-card h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .clone-card .meta {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .reveal-label {
+    display: inline-block;
+    font-size: 11px;
+    background: #e8e2d2;
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-left: 8px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .err {
+    color: var(--danger);
+    font-size: 13px;
+    background: #fbe9e9;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid #d8d0bf;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    vertical-align: -3px;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Voice Cloning Comparison</h1>
+    <div class="sub">OVYU spike · ElevenLabs vs Chatterbox · blind A/B</div>
+  </header>
+
+  <!-- Passage panel -->
+  <section class="panel">
+    <div class="label">Please read aloud</div>
+    <p id="passage" class="passage">Loading…</p>
+    <div class="row" style="margin-top: 14px;">
+      <button id="newPassageBtn" class="secondary" type="button">New passage</button>
+    </div>
+  </section>
+
+  <!-- Target sentence panel -->
+  <section class="panel">
+    <div class="label">The cloned voice will say</div>
+    <p id="target" class="target">…</p>
+  </section>
+
+  <!-- Recording panel -->
+  <section class="panel">
+    <div class="label">Recording</div>
+    <div class="row">
+      <button id="recordBtn" type="button">● Record</button>
+      <button id="stopBtn" type="button" class="danger" disabled>■ Stop</button>
+      <span class="timer" id="timer">0:00</span>
+      <div class="meter" title="Microphone level"><div class="meter-fill" id="meterFill"></div></div>
+    </div>
+    <div id="recStatus" class="hint">Click Record, read the passage at a normal pace, then click Stop.</div>
+    <audio id="previewPlayer" controls class="hidden"></audio>
+    <div class="row" style="margin-top: 12px;">
+      <button id="submitBtn" type="button" disabled>Clone &amp; Compare</button>
+      <button id="resetBtn" type="button" class="secondary" disabled>Discard recording</button>
+    </div>
+  </section>
+
+  <!-- Results panel -->
+  <section class="panel hidden" id="resultsPanel">
+    <div class="label">Results</div>
+    <div id="resultsStatus" class="hint" style="margin-bottom: 12px;"></div>
+
+    <div class="clone-card" style="margin-bottom: 14px;">
+      <h3>Your original recording</h3>
+      <audio id="originalPlayer" controls></audio>
+    </div>
+
+    <div class="results">
+      <div class="clone-card">
+        <h3>Clone A <span class="reveal-label hidden" id="labelA"></span></h3>
+        <div class="meta" id="metaA"></div>
+        <audio id="playerA" controls></audio>
+        <div class="err hidden" id="errA"></div>
+      </div>
+      <div class="clone-card">
+        <h3>Clone B <span class="reveal-label hidden" id="labelB"></span></h3>
+        <div class="meta" id="metaB"></div>
+        <audio id="playerB" controls></audio>
+        <div class="err hidden" id="errB"></div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 16px;">
+      <button id="revealBtn" type="button" class="secondary">Reveal which is which</button>
+      <button id="anotherBtn" type="button" class="secondary">Run another comparison</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  // --- State ---
+  let mediaStream = null;
+  let mediaRecorder = null;
+  let chunks = [];
+  let recordedBlob = null;
+  let recordedMime = "audio/webm";
+  let startTs = 0;
+  let timerInt = null;
+  let meterCtx = null;
+  let meterAnalyser = null;
+  let meterRaf = 0;
+  let targetText = "";
+
+  // --- Element refs ---
+  const $ = (id) => document.getElementById(id);
+  const passageEl = $("passage");
+  const targetEl = $("target");
+  const newPassageBtn = $("newPassageBtn");
+  const recordBtn = $("recordBtn");
+  const stopBtn = $("stopBtn");
+  const submitBtn = $("submitBtn");
+  const resetBtn = $("resetBtn");
+  const previewPlayer = $("previewPlayer");
+  const timer = $("timer");
+  const meterFill = $("meterFill");
+  const recStatus = $("recStatus");
+  const resultsPanel = $("resultsPanel");
+  const resultsStatus = $("resultsStatus");
+  const originalPlayer = $("originalPlayer");
+  const playerA = $("playerA");
+  const playerB = $("playerB");
+  const metaA = $("metaA");
+  const metaB = $("metaB");
+  const errA = $("errA");
+  const errB = $("errB");
+  const labelA = $("labelA");
+  const labelB = $("labelB");
+  const revealBtn = $("revealBtn");
+  const anotherBtn = $("anotherBtn");
+
+  // --- Passages ---
+  async function loadPassage() {
+    passageEl.textContent = "Loading…";
+    targetEl.textContent = "…";
+    try {
+      const r = await fetch("/passages");
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      passageEl.textContent = data.passage;
+      targetEl.textContent = "“" + data.target + "”";
+      targetText = data.target;
+    } catch (e) {
+      passageEl.textContent = "Failed to load passage: " + e.message;
+    }
+  }
+
+  // --- Recording ---
+  function fmtTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    return `${m}:${String(s % 60).padStart(2, "0")}`;
+  }
+
+  function pickMime() {
+    const candidates = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus",
+    ];
+    for (const m of candidates) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+    }
+    return "";
+  }
+
+  function startMeter(stream) {
+    try {
+      meterCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = meterCtx.createMediaStreamSource(stream);
+      meterAnalyser = meterCtx.createAnalyser();
+      meterAnalyser.fftSize = 1024;
+      src.connect(meterAnalyser);
+      const data = new Uint8Array(meterAnalyser.fftSize);
+      const tick = () => {
+        meterAnalyser.getByteTimeDomainData(data);
+        let peak = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = Math.abs(data[i] - 128) / 128;
+          if (v > peak) peak = v;
+        }
+        meterFill.style.width = Math.min(100, peak * 180) + "%";
+        meterRaf = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch (e) {
+      // Meter is optional
+    }
+  }
+
+  function stopMeter() {
+    cancelAnimationFrame(meterRaf);
+    meterRaf = 0;
+    if (meterCtx) {
+      meterCtx.close().catch(() => {});
+      meterCtx = null;
+      meterAnalyser = null;
+    }
+    meterFill.style.width = "0%";
+  }
+
+  async function startRecording() {
+    recordedBlob = null;
+    chunks = [];
+    previewPlayer.classList.add("hidden");
+    previewPlayer.removeAttribute("src");
+
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      recStatus.textContent = "Microphone permission denied: " + e.message;
+      return;
+    }
+
+    recordedMime = pickMime() || "audio/webm";
+    mediaRecorder = new MediaRecorder(mediaStream, recordedMime ? { mimeType: recordedMime } : {});
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      recordedBlob = new Blob(chunks, { type: recordedMime });
+      previewPlayer.src = URL.createObjectURL(recordedBlob);
+      previewPlayer.classList.remove("hidden");
+      submitBtn.disabled = false;
+      resetBtn.disabled = false;
+      recStatus.textContent =
+        `Recorded ${fmtTime(performance.now() - startTs)} of audio ` +
+        `(${(recordedBlob.size / 1024).toFixed(0)} KB · ${recordedMime}).`;
+    };
+    mediaRecorder.start();
+    startTs = performance.now();
+    timer.textContent = "0:00";
+    timerInt = setInterval(() => {
+      timer.textContent = fmtTime(performance.now() - startTs);
+    }, 200);
+    startMeter(mediaStream);
+
+    recordBtn.disabled = true;
+    stopBtn.disabled = false;
+    submitBtn.disabled = true;
+    resetBtn.disabled = true;
+    recStatus.innerHTML = '<span class="recording-dot"></span>Recording…';
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((t) => t.stop());
+      mediaStream = null;
+    }
+    clearInterval(timerInt); timerInt = null;
+    stopMeter();
+    recordBtn.disabled = false;
+    stopBtn.disabled = true;
+  }
+
+  function discardRecording() {
+    recordedBlob = null;
+    chunks = [];
+    previewPlayer.classList.add("hidden");
+    previewPlayer.removeAttribute("src");
+    submitBtn.disabled = true;
+    resetBtn.disabled = true;
+    timer.textContent = "0:00";
+    recStatus.textContent = "Discarded. Record again when ready.";
+  }
+
+  // --- Submit & render results ---
+  async function submitRecording() {
+    if (!recordedBlob) return;
+    if (recordedBlob.size < 10000) {
+      recStatus.textContent = "Recording is very short — please re-record.";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    resetBtn.disabled = true;
+    recordBtn.disabled = true;
+    resultsPanel.classList.remove("hidden");
+    resultsStatus.innerHTML =
+      '<span class="spinner"></span>Cloning with both providers in parallel… this usually takes 10–30 seconds.';
+    // Clear previous outputs
+    [playerA, playerB, originalPlayer].forEach((p) => { p.removeAttribute("src"); });
+    [errA, errB].forEach((e) => { e.classList.add("hidden"); e.textContent = ""; });
+    [labelA, labelB].forEach((l) => { l.classList.add("hidden"); l.textContent = ""; });
+    metaA.textContent = ""; metaB.textContent = "";
+    resultsPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    const fd = new FormData();
+    const ext = recordedMime.includes("mp4") ? "m4a" : recordedMime.includes("ogg") ? "ogg" : "webm";
+    fd.append("audio", recordedBlob, `recording.${ext}`);
+    fd.append("target_text", targetText);
+
+    let data;
+    try {
+      const r = await fetch("/clone", { method: "POST", body: fd });
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(`HTTP ${r.status}: ${t}`);
+      }
+      data = await r.json();
+    } catch (e) {
+      resultsStatus.innerHTML = '<span class="err">Request failed: ' + e.message + "</span>";
+      recordBtn.disabled = false;
+      return;
+    }
+
+    // Original recording
+    originalPlayer.src = data.original_url;
+
+    // Blind-label assignment: A and B map randomly to {elevenlabs, chatterbox}.
+    const mapping = Math.random() < 0.5
+      ? { A: "elevenlabs", B: "chatterbox" }
+      : { A: "chatterbox", B: "elevenlabs" };
+
+    function renderSlot(slot, providerKey, player, errEl, metaEl) {
+      const info = data[providerKey];
+      if (info.error) {
+        errEl.textContent = info.error;
+        errEl.classList.remove("hidden");
+        metaEl.textContent = providerKey + " · failed";
+      } else if (info.url) {
+        player.src = info.url;
+        const m = info.meta || {};
+        metaEl.textContent =
+          `Generated in ${m.elapsed_s ?? "?"}s · ${m.bytes ? (m.bytes/1024).toFixed(0)+" KB" : ""}`;
+      }
+      // Stash provider key on the slot element so reveal can read it
+      player.dataset.provider = providerKey;
+    }
+    renderSlot("A", mapping.A, playerA, errA, metaA);
+    renderSlot("B", mapping.B, playerB, errB, metaB);
+
+    resultsStatus.innerHTML =
+      'Listen blind to <strong>Clone A</strong> and <strong>Clone B</strong>, ' +
+      'play your original for reference, then reveal which is which.';
+    recordBtn.disabled = false;
+  }
+
+  function reveal() {
+    labelA.textContent = playerA.dataset.provider || "?";
+    labelB.textContent = playerB.dataset.provider || "?";
+    labelA.classList.remove("hidden");
+    labelB.classList.remove("hidden");
+    revealBtn.disabled = true;
+  }
+
+  // --- Wire up ---
+  newPassageBtn.addEventListener("click", loadPassage);
+  recordBtn.addEventListener("click", startRecording);
+  stopBtn.addEventListener("click", stopRecording);
+  submitBtn.addEventListener("click", submitRecording);
+  resetBtn.addEventListener("click", discardRecording);
+  revealBtn.addEventListener("click", reveal);
+  anotherBtn.addEventListener("click", () => {
+    resultsPanel.classList.add("hidden");
+    discardRecording();
+    loadPassage();
+    revealBtn.disabled = false;
+  });
+
+  // Initial load
+  loadPassage();
+})();
+</script>
+</body>
+</html>

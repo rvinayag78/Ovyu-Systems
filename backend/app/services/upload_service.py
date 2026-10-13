@@ -24,11 +24,20 @@ class UploadService:
     async def get_or_create_upload(self, contract_id: uuid.UUID, maker_id: uuid.UUID) -> Upload:
         result = await self.db.execute(select(Upload).where(Upload.contract_id == contract_id))
         upload = result.scalar_one_or_none()
-        if not upload:
-            upload = Upload(contract_id=contract_id, maker_id=maker_id)
-            self.db.add(upload)
-            await self.db.flush()
-        return upload
+        if upload:
+            return upload
+        # A fresh Maker's first hub load fires several requests in parallel
+        # (hub, messages, voice status) — plain SELECT-then-INSERT made the
+        # race loser 500 on the unique contract_id. ON CONFLICT DO NOTHING
+        # lets the loser fall through to re-select the winner's row.
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+        await self.db.execute(
+            pg_insert(Upload)
+            .values(id=uuid.uuid4(), contract_id=contract_id, maker_id=maker_id)
+            .on_conflict_do_nothing(index_elements=["contract_id"])
+        )
+        result = await self.db.execute(select(Upload).where(Upload.contract_id == contract_id))
+        return result.scalar_one()
 
     async def get_upload_by_contract(self, contract_id: uuid.UUID) -> Upload | None:
         result = await self.db.execute(select(Upload).where(Upload.contract_id == contract_id))
@@ -52,6 +61,32 @@ class UploadService:
         """Presigned PUT for a voice-entry audio blob — same envelope as the
         name/profile recordings, but a unique key per entry under entries/."""
         s3_key = f"makers/{upload_id}/entries/{uuid.uuid4()}.webm"
+        if not settings.media_bucket:
+            raise ValueError("MEDIA_BUCKET not configured")
+        s3 = boto3.client("s3", region_name=settings.aws_region)
+        url = s3.generate_presigned_url(
+            "put_object",
+            Params={"Bucket": settings.media_bucket, "Key": s3_key, "ContentType": "audio/webm"},
+            ExpiresIn=300,
+        )
+        return url, s3_key
+
+    def generate_presigned_get(self, s3_key: str) -> str:
+        """Presigned GET for playing back a Maker's own recording (voice name/
+        profile, or a voice dimension entry) — media bucket is private."""
+        if not settings.media_bucket:
+            raise ValueError("MEDIA_BUCKET not configured")
+        s3 = boto3.client("s3", region_name=settings.aws_region)
+        return s3.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": settings.media_bucket, "Key": s3_key},
+            ExpiresIn=300,
+        )
+
+    def generate_presigned_put_keeper_message(self, upload_id: uuid.UUID, msg_type: str) -> tuple[str, str]:
+        """Presigned PUT for a Keeper-message voice recording — same envelope as
+        the name/profile recordings, keyed per message type under keeper/."""
+        s3_key = f"makers/{upload_id}/keeper/{msg_type}.webm"
         if not settings.media_bucket:
             raise ValueError("MEDIA_BUCKET not configured")
         s3 = boto3.client("s3", region_name=settings.aws_region)
@@ -144,6 +179,7 @@ class UploadService:
         entry_type: str = "text",
         tags: dict | None = None,
         media_s3_key: str | None = None,
+        duration_s: int | None = None,
     ) -> DimensionEntry:
         entry = DimensionEntry(
             dimension_id=dimension_id,
@@ -152,6 +188,7 @@ class UploadService:
             entry_type=entry_type,
             tags=tags,
             media_s3_key=media_s3_key,
+            duration_s=duration_s,
         )
         self.db.add(entry)
         await self.db.flush()
@@ -197,9 +234,14 @@ class UploadService:
         return list(result.scalars().all())
 
     def auto_tag(self, text: str) -> dict:
-        """Best-effort People/Year/Place extraction for an entry (Bedrock Haiku)."""
+        """Best-effort Title/People/Year/Place extraction for an entry (Bedrock Haiku)."""
         from app.services.tagging_service import extract_entry_tags
         return extract_entry_tags(text)
+
+    def fallback_title(self, text: str) -> str:
+        """First few words of ``text`` — used when AI title extraction returns nothing."""
+        from app.services.tagging_service import first_words_title
+        return first_words_title(text)
 
     # ── Triangulation (form facts → People / Years / Places, deduped) ───────────
 
@@ -341,7 +383,13 @@ class UploadService:
         return list(result.scalars().all())
 
     async def upsert_keeper_message(
-        self, contract_id: uuid.UUID, msg_type: str, body: str, trigger: str | None
+        self,
+        contract_id: uuid.UUID,
+        msg_type: str,
+        body: str,
+        trigger: str | None,
+        s3_key: str | None = None,
+        duration_s: float | None = None,
     ) -> KeeperMessage:
         if msg_type == "welcome":
             result = await self.db.execute(
@@ -353,9 +401,14 @@ class UploadService:
             existing = result.scalar_one_or_none()
             if existing:
                 existing.body = body
+                existing.s3_key = s3_key
+                existing.duration_s = duration_s
                 await self.db.flush()
                 return existing
-        msg = KeeperMessage(contract_id=contract_id, type=msg_type, trigger=trigger, body=body)
+        msg = KeeperMessage(
+            contract_id=contract_id, type=msg_type, trigger=trigger, body=body,
+            s3_key=s3_key, duration_s=duration_s,
+        )
         self.db.add(msg)
         await self.db.flush()
         return msg
@@ -390,13 +443,16 @@ class UploadService:
 
     async def get_hub_counts(self, upload_id: uuid.UUID) -> dict:
         YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
+        # FOR KEEPER sections share the dimensions/dimension_entries tables —
+        # their entry counts drive the hub cards' dots.
+        KEEPER_SLUGS = ["who-they-are", "who-theyre-becoming", "what-you-want", "what-you-want-known", "advice"]
 
         dims_result = await self.db.execute(
             select(Dimension).where(Dimension.upload_id == upload_id)
         )
         dims = {d.slug: d.id for d in dims_result.scalars().all()}
 
-        dimension_counts: dict[str, int] = {slug: 0 for slug in YOU_SLUGS}
+        dimension_counts: dict[str, int] = {slug: 0 for slug in YOU_SLUGS + KEEPER_SLUGS}
         for slug, dim_id in dims.items():
             if slug in dimension_counts:
                 count_result = await self.db.execute(

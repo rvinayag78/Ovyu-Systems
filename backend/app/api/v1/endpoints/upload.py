@@ -1,9 +1,13 @@
+import json
 import logging
 from uuid import UUID
 
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
@@ -22,6 +26,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 YOU_SLUGS = ["history", "relationships", "how-you-think", "how-you-talk", "how-you-live", "beliefs", "heart"]
+# FOR KEEPER sections reuse the same dimensions/dimension_entries tables and
+# endpoints as the YOU dimensions — no new tables. History-facts triangulation
+# stays Maker-only (it keys off slug == "history" in the service).
+KEEPER_SLUGS = ["who-they-are", "who-theyre-becoming", "what-you-want", "what-you-want-known", "advice"]
+ALL_SLUGS = YOU_SLUGS + KEEPER_SLUGS
 
 
 async def _require_upload(
@@ -132,6 +141,22 @@ async def voice_status(
     return VoiceStatusResponse(**statuses)
 
 
+@router.delete("/contracts/{contract_id}/upload/voice", status_code=204)
+async def delete_voice_recordings(
+    contract_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    from sqlalchemy import select as sa_select
+    from app.models.upload import VoiceRecording
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    result = await db.execute(sa_select(VoiceRecording).where(VoiceRecording.upload_id == upload.id))
+    for recording in result.scalars().all():
+        await db.delete(recording)
+    upload.voice_status = "pending"
+    await db.commit()
+
+
 # ── YOU — Dimensions ──────────────────────────────────────────────────────────
 
 @router.get("/contracts/{contract_id}/upload/dimensions/{slug}", response_model=DimensionRead)
@@ -141,7 +166,7 @@ async def get_dimension(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     dim = await svc.get_dimension(upload.id, slug)
@@ -149,7 +174,7 @@ async def get_dimension(
     if not dim:
         return DimensionRead(id=upload.id, slug=slug, structured=None, entries=[])
     return DimensionRead(id=dim.id, slug=slug, structured=dim.structured, entries=[
-        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, created_at=e.created_at) for e in entries
+        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, media_s3_key=e.media_s3_key, duration_s=e.duration_s, created_at=e.created_at) for e in entries
     ])
 
 
@@ -161,14 +186,14 @@ async def upsert_dimension(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     dim = await svc.upsert_dimension(upload.id, slug, body.structured)
     entries = await svc.get_dimension_entries(dim.id)
     await db.commit()
     return DimensionRead(id=dim.id, slug=slug, structured=dim.structured, entries=[
-        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, created_at=e.created_at) for e in entries
+        DimensionEntryRead(id=e.id, title=e.title, body=e.body, entry_type=e.entry_type, tags=e.tags, media_s3_key=e.media_s3_key, duration_s=e.duration_s, created_at=e.created_at) for e in entries
     ])
 
 
@@ -179,7 +204,7 @@ async def entry_media_presigned(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> VoicePresignedResponse:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     try:
@@ -187,6 +212,27 @@ async def entry_media_presigned(
     except ValueError as e:
         raise HTTPException(status_code=503, detail=str(e))
     return VoicePresignedResponse(upload_id=upload.id, presigned_url=url, s3_key=s3_key)
+
+
+@router.get("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}/media-url")
+async def entry_media_playback_url(
+    contract_id: UUID,
+    slug: str,
+    entry_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    if slug not in ALL_SLUGS:
+        raise HTTPException(status_code=404, detail="Unknown dimension slug")
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    entry = await svc.get_dimension_entry(entry_id)
+    if not entry or not entry.media_s3_key:
+        raise HTTPException(status_code=404, detail="No media for this entry")
+    try:
+        url = svc.generate_presigned_get(entry.media_s3_key)
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return {"url": url}
 
 
 @router.post("/contracts/{contract_id}/upload/dimensions/{slug}/entries", response_model=DimensionEntryRead, status_code=201)
@@ -197,20 +243,47 @@ async def add_dimension_entry(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionEntryRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     upload, svc = await _require_upload(contract_id, current_user, db)
     dim = await svc.get_dimension(upload.id, slug)
     if not dim:
         dim = await svc.upsert_dimension(upload.id, slug, {})
-    # Auto-tag (People / Year / Place) from the body when the client doesn't
-    # supply tags. Best-effort — falls back to empty tags inside the service.
+    # Auto-tag (Title / People / Year / Place) from the body when the client
+    # doesn't supply tags and/or didn't type a title. Best-effort — falls back
+    # to empty tags / a first-words title inside the service. One Haiku call
+    # covers both needs.
     tags = body.tags
-    if tags is None and body.entry_type == "text" and body.body.strip():
-        tags = svc.auto_tag(body.body)
-    entry = await svc.add_dimension_entry(dim.id, body.body, body.title, body.entry_type, tags, body.media_s3_key)
+    title = body.title
+    needs_tags = tags is None
+    needs_title = not (title or "").strip()
+    if (needs_tags or needs_title) and body.entry_type == "text" and body.body.strip():
+        extracted = svc.auto_tag(body.body)
+        if needs_tags:
+            # Stored shape is always years/places (arrays) so a Maker can add
+            # more of the same type later without overwriting what AI found.
+            tags = {
+                "people": extracted["people"],
+                "years": [extracted["year"]] if extracted["year"] else [],
+                "places": [extracted["place"]] if extracted["place"] else [],
+            }
+        if needs_title:
+            title = extracted.get("title") or svc.fallback_title(body.body)
+    entry = await svc.add_dimension_entry(dim.id, body.body, title, body.entry_type, tags, body.media_s3_key, body.duration_s)
     await db.commit()
-    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, created_at=entry.created_at)
+
+    # Enqueue transcription job for voice entries that have audio on S3.
+    if body.entry_type == "voice" and body.media_s3_key and settings.transcription_queue_url:
+        try:
+            boto3.client("sqs", region_name=settings.aws_region).send_message(
+                QueueUrl=settings.transcription_queue_url,
+                MessageBody=json.dumps({"entry_id": str(entry.id), "media_s3_key": body.media_s3_key}),
+            )
+        except (BotoCoreError, ClientError) as e:
+            # Non-fatal — entry is saved, transcription can be re-queued manually.
+            logger.warning("failed to enqueue transcription job for entry %s: %s", entry.id, e)
+
+    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, duration_s=entry.duration_s, created_at=entry.created_at)
 
 
 @router.put("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}", response_model=DimensionEntryRead)
@@ -222,7 +295,7 @@ async def update_dimension_entry(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DimensionEntryRead:
-    if slug not in YOU_SLUGS:
+    if slug not in ALL_SLUGS:
         raise HTTPException(status_code=404, detail="Unknown dimension slug")
     await _require_upload(contract_id, current_user, db)
     svc = UploadService(db)
@@ -232,7 +305,7 @@ async def update_dimension_entry(
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
     await db.commit()
-    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, created_at=entry.created_at)
+    return DimensionEntryRead(id=entry.id, title=entry.title, body=entry.body, entry_type=entry.entry_type, tags=entry.tags, media_s3_key=entry.media_s3_key, duration_s=entry.duration_s, created_at=entry.created_at)
 
 
 @router.delete("/contracts/{contract_id}/upload/dimensions/{slug}/entries/{entry_id}", status_code=204)
@@ -393,6 +466,23 @@ async def delete_place(
 
 # ── FOR KEEPER — Messages ─────────────────────────────────────────────────────
 
+@router.post("/contracts/{contract_id}/upload/messages/presigned", response_model=VoicePresignedResponse)
+async def message_presigned(
+    contract_id: UUID,
+    message_type: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> VoicePresignedResponse:
+    if message_type not in ("welcome", "for_when"):
+        raise HTTPException(status_code=400, detail="message_type must be 'welcome' or 'for_when'")
+    upload, svc = await _require_upload(contract_id, current_user, db)
+    try:
+        url, s3_key = svc.generate_presigned_put_keeper_message(upload.id, message_type)
+    except ValueError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    return VoicePresignedResponse(upload_id=upload.id, presigned_url=url, s3_key=s3_key)
+
+
 @router.get("/contracts/{contract_id}/upload/messages", response_model=list[KeeperMessageRead])
 async def list_messages(
     contract_id: UUID,
@@ -413,7 +503,10 @@ async def add_message(
     if body.type not in ("welcome", "for_when"):
         raise HTTPException(status_code=400, detail="type must be 'welcome' or 'for_when'")
     upload, svc = await _require_upload(contract_id, current_user, db)
-    msg = await svc.upsert_keeper_message(contract_id, body.type, body.body, body.trigger)
+    msg = await svc.upsert_keeper_message(
+        contract_id, body.type, body.body, body.trigger,
+        s3_key=body.s3_key, duration_s=body.duration_s,
+    )
     await db.commit()
     return msg
 

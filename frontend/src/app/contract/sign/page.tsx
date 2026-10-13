@@ -65,8 +65,14 @@ function SignInner() {
   if (error && !contract) return (
     <div style={{ minWidth: "1920px", background: "#f8f7f5", display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Header variant="loggedIn" initial={initial} />
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C" }}>{error}</p>
+      <div style={{ flex: 1, padding: "40px 58px" }}>
+        <Link href="/contracts" style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontFamily: sans, fontSize: "16px", color: "#888", textDecoration: "none" }}>
+          <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Your contracts
+        </Link>
+        <p style={{ fontFamily: sans, fontSize: "18px", color: "#B4372C", marginTop: "40px" }}>{error}</p>
       </div>
       <Footer />
     </div>
@@ -77,10 +83,23 @@ function SignInner() {
       <Header variant="loggedIn" initial={initial} />
 
       <div style={{ flex: 1 }}>
+        <div style={{ width: "1804px", margin: "40px auto 0" }}>
+          <Link href="/contracts" style={{
+            display: "inline-flex", alignItems: "center", gap: "10px",
+            fontFamily: sans, fontSize: "16px", color: "#888",
+            textDecoration: "none",
+          }}>
+            <svg width="12" height="21" viewBox="0 0 12 21" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M11 1L1 10.5L11 20" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Your contracts
+          </Link>
+        </div>
+
         <form
           onSubmit={handleSign}
           style={{
-            margin: "40px auto 40px",
+            margin: "24px auto 40px",
             width: "1804px",
             display: "grid",
             gridTemplateColumns: "1130px 613px",

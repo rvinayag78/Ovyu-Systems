@@ -45,6 +45,7 @@ class DimensionEntryRead(BaseModel):
     entry_type: str
     tags: dict | None
     media_s3_key: str | None = None
+    duration_s: int | None = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
@@ -55,6 +56,7 @@ class DimensionEntryCreate(BaseModel):
     entry_type: str = "text"
     tags: dict | None = None
     media_s3_key: str | None = None
+    duration_s: int | None = None
 
 
 class DimensionEntryUpdate(BaseModel):
@@ -135,6 +137,8 @@ class KeeperMessageRead(BaseModel):
     type: str
     trigger: str | None
     body: str
+    s3_key: str | None = None
+    duration_s: float | None = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
@@ -143,6 +147,8 @@ class KeeperMessageCreate(BaseModel):
     type: str  # 'welcome' | 'for_when'
     trigger: str | None = None
     body: str
+    s3_key: str | None = None
+    duration_s: float | None = None
 
 
 class KeeperProfileRead(BaseModel):

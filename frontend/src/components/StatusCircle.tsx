@@ -7,7 +7,7 @@
  *   - full    (>= threshold)         → solid dark purple
  * `voiceRecorded` forces the solid dark state (Voice is binary: recorded = done).
  */
-const EMPTY = "#e9e2f2";
+const EMPTY = "#b9a4cf";
 const RING = "#b9a4cf";
 const FULL = "#5b4b7a";
 

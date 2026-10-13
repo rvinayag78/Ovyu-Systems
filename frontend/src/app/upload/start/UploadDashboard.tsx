@@ -5,9 +5,13 @@ import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { api } from "@/lib/api";
+import { tokens } from "@/styles/tokens";
 
-const serif = "Georgia, serif";
-const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
+const serif = tokens.font.serif;
+const sans = tokens.font.sans;
+const BLACK = tokens.color.black;
+const LAVENDER = tokens.color.lavender;
+const CREAM_FILL = tokens.color.cream;
 
 const YOU_DIMENSIONS = [
   { slug: "faith",       label: "Faith",       hint: "Your beliefs, spirituality, what grounds you." },
@@ -313,7 +317,7 @@ export function UploadDashboard() {
   function PctBar({ pct }: { pct: number }) {
     return (
       <div style={{ height: "4px", background: "#e5e5e5", borderRadius: "2px", flex: 1 }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: "#6a4d7d", borderRadius: "2px", transition: "width 0.3s" }} />
+        <div style={{ height: "100%", width: `${pct}%`, background: LAVENDER, borderRadius: "2px", transition: "width 0.3s" }} />
       </div>
     );
   }
@@ -340,13 +344,13 @@ export function UploadDashboard() {
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "20px 28px", cursor: locked ? "not-allowed" : "pointer",
-          background: openSection === id ? "#f7f4ef" : "#fff",
+          background: openSection === id ? CREAM_FILL : "#fff",
           borderBottom: "1px solid #e5e5e5",
           opacity: locked ? 0.6 : 1,
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
-          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", letterSpacing: "0.08em", color: "#6a4d7d" }}>
+          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", letterSpacing: "0.08em", color: LAVENDER }}>
             {title}
           </span>
           {pct !== undefined && (
@@ -357,7 +361,7 @@ export function UploadDashboard() {
           )}
           {badge}
         </div>
-        <span style={{ fontFamily: sans, fontSize: "18px", color: "#6a4d7d", marginLeft: "16px" }}>
+        <span style={{ fontFamily: sans, fontSize: "18px", color: LAVENDER, marginLeft: "16px" }}>
           {openSection === id ? "−" : "+"}
         </span>
       </div>
@@ -367,13 +371,13 @@ export function UploadDashboard() {
   const voiceDone = progress.voice_done;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f7f4ef", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: CREAM_FILL, display: "flex", flexDirection: "column" }}>
       <Header variant="loggedIn" initial={makerInitial} />
 
       <main style={{ flex: 1, maxWidth: "860px", margin: "0 auto", width: "100%", padding: "48px 24px 80px" }}>
         {/* Page title */}
         <div style={{ marginBottom: "40px" }}>
-          <h1 style={{ fontFamily: serif, fontSize: "40px", fontWeight: 400, color: "#1a1a1a", margin: "0 0 8px" }}>
+          <h1 style={{ fontFamily: serif, fontSize: "40px", fontWeight: 400, color: BLACK, margin: "0 0 8px" }}>
             Your upload.
           </h1>
           <p style={{ fontFamily: sans, fontSize: "16px", color: "#9c9c9c", margin: 0 }}>
@@ -393,7 +397,7 @@ export function UploadDashboard() {
             { label: "FOR YOUR KEEPER", pct: progress.for_keeper_pct },
           ].map(({ label, pct }) => (
             <div key={label} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "11px", letterSpacing: "0.08em", color: "#6a4d7d" }}>{label}</span>
+              <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "11px", letterSpacing: "0.08em", color: LAVENDER }}>{label}</span>
               <PctBar pct={pct} />
               <span style={{ fontFamily: sans, fontSize: "12px", color: "#9c9c9c" }}>{pct}%</span>
             </div>
@@ -430,7 +434,7 @@ export function UploadDashboard() {
                     borderRadius: "6px", marginBottom: "12px",
                   }}>
                     <div>
-                      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "14px", color: "#1a1a1a", margin: "0 0 4px" }}>
+                      <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "14px", color: BLACK, margin: "0 0 4px" }}>
                         {type === "name" ? "Your name." : "The sound of you."}
                       </p>
                       <p style={{ fontFamily: sans, fontSize: "12px", color: "#9c9c9c", margin: 0 }}>
@@ -452,8 +456,8 @@ export function UploadDashboard() {
                           style={{
                             fontFamily: sans, fontSize: "13px", fontWeight: 700,
                             padding: "8px 18px", borderRadius: "9999px",
-                            background: done ? "#fff" : "#6a4d7d", color: done ? "#6a4d7d" : "#fff",
-                            border: `1px solid #6a4d7d`, cursor: "pointer",
+                            background: done ? "#fff" : LAVENDER, color: done ? LAVENDER : "#fff",
+                            border: `1px solid ${LAVENDER}`, cursor: "pointer",
                           }}
                         >
                           {done ? "Re-record" : "Record"}
@@ -465,7 +469,7 @@ export function UploadDashboard() {
                           style={{
                             fontFamily: sans, fontSize: "13px", fontWeight: 700,
                             padding: "8px 18px", borderRadius: "9999px",
-                            background: "#1a1a1a", color: "#fff",
+                            background: BLACK, color: "#fff",
                             border: "none", cursor: "pointer",
                           }}
                         >
@@ -499,16 +503,16 @@ export function UploadDashboard() {
                     style={{
                       padding: "14px 18px", cursor: "pointer", display: "flex",
                       justifyContent: "space-between", alignItems: "center",
-                      background: openDim === dim.slug ? "#f7f4ef" : "#fff",
+                      background: openDim === dim.slug ? CREAM_FILL : "#fff",
                     }}
                   >
                     <div>
-                      <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: "#6a4d7d" }}>{dim.label.toUpperCase()}</span>
+                      <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: LAVENDER }}>{dim.label.toUpperCase()}</span>
                       {openDim !== dim.slug && (
                         <p style={{ fontFamily: sans, fontSize: "12px", color: "#9c9c9c", margin: "3px 0 0" }}>{dim.hint}</p>
                       )}
                     </div>
-                    <span style={{ color: "#6a4d7d" }}>{openDim === dim.slug ? "−" : "+"}</span>
+                    <span style={{ color: LAVENDER }}>{openDim === dim.slug ? "−" : "+"}</span>
                   </div>
                   {openDim === dim.slug && (
                     <div style={{ padding: "16px 18px", borderTop: "1px solid #e5e5e5", background: "#fff" }}>
@@ -517,9 +521,9 @@ export function UploadDashboard() {
                       {(dimEntries[dim.slug] ?? []).map(entry => (
                         <div key={entry.id} style={{
                           display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-                          padding: "10px 12px", background: "#f7f4ef", borderRadius: "4px", marginBottom: "8px",
+                          padding: "10px 12px", background: CREAM_FILL, borderRadius: "4px", marginBottom: "8px",
                         }}>
-                          <p style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a", margin: 0, flex: 1, lineHeight: 1.5 }}>{entry.body}</p>
+                          <p style={{ fontFamily: sans, fontSize: "14px", color: BLACK, margin: 0, flex: 1, lineHeight: 1.5 }}>{entry.body}</p>
                           <button onClick={() => deleteDimEntry(dim.slug, entry.id)}
                             style={{ background: "none", border: "none", color: "#9c9c9c", cursor: "pointer", fontSize: "16px", marginLeft: "12px", flexShrink: 0 }}>
                             ×
@@ -545,7 +549,7 @@ export function UploadDashboard() {
                           style={{
                             fontFamily: sans, fontSize: "13px", fontWeight: 700,
                             padding: "0 18px", borderRadius: "6px",
-                            background: "#6a4d7d", color: "#fff", border: "none",
+                            background: LAVENDER, color: "#fff", border: "none",
                             cursor: dimSaving || !dimText.trim() ? "not-allowed" : "pointer",
                             opacity: dimSaving || !dimText.trim() ? 0.5 : 1,
                             alignSelf: "flex-start", height: "40px", marginTop: "2px",
@@ -573,8 +577,8 @@ export function UploadDashboard() {
                   <button key={tab} onClick={() => setOpenLifeTab(tab)} style={{
                     fontFamily: sans, fontWeight: 700, fontSize: "12px", letterSpacing: "0.06em",
                     padding: "12px 20px", border: "none", background: "none", cursor: "pointer",
-                    color: openLifeTab === tab ? "#6a4d7d" : "#9c9c9c",
-                    borderBottom: openLifeTab === tab ? "2px solid #6a4d7d" : "2px solid transparent",
+                    color: openLifeTab === tab ? LAVENDER : "#9c9c9c",
+                    borderBottom: openLifeTab === tab ? `2px solid ${LAVENDER}` : "2px solid transparent",
                   }}>
                     {tab.toUpperCase()}
                   </button>
@@ -588,10 +592,10 @@ export function UploadDashboard() {
                     {people.map(p => (
                       <div key={p.id} style={{
                         display: "flex", justifyContent: "space-between", alignItems: "center",
-                        padding: "10px 12px", background: "#f7f4ef", borderRadius: "4px", marginBottom: "8px",
+                        padding: "10px 12px", background: CREAM_FILL, borderRadius: "4px", marginBottom: "8px",
                       }}>
                         <div>
-                          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "14px", color: "#1a1a1a" }}>{p.name}</span>
+                          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "14px", color: BLACK }}>{p.name}</span>
                           {p.role && <span style={{ fontFamily: sans, fontSize: "13px", color: "#9c9c9c", marginLeft: "8px" }}>{p.role}</span>}
                         </div>
                         <button onClick={() => deletePerson(p.id)} style={{ background: "none", border: "none", color: "#9c9c9c", cursor: "pointer", fontSize: "16px" }}>×</button>
@@ -602,7 +606,7 @@ export function UploadDashboard() {
                         style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", flex: "1 1 140px" }} />
                       <input placeholder="Role (e.g. mother)" value={personForm.role} onChange={e => setPersonForm(f => ({ ...f, role: e.target.value }))}
                         style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", flex: "1 1 140px" }} />
-                      <button onClick={addPerson} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", background: "#6a4d7d", color: "#fff", border: "none", cursor: "pointer" }}>Add</button>
+                      <button onClick={addPerson} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", background: LAVENDER, color: "#fff", border: "none", cursor: "pointer" }}>Add</button>
                     </div>
                   </div>
                 )}
@@ -613,11 +617,11 @@ export function UploadDashboard() {
                     {years.map(y => (
                       <div key={y.id} style={{
                         display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-                        padding: "10px 12px", background: "#f7f4ef", borderRadius: "4px", marginBottom: "8px",
+                        padding: "10px 12px", background: CREAM_FILL, borderRadius: "4px", marginBottom: "8px",
                       }}>
                         <div>
-                          {y.year && <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: "#6a4d7d", marginRight: "8px" }}>{y.year}</span>}
-                          <span style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a" }}>{y.title}</span>
+                          {y.year && <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: LAVENDER, marginRight: "8px" }}>{y.year}</span>}
+                          <span style={{ fontFamily: sans, fontSize: "14px", color: BLACK }}>{y.title}</span>
                           {y.body && <p style={{ fontFamily: sans, fontSize: "13px", color: "#555", margin: "4px 0 0" }}>{y.body}</p>}
                         </div>
                         <button onClick={() => deleteYear(y.id)} style={{ background: "none", border: "none", color: "#9c9c9c", cursor: "pointer", fontSize: "16px", flexShrink: 0 }}>×</button>
@@ -630,7 +634,7 @@ export function UploadDashboard() {
                         style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", flex: "1 1 200px" }} />
                       <input placeholder="Details (optional)" value={yearForm.body} onChange={e => setYearForm(f => ({ ...f, body: e.target.value }))}
                         style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", flex: "1 1 200px" }} />
-                      <button onClick={addYear} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", background: "#6a4d7d", color: "#fff", border: "none", cursor: "pointer" }}>Add</button>
+                      <button onClick={addYear} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", background: LAVENDER, color: "#fff", border: "none", cursor: "pointer" }}>Add</button>
                     </div>
                   </div>
                 )}
@@ -641,10 +645,10 @@ export function UploadDashboard() {
                     {places.map(p => (
                       <div key={p.id} style={{
                         display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-                        padding: "10px 12px", background: "#f7f4ef", borderRadius: "4px", marginBottom: "8px",
+                        padding: "10px 12px", background: CREAM_FILL, borderRadius: "4px", marginBottom: "8px",
                       }}>
                         <div>
-                          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "14px", color: "#1a1a1a" }}>{p.name}</span>
+                          <span style={{ fontFamily: sans, fontWeight: 700, fontSize: "14px", color: BLACK }}>{p.name}</span>
                           {p.why && <p style={{ fontFamily: sans, fontSize: "13px", color: "#555", margin: "4px 0 0" }}>{p.why}</p>}
                         </div>
                         <button onClick={() => deletePlace(p.id)} style={{ background: "none", border: "none", color: "#9c9c9c", cursor: "pointer", fontSize: "16px", flexShrink: 0 }}>×</button>
@@ -655,7 +659,7 @@ export function UploadDashboard() {
                         style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", flex: "1 1 200px" }} />
                       <input placeholder="Why it matters (optional)" value={placeForm.why} onChange={e => setPlaceForm(f => ({ ...f, why: e.target.value }))}
                         style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", flex: "1 1 200px" }} />
-                      <button onClick={addPlace} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", background: "#6a4d7d", color: "#fff", border: "none", cursor: "pointer" }}>Add</button>
+                      <button onClick={addPlace} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "6px", background: LAVENDER, color: "#fff", border: "none", cursor: "pointer" }}>Add</button>
                     </div>
                   </div>
                 )}
@@ -673,7 +677,7 @@ export function UploadDashboard() {
 
               {/* Welcome message */}
               <div style={{ marginBottom: "28px" }}>
-                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: "#6a4d7d", margin: "0 0 8px", letterSpacing: "0.06em" }}>WELCOME MESSAGE</p>
+                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: LAVENDER, margin: "0 0 8px", letterSpacing: "0.06em" }}>WELCOME MESSAGE</p>
                 <textarea
                   value={welcomeBody}
                   onChange={e => setWelcomeBody(e.target.value)}
@@ -681,17 +685,17 @@ export function UploadDashboard() {
                   rows={5}
                   style={{ width: "100%", fontFamily: sans, fontSize: "14px", padding: "12px", border: "1px solid #e5e5e5", borderRadius: "6px", resize: "vertical", boxSizing: "border-box" }}
                 />
-                <button onClick={saveWelcome} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, marginTop: "8px", padding: "8px 18px", borderRadius: "9999px", background: "#6a4d7d", color: "#fff", border: "none", cursor: "pointer" }}>Save</button>
+                <button onClick={saveWelcome} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, marginTop: "8px", padding: "8px 18px", borderRadius: "9999px", background: LAVENDER, color: "#fff", border: "none", cursor: "pointer" }}>Save</button>
               </div>
 
               {/* For-when messages */}
               <div style={{ marginBottom: "28px" }}>
-                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: "#6a4d7d", margin: "0 0 8px", letterSpacing: "0.06em" }}>FOR WHEN…</p>
+                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: LAVENDER, margin: "0 0 8px", letterSpacing: "0.06em" }}>FOR WHEN…</p>
                 {messages.filter(m => m.type === "for_when").map(m => (
-                  <div key={m.id} style={{ padding: "12px", background: "#f7f4ef", borderRadius: "6px", marginBottom: "8px", display: "flex", justifyContent: "space-between" }}>
+                  <div key={m.id} style={{ padding: "12px", background: CREAM_FILL, borderRadius: "6px", marginBottom: "8px", display: "flex", justifyContent: "space-between" }}>
                     <div>
-                      {m.trigger && <p style={{ fontFamily: sans, fontSize: "12px", color: "#6a4d7d", fontWeight: 700, margin: "0 0 4px" }}>For when {m.trigger}</p>}
-                      <p style={{ fontFamily: sans, fontSize: "14px", color: "#1a1a1a", margin: 0 }}>{m.body}</p>
+                      {m.trigger && <p style={{ fontFamily: sans, fontSize: "12px", color: LAVENDER, fontWeight: 700, margin: "0 0 4px" }}>For when {m.trigger}</p>}
+                      <p style={{ fontFamily: sans, fontSize: "14px", color: BLACK, margin: 0 }}>{m.body}</p>
                     </div>
                     <button onClick={() => deleteMessage(m.id)} style={{ background: "none", border: "none", color: "#9c9c9c", cursor: "pointer", fontSize: "16px", marginLeft: "12px", flexShrink: 0 }}>×</button>
                   </div>
@@ -700,12 +704,12 @@ export function UploadDashboard() {
                   style={{ fontFamily: sans, fontSize: "14px", padding: "8px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", width: "100%", boxSizing: "border-box", marginBottom: "8px" }} />
                 <textarea placeholder="What you want them to know in that moment…" value={forWhenBody} onChange={e => setForWhenBody(e.target.value)} rows={3}
                   style={{ fontFamily: sans, fontSize: "14px", padding: "10px 12px", border: "1px solid #e5e5e5", borderRadius: "6px", width: "100%", boxSizing: "border-box", resize: "vertical" }} />
-                <button onClick={addForWhen} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, marginTop: "8px", padding: "8px 18px", borderRadius: "9999px", background: "#6a4d7d", color: "#fff", border: "none", cursor: "pointer" }}>Add message</button>
+                <button onClick={addForWhen} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, marginTop: "8px", padding: "8px 18px", borderRadius: "9999px", background: LAVENDER, color: "#fff", border: "none", cursor: "pointer" }}>Add message</button>
               </div>
 
               {/* Keeper profile */}
               <div>
-                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: "#6a4d7d", margin: "0 0 16px", letterSpacing: "0.06em" }}>ABOUT YOUR KEEPER</p>
+                <p style={{ fontFamily: sans, fontWeight: 700, fontSize: "13px", color: LAVENDER, margin: "0 0 16px", letterSpacing: "0.06em" }}>ABOUT YOUR KEEPER</p>
                 {([
                   { key: "who_they_are", label: "Who they are" },
                   { key: "who_theyre_becoming", label: "Who they're becoming" },
@@ -723,7 +727,7 @@ export function UploadDashboard() {
                     />
                   </div>
                 ))}
-                <button onClick={saveKeeperProfile} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "9999px", background: "#6a4d7d", color: "#fff", border: "none", cursor: "pointer" }}>Save all</button>
+                <button onClick={saveKeeperProfile} style={{ fontFamily: sans, fontSize: "13px", fontWeight: 700, padding: "8px 18px", borderRadius: "9999px", background: LAVENDER, color: "#fff", border: "none", cursor: "pointer" }}>Save all</button>
               </div>
             </div>
           )}

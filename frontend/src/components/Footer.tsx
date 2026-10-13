@@ -5,32 +5,45 @@ const sans = "Helvetica Neue, Helvetica, Arial, sans-serif";
 export function Footer() {
   return (
     <footer style={{
-      width: "100%",
+      width: "1920px",
       height: "103px",
-      background: "#000",
-      position: "relative",
+      background: "#1a1a1a",
       flexShrink: 0,
+      position: "relative",
     }}>
+      {/* Inner container: left 68px, vertically centred — matches Figma absolute left-[68px] top-[44px] */}
       <div style={{
-        maxWidth: "1800px",
-        margin: "0 auto",
-        height: "100%",
+        position: "absolute",
+        left: "68px",
+        top: "50%",
+        transform: "translateY(-50%)",
         display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
+        gap: "199px",
         alignItems: "center",
       }}>
+        {/* Section 1 — CONTACT + ABOUT */}
         <div style={{ display: "flex", gap: "27px", alignItems: "center", flexShrink: 0 }}>
           <Link href="/contact" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>CONTACT</Link>
           <Link href="/about" style={{ fontFamily: sans, fontWeight: 400, fontSize: "13px", color: "#f5f0e8", textDecoration: "none" }}>ABOUT</Link>
         </div>
-        <p style={{ fontFamily: sans, fontWeight: 300, fontStyle: "italic", fontSize: "11px", color: "#f5f0e8", margin: 0, textAlign: "center", flex: 1, padding: "0 40px" }}>
-          ovyu stores your information securely and will never sell or share your personal data with third parties.
+
+        {/* Section 2 — disclaimer text, w 918px */}
+        <p style={{
+          fontFamily: sans, fontWeight: 300, fontStyle: "oblique",
+          fontSize: "11px", color: "#f5f0e8",
+          margin: 0, width: "918px", flexShrink: 0,
+        }}>
+          OVYU DOES NOT SHARE, SELL, OR RETAIN PERSONAL DATA, INCLUDING UPLOAD, CONTRACT, AND CONVERSATIONS, BEYOND WHAT IS REQUIRED TO OPERATE THIS SERVICE.
         </p>
-        <div style={{ display: "flex", gap: "27px", alignItems: "center", flexShrink: 0 }}>
-          {["© 2026 OVYU", "MANAGE COOKIES", "LEGAL", "PRIVACY"].map((item) => (
-            <span key={item} style={{ fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8" }}>{item}</span>
-          ))}
+
+        {/* Section 3 — © OVYU | MANAGE COOKIES | LEGAL | PRIVACY, w 350px, pixel-exact from Figma */}
+        <div style={{ position: "relative", width: "350px", height: "13px", flexShrink: 0 }}>
+          <span style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)", fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8", whiteSpace: "nowrap" }}>© 2026 OVYU</span>
+          <span style={{ position: "absolute", left: "91px", top: "50%", transform: "translateY(-50%)", fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8", whiteSpace: "nowrap" }}>MANAGE COOKIES</span>
+          <div style={{ position: "absolute", left: "210px", top: "1.5px", width: "1px", height: "10px", background: "#d9d9d9" }} />
+          <span style={{ position: "absolute", left: "229px", top: "50%", transform: "translateY(-50%)", fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8", whiteSpace: "nowrap" }}>LEGAL</span>
+          <div style={{ position: "absolute", left: "283px", top: "1.5px", width: "1px", height: "10px", background: "#d9d9d9" }} />
+          <span style={{ position: "absolute", left: "302px", top: "50%", transform: "translateY(-50%)", fontFamily: sans, fontWeight: 400, fontSize: "11px", color: "#f5f0e8", whiteSpace: "nowrap" }}>PRIVACY</span>
         </div>
       </div>
     </footer>

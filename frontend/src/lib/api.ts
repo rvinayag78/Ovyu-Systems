@@ -14,6 +14,11 @@ async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail ?? `Error ${res.status}`);
   }
+  // 204 No Content has no body — calling .json() on it throws, which meant
+  // every 204 endpoint (entry/person/year/place/message delete, voice
+  // complete/delete) succeeded on the backend but threw on the frontend
+  // before the caller's onSuccess logic ran, looking like a silent failure.
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
@@ -58,6 +63,9 @@ export const api = {
   acceptInvitation: (token: string, typed_name: string) =>
     req(`/contracts/invite/${token}/accept`, { method: "POST", body: JSON.stringify({ typed_name }) }),
 
+  declineInvitation: (token: string) =>
+    req(`/contracts/decline/${token}`, { method: "POST" }),
+
   requestMagicLink: (email: string, mode: "login" | "tc") =>
     req("/auth/request-magic-link", { method: "POST", body: JSON.stringify({ email, mode }) }),
 
@@ -100,22 +108,25 @@ export const api = {
     req(`/contracts/${contractId}/upload/voice/complete`, { method: "POST", body: JSON.stringify(p) }),
 
   getDimension: (contractId: string, slug: string) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; years?: string[]; places?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`),
 
   upsertDimension: (contractId: string, slug: string, structured: Record<string, unknown>) =>
-    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
+    req<{ id: string; slug: string; structured: Record<string, unknown> | null; entries: Array<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; years?: string[]; places?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }> }>(`/contracts/${contractId}/upload/dimensions/${slug}`, { method: "PUT", body: JSON.stringify({ structured }) }),
 
   getEntryMediaPresigned: (contractId: string, slug: string) =>
     req<{ upload_id: string; presigned_url: string; s3_key: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/presigned`, { method: "POST" }),
 
-  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; media_s3_key?: string }) =>
-    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
+  addDimensionEntry: (contractId: string, slug: string, p: { title?: string; body: string; entry_type?: string; tags?: { people?: string[]; years?: string[]; places?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null }; media_s3_key?: string; duration_s?: number }) =>
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; years?: string[]; places?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries`, { method: "POST", body: JSON.stringify(p) }),
 
   updateDimensionEntry: (contractId: string, slug: string, entryId: string, p: { title?: string; body?: string; tags?: Record<string, unknown>; retag?: boolean }) =>
-    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; year?: string | null; place?: string | null }; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "PUT", body: JSON.stringify(p) }),
+    req<{ id: string; title?: string; body: string; entry_type: string; tags?: { people?: string[]; years?: string[]; places?: string[]; year?: string | null; place?: string | null; what_happened?: string | null; when?: string | null; call_them?: string | null; full_name?: string | null }; media_s3_key?: string | null; duration_s?: number | null; created_at: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "PUT", body: JSON.stringify(p) }),
 
   deleteDimensionEntry: (contractId: string, slug: string, entryId: string) =>
     req(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}`, { method: "DELETE" }),
+
+  getEntryMediaUrl: (contractId: string, slug: string, entryId: string) =>
+    req<{ url: string }>(`/contracts/${contractId}/upload/dimensions/${slug}/entries/${entryId}/media-url`),
 
   listPeople: (contractId: string) =>
     req<Array<{ id: string; name: string; role?: string; notes?: string }>>(`/contracts/${contractId}/upload/people`),
@@ -145,10 +156,15 @@ export const api = {
     req(`/contracts/${contractId}/upload/places/${placeId}`, { method: "DELETE" }),
 
   listMessages: (contractId: string) =>
-    req<Array<{ id: string; type: string; trigger?: string; body: string }>>(`/contracts/${contractId}/upload/messages`),
+    req<Array<{ id: string; type: string; trigger?: string; body: string; s3_key?: string; duration_s?: number }>>(`/contracts/${contractId}/upload/messages`),
 
-  addMessage: (contractId: string, p: { type: string; trigger?: string; body: string }) =>
-    req<{ id: string; type: string; trigger?: string; body: string }>(`/contracts/${contractId}/upload/messages`, { method: "POST", body: JSON.stringify(p) }),
+  addMessage: (contractId: string, p: { type: string; trigger?: string; body: string; s3_key?: string; duration_s?: number }) =>
+    req<{ id: string; type: string; trigger?: string; body: string; s3_key?: string; duration_s?: number }>(`/contracts/${contractId}/upload/messages`, { method: "POST", body: JSON.stringify(p) }),
+
+  getMessagePresigned: (contractId: string, messageType: "welcome" | "for_when") =>
+    req<{ upload_id: string; presigned_url: string; s3_key: string }>(
+      `/contracts/${contractId}/upload/messages/presigned?message_type=${messageType}`, { method: "POST" }
+    ),
 
   deleteMessage: (contractId: string, messageId: string) =>
     req(`/contracts/${contractId}/upload/messages/${messageId}`, { method: "DELETE" }),
