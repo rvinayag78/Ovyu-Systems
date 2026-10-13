@@ -1,8 +1,11 @@
 name: Deploy — Production
 
+# PAUSED: production is deployed ONLY by a manual run from the Actions tab.
+# Pushes to main never deploy. main is kept production-ready by the staging
+# pipeline (deploy-staging.yml) after E2E passes.
+
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: deploy-production
@@ -11,6 +14,7 @@ concurrency:
 jobs:
   deploy-backend:
     name: Deploy backend → ovyu-api-production
+    if: github.repository == 'rvinayag78/Ovyu-Systems' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:

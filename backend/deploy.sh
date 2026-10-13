@@ -9,7 +9,11 @@ AWS_REGION="us-west-2"
 S3_BUCKET="ovyu-deployments-${AWS_ACCOUNT_ID}"
 PKG_DIR="/tmp/ovyu-lambda-pkg"
 
-export AWS_PROFILE
+# In GitHub Actions credentials come from the environment and the "ovyu"
+# profile does not exist — setting AWS_PROFILE there makes the CLI exit 255.
+if [ -z "${CI:-}" ]; then
+  export AWS_PROFILE
+fi
 
 if [ "$ENV" = "staging" ]; then
   LAMBDA_FUNCTION="ovyu-api-staging"

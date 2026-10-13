@@ -1,8 +1,18 @@
 name: Deploy — Staging
 
+# Pipeline: push to staging → deploy backend → wait for Amplify staging build
+# → E2E → fast-forward main (production-ready, NOT deployed).
+#
+# Production is never deployed by this workflow. See deploy-production.yml
+# (manual workflow_dispatch only). Backup mirroring runs in sync-backup.yml
+# after this workflow succeeds.
+
 on:
   push:
     branches: [staging]
+
+permissions:
+  contents: write   # needed to fast-forward main
 
 concurrency:
   group: deploy-staging
@@ -11,6 +21,7 @@ concurrency:
 jobs:
   deploy-backend:
     name: Deploy backend → ovyu-api-staging
+    if: github.repository == 'rvinayag78/Ovyu-Systems'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,8 +44,8 @@ jobs:
       - name: Deploy to staging Lambda
         run: bash deploy.sh staging
 
-  trigger-amplify-staging:
-    name: Trigger Amplify staging build
+  wait-amplify-staging:
+    name: Wait for Amplify staging build
     runs-on: ubuntu-latest
     needs: deploy-backend
 
@@ -46,33 +57,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
 
-      - name: Start Amplify build for staging branch
+      # Amplify auto-builds the staging branch on push. Do NOT start a second
+      # job — just wait for the build of this exact commit.
+      - name: Wait for Amplify build of ${{ github.sha }}
         run: |
-          JOB_ID=$(aws amplify start-job \
-            --app-id d21q10npjg05eb \
-            --branch-name staging \
-            --job-type RELEASE \
-            --query 'jobSummary.jobId' --output text)
-          echo "Amplify job: $JOB_ID"
-          echo "AMPLIFY_JOB_ID=$JOB_ID" >> $GITHUB_ENV
-
-      - name: Wait for Amplify build to complete
-        run: |
-          echo "Waiting for Amplify staging build..."
-          for i in $(seq 1 30); do
-            STATUS=$(aws amplify get-job \
+          echo "Waiting for Amplify staging build of ${GITHUB_SHA}..."
+          for i in $(seq 1 60); do
+            STATUS=$(aws amplify list-jobs \
               --app-id d21q10npjg05eb \
               --branch-name staging \
-              --job-id "$AMPLIFY_JOB_ID" \
-              --query 'job.summary.status' --output text)
-            echo "  [$i/30] status: $STATUS"
-            if [ "$STATUS" = "SUCCEED" ]; then
-              echo "Amplify build succeeded."
-              exit 0
-            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELLED" ]; then
-              echo "Amplify build $STATUS."
-              exit 1
-            fi
+              --max-results 10 \
+              --query "jobSummaries[?commitId=='${GITHUB_SHA}'] | [0].status" \
+              --output text)
+            echo "  [$i/60] status: $STATUS"
+            case "$STATUS" in
+              SUCCEED) echo "Amplify staging build succeeded."; exit 0 ;;
+              FAILED|CANCELLED) echo "Amplify build $STATUS."; exit 1 ;;
+            esac
             sleep 20
           done
           echo "Timed out waiting for Amplify build."
@@ -81,7 +82,7 @@ jobs:
   e2e-tests:
     name: Playwright E2E — staging
     runs-on: ubuntu-latest
-    needs: trigger-amplify-staging
+    needs: wait-amplify-staging
 
     steps:
       - uses: actions/checkout@v4
@@ -114,3 +115,20 @@ jobs:
           name: playwright-report-staging
           path: frontend/playwright-report/
           retention-days: 14
+
+  promote-main:
+    name: Fast-forward main (production-ready, not deployed)
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Fast-forward only. main must always be an ancestor of staging; if it
+      # isn't, this fails loudly instead of rewriting history.
+      - name: Push staging commit to main
+        run: |
+          git push origin "${GITHUB_SHA}:refs/heads/main"
+          echo "main is now at ${GITHUB_SHA} (production deploy is paused)."
